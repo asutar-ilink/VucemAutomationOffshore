@@ -1,0 +1,41 @@
+{
+  "name": "vucem-automation",
+  "version": "1.0.0",
+  "description": "VUCEM government portal automation framework — Playwright + TypeScript",
+  "scripts": {
+    "test": "playwright test",
+    "test:cofepris": "playwright test tests/cofepris/",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:qa": "ENV=qa playwright test",
+    "test:staging": "ENV=staging playwright test",
+    "test:last-failed": "playwright test --last-failed",
+    "auth": "playwright test --project=setup",
+    "codegen": "playwright codegen --load-storage=auth/state.json --lang=es-MX",
+    "trace": "playwright show-trace",
+    "report": "playwright show-report",
+    "allure:clean": "node -e \"const fs=require('fs');['allure-results','allure-report'].forEach(d=>fs.rmSync(d,{recursive:true,force:true}))\"",
+    "allure:generate": "allure generate allure-results --clean -o allure-report",
+    "allure:open": "allure open allure-report",
+    "allure:serve": "allure serve allure-results",
+    "allure:report": "npm run allure:generate && npm run allure:open",
+    "lint": "eslint src tests --ext .ts",
+    "lint:fix": "eslint src tests --ext .ts --fix",
+    "format": "prettier --write 'src/**/*.ts' 'tests/**/*.ts'",
+    "format:check": "prettier --check 'src/**/*.ts' 'tests/**/*.ts'",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "allure-commandline": "^2.43.0",
+    "allure-playwright": "^3.10.2",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  }
+}

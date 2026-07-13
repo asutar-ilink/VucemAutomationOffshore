@@ -1,0 +1,806 @@
+[
+  {
+    "id": 16627,
+    "procedure": "260204",
+    "title": "Happypath:TC01_Verify VUCEM portal launch",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Navigate to the official VUCEM login page -\nhttps://portal-v30.cloud-ultrasist.net/portal/login-solicitante",
+        "expected": "1.User should navigate to VUCEM url\n2.Portal login page should be displayed."
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16628,
+    "procedure": "260204",
+    "title": "Happypath:TC02_Verify login authentication",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 should be executed.\n\nLogin with credentials with option- Con e.firma",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Upload .cer certificate - aal0409235e6.cer",
+        "expected": "User credentials authenticate and dashboard is shown."
+      },
+      {
+        "step": 3,
+        "action": "Upload .key private key - AAL0409235E6_1012231310.key",
+        "expected": ""
+      },
+      {
+        "step": 4,
+        "action": "Enter the password - <efirma-key-password>",
+        "expected": ""
+      },
+      {
+        "step": 5,
+        "action": "Click “Ingresar” to access the dashboard.",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16629,
+    "procedure": "260204",
+    "title": "Happypath:TC03_Verify navigation to procedures",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01, 02 should be executed.\n Selección de rol - select role from dropdown - Persona Moral",
+        "expected": "Procedures list should be displayed."
+      },
+      {
+        "step": 2,
+        "action": "Click on Aceptar",
+        "expected": ""
+      },
+      {
+        "step": 3,
+        "action": "Navigate to menu - Trámites -> Solicitudes nuevas",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16630,
+    "procedure": "260204",
+    "title": "Happypath:TC04_Verify procedure 260204 selection",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC03 should be executed.\nSearch 260204 procedure",
+        "expected": "User should able to navigate 260204 procedure and Procedure form opens correctly."
+      },
+      {
+        "step": 2,
+        "action": "Click on procedure 260204",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16631,
+    "procedure": "260204",
+    "title": "Happypath:TC05_Verify all tabs presence",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC04 should be executed.\nNavigate to all tabs",
+        "expected": "1.Procedure Tiltle should be \"Permiso sanitario de importación de medicamentos con registro sanitario\"\n 2.Tabs displayed: Solicitante, Datos de la solicitud, Terceros relacionados, Pago de derechos."
+      },
+      {
+        "step": 2,
+        "action": "",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16632,
+    "procedure": "260204",
+    "title": "Happypath:TC06_Verify Solicitante tab fields",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC05 should be executed.\nNavigate to Solicitante tab",
+        "expected": "Below prefilled and disabled fields should be correctly displayed-\n\nDatos generales del solicitante\nRFC:\nAAL0409235E6\nDenominación o razón social:\nINTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV\nCorreo electrónico:\nvucem30@ultrasist.com.mx\n\n\nDomicilio fiscal del solicitante\nPaís:\nESTADOS UNIDOS MEXICANOS\nCódigo postal:\n81210\nEstado:\nSINALOA\nMunicipio o alcaldía:\nAHOME\nLocalidad:\nLOS MOCHIS\nColonia:\nMIGUEL HIDALGO\nCalle:\nCAMINO VIEJO\nNúmero exterior:\n1353\nNúmero interior:\nLada:\n55\nTeléfono:\n98764532"
+      },
+      {
+        "step": 2,
+        "action": "",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16633,
+    "procedure": "260204",
+    "title": "Happypath:TC07_Verify Datos de la solicitud tab details and fill all mandatory details",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC06 should be executed.\nNavigate to Datos de la solicitud tab",
+        "expected": "1.In Datos de la solicitud → Datos del establecimiento and Domicilio del establecimiento, all fields should be disabled except the Estado field.\n\n\n\nAll other sections and fields should be enabled in this tab.\n\nAfter clicking the \"Seleccionar establecimiento\" button -\nall fields should be enabled."
+      },
+      {
+        "step": 2,
+        "action": "After clicking on \"Seleccionar establecimiento\" button",
+        "expected": "Pop up should be appeared - \"Por el momento no hay comunicación con el Sistema de COFEPRIS, favor de capturar su establecimiento.\" with Aceptar button"
+      },
+      {
+        "step": 3,
+        "action": "Verify all fields available",
+        "expected": "Below sections,checkbox, radio buttons and tables should be presnet in the form-\n\nSection-\nDatos del establecimiento\nRFC del responsable sanitario*:\nDenominación o razón social*:\nCorreo electrónico*:\nDomicilio del establecimiento\nCódigo postal*:\nEstado*:\nSelecciona una opción\nMunicipio o alcaldía*:\nLocalidad:\nColonia:\nCalle*:\nLada:\nTeléfono*:\n \nTable-\nS.C.I.A.N.*:\nClave S.C.I.A.N.\nDescripción del S.C.I.A.N.\nSIN DATOS\nAviso de funcionamiento:\nNo. de licencia sanitaria:\nRégimen*:\nSelecciona una opción\nAduanas de entradas*:\nSelecciona una opción\n \n\nTable-\nMercancías*:\n\nClasificación del producto\nEspecificar clasificación del producto\nDenominación específica del producto\nDenominación distintiva\nDenominación común, nombre común o nombre científico\nForma farmacéutica\nEstado físico\nFracción arancelaria\nDescripción de la fracción\nUnidad de medida de comercialización (UMC)\nCantidad UMC\nUnidad de medida de tarifa (UMT)\nCantidad UMT\nPresentación\nNúmero de registro sanitario\nPaís de origen\nPaís de procedencia\nTipo producto\nUso especifico\n\nCheckbox-\nManifiestos y declaraciones\n\n*\nCumplo con los requisitos y normatividad aplicable, sin que me eximan de que la autoridad sanitaria verifique su cumplimiento, esto sin perjuicio de las sanciones en que puedo incurrir por falsedad de declaraciones dadas a una autoridad. Asimismo acepto que la notificación de este trámite, sea a través de la Ventanilla Única de Comercio Exterior por los mecanismos de la misma.\n\nRadio buttons- No and Si\nLos datos o anexos pueden contener información confidencial ¿Está de acuerdo en hacerlos públicos?*:\nNo  Si\n\n \nRepresentante legal\nRFC*:\n \nNombre o Razón Social*:\nApellido paterno*:\nApellido materno:"
+      },
+      {
+        "step": 4,
+        "action": "Fill details in all mandatory fields\n\nSection - Datos del establecimiento\nRFC del responsable sanitario*: AAL0409235E6\nDenominación o razón social*: Denominación ódig\nCorreo electrónico*: test@test.com\n\n\nSection - Domicilio del establecimiento\nCódigo postal*: 01234\nEstado*: GUANAJUATO\nMunicipio o alcaldía*: Municipio ódig\nCalle*: Calle ódig\nTeléfono*: 5551234567",
+        "expected": "All fields completed without errors."
+      },
+      {
+        "step": 5,
+        "action": "Table -\nS.C.I.A.N.*:\n\nClick on Agregar button\nSelect value \"311311\" from Clave S.C.I.A.N. dropdown",
+        "expected": "Clave S.C.I.A.N. pop up should be appeared with fields -Clave S.C.I.A.N.\nDescripción del S.C.I.A.N.\n\nDescripción del S.C.I.A.N should be auto populated value \"Congelación de frutas y legumbres\" after selecting value from Clave S.C.I.A.N. \"311311\""
+      },
+      {
+        "step": 6,
+        "action": "Click on Agregar button under Clave S.C.I.A.N. pop up",
+        "expected": "Record should get created in S.C.I.A.N. table with details-\n\nClave S.C.I.A.N.:311311\nDescripción del S.C.I.A.N.:Congelación de frutas y legumbres"
+      },
+      {
+        "step": 7,
+        "action": "Enter \"LIC12334\" value in field \"No. de licencia sanitaria\"",
+        "expected": "Field \"Aviso de funcionamiento\" should get disabled"
+      },
+      {
+        "step": 8,
+        "action": "Select value from dropdown\nRégimen*: Definitivos",
+        "expected": "Dropdown should be selected"
+      },
+      {
+        "step": 9,
+        "action": "Select value from dropdown\nAduanas de entradas*: COLOMBIA",
+        "expected": "Dropdown should be selected"
+      },
+      {
+        "step": 10,
+        "action": "Table -\nMercancías*:\nClick on Agregar button",
+        "expected": "After clicking on Agregar button \"Agregar Datos de Mercancía\" pop up  should be appeared with below fields-\n\nAgregar Datos de Mercancía\n\nDatos mercancía\nClasificación del producto*:\nSelecciona una opción\nEspecificar clasificación del producto*:\nSelecciona una opción\nDenominación específica del producto*:\nDenominación distintiva*:\nDenominación o nombre científico*:\nTipo de producto*:\nSelecciona una opción\nForma farmacéutica*:\nSelecciona una opción\nEstado físico*:\nSelecciona una opción\nFracción arancelaria*:\nDescripción de la fracción arancelaria*:\nCantidad UMT*:\nUMT*:\nCantidad UMC*:\nUMC*:\nSeleccione una opción\nPresentación farmacéutica o tipo de envase*:\nNúmero de registro sanitario:\nFecha de caducidad:\nPaís de origen\n\nPaís de procedencia\n\nUso específico"
+      },
+      {
+        "step": 11,
+        "action": "Fill/select below values in fields under - \"Agregar Datos de Mercancía\" pop up\n\nClasificación del producto : MEDICAMENTOS/ FARMACO\nEspecificar clasificación del producto : I) Alopáticos\nDenominación específica del producto : Denominación específica del producto\nDenominación distintiva : Denominación distintiva\nDenominación común, nombre común o nombre científico : Denominación o nombre científico\nForma farmacéutica : Tabletas\nEstado físico : Granulado o polvo\nFracción arancelaria : 30039013\nDescripción de la fracción : Preparación de hidroxialuminato de sodio o de magnesio y sorbitol.\nUnidad de medida de comercialización (UMC) : Caja\nCantidad UMC : 22\nUnidad de medida de tarifa (UMT) : Kilogramo\nCantidad UMT : 11\nPresentación : Presentación farmacéutica o tipo de envase qa\nNúmero de registro sanitario : 1111\nFecha de caducidad : 30/06/2026\nPaís de origen : ALBANIA\nPaís de procedencia : BELICE\nTipo producto : Aditivo\nUso especifico : DISTRIBUCIÓN",
+        "expected": "All mandatory fields completed without errors.\nRecord should get added in the \"Agregar Datos de Mercancía\" table with below details-\n\nClasificación del producto : MEDICAMENTOS/ FARMACO\nEspecificar clasificación del producto : I) Alopáticos\nDenominación específica del producto : Denominación específica del producto\nDenominación distintiva : Denominación distintiva\nDenominación común, nombre común o nombre científico : Denominación o nombre científico\nForma farmacéutica : Tabletas\nEstado físico : Granulado o polvo\nFracción arancelaria : 30039013\nDescripción de la fracción : Preparación de hidroxialuminato de sodio o de magnesio y sorbitol.\nUnidad de medida de comercialización (UMC) : Caja\nCantidad UMC : 22\nUnidad de medida de tarifa (UMT) : Kilogramo\nCantidad UMT : 11\nPresentación : Presentación farmacéutica o tipo de envase qa\nNúmero de registro sanitario : 1111\nPaís de origen : ALBANIA\nPaís de procedencia : BELICE\nTipo producto : Aditivo\nUso especifico : DISTRIBUCIÓN"
+      },
+      {
+        "step": 12,
+        "action": "Select checkbox-\nManifiestos y declaraciones\n\n*\nCumplo con los requisitos y normatividad aplicable, sin que me eximan de que la autoridad sanitaria verifique su cumplimiento, esto sin perjuicio de las sanciones en que puedo incurrir por falsedad de declaraciones dadas a una autoridad. Asimismo acepto que la notificación de este trámite, sea a través de la Ventanilla Única de Comercio Exterior por los mecanismos de la misma.",
+        "expected": "Checkbox should be selected"
+      },
+      {
+        "step": 13,
+        "action": "Enter RFC in below fields\nRepresentante legal RFC*: MAVL621207C95",
+        "expected": "Below fields should be auto populated and disabled\nNombre o Razón Social*: EUROFOODS DE MEXICO\nApellido paterno*: GONZALEZ\nApellido materno: PINAL"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16634,
+    "procedure": "260204",
+    "title": "Happypath:TC08_Verify Terceros relacionados tab details and fill all mandatory field details",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC07 should be executed.\nNavigate to Terceros relacionados tab",
+        "expected": "Tables should be present -\nFabricante*, Destinatario (destino final)*, Proveedor, Facturador\nwith column names -\n\nNombre/denominación o razón social\nR.F.C.\nCURP\nTeléfono\nCorreo electrónico\nCalle\nNúmero exterior\nNúmero interior\nPaís\nColonia\nMunicipio o alcaldía\nLocalidad\nEntidad federativa\nEstado/localidad\nCódigo postal\nColonia o equivalente"
+      },
+      {
+        "step": 2,
+        "action": "Navigate to table Fabricante and click on Agregar button\nSelect combination -\nTerceros nacionalidad*:\nNacional\nTipo persona*:\nFísica",
+        "expected": "Fields should be present\n\nAgregar fabricante title should be present in the pop up\n \nIn Datos generales section,\nNacional radio button should be selected in Terceros nacionalidad*\nFísica radio button should be selected in Tipo persona*\n\n\nR.F.C.*:\nDatos personales\nNombre(s)*:\nPrimer apellido*:\nSegundo apellido:\nDomicilio\nPaís*:\nMEXICO (ESTADOS UNIDOS MEXICANOS)\nEstado/localidad*:\nSeleccione una opción\nMunicipio/alcaldía*:\nSeleccione una opción\nLocalidad*:\nSeleccione una opción\nCódigo postal o equivalente*:\nSeleccione una opción\nColonia*:\nSeleccione una opción\nCalle*:\nNúmero exterior*:\nNúmero interior:\nLada:\nTeléfono:\nCorreo electrónico:"
+      },
+      {
+        "step": 3,
+        "action": "Navigate to table Destinatario (destino final)  and click on Agregar button\nSelect combination\nTipo persona*: Física",
+        "expected": "Fields should be present\n\n \nAgregar destinatario (destino final)\n\nIn Datos generales section,\nFísica radio button should be selected in Tipo persona*\n \n \nR.F.C*:\nDatos personales\nNombre(s)*:\nPrimer apellido*:\nSegundo apellido:\nDomicilio\nPaís*:\nMEXICO (ESTADOS UNIDOS MEXICANOS)\nEstado/localidad*:\nSeleccione una opción\nMunicipio/alcaldía*:\nSeleccione una opción\nLocalidad*:\nSeleccione una opción\nCódigo postal o equivalente*:\nSeleccione una opción\nColonia*:\nSeleccione una opción\nCalle*:\nNúmero exterior*:\nNúmero interior:\nLada:\nTeléfono:\nCorreo electrónico:"
+      },
+      {
+        "step": 4,
+        "action": "Navigate to table Proveedor and click on Agregar button\nSelect combination\nTipo persona*: Física",
+        "expected": "Fields should be present\n\nAgregar proveedor\nDatos generales\nTipo persona*:\nFísica\nMoral\nDatos personales\nNombre(s)*:\nPrimer apellido*:\nSegundo apellido:\nDomicilio\nPaís*:\nSeleccione una opción\nEstado*:\nCódigo postal o equivalente:\nColonia o equivalente:\nCalle*:\nNúmero exterior*:\nNúmero interior:\nLada:\nTeléfono:\nCorreo electrónico:"
+      },
+      {
+        "step": 5,
+        "action": "Navigate to table Facturador and click on Agregar button\nSelect combination\nTipo persona*: Física",
+        "expected": "Fields should be present\n\nDatos generales\nTipo persona*:\nFísica\nMoral\nDatos personales\nNombre(s)*:\nPrimer apellido*:\nSegundo apellido:\nDomicilio\nPaís*:\nSeleccione una opción\nEstado*:\nCódigo postal o equivalente:\nColonia o equivalente:\nCalle*:\nNúmero exterior*:\nNúmero interior:\nLada:\nTeléfono:\nCorreo electrónico:"
+      },
+      {
+        "step": 6,
+        "action": "Add record in Fabricante table, click on Agregar\n\nAgregar fabricante\nIn Datos generales section,\nNacional radio button should be selected in Terceros nacionalidad*\nFísica radio button should be selected in Tipo persona*\n \nR.F.C.*:\nMAVL621207C95\nDatos personales\nNombre(s)*:\nfabricante\nPrimer apellido*:\naa\nSegundo apellido:\nDomicilio\nPaís*:\nMEXICO (ESTADOS UNIDOS MEXICANOS)\nEstado/localidad*:\nCHIHUAHUA\nMunicipio/alcaldía*:\nCARICHI\nLocalidad*:\nJOJUTLA\nCódigo postal o equivalente*:\n33287\nColonia*:\nMIRAMAR\nCalle*:\nfabricantecalle\nNúmero exterior*:\n34334\nNúmero interior:\nLada:\nTeléfono:\nCorreo electrónico:",
+        "expected": "Record should get added without errors."
+      },
+      {
+        "step": 7,
+        "action": "Add record in destinatariotable, click on Agregar\n\nAgregar destinatario (destino final)\nDatos generales\nIn Datos generales section,\nFísica radio button should be selected in Tipo persona*\n \nR.F.C*:\nMAVL621207C95\nDatos personales\nNombre(s)*:\ndestinatario\nPrimer apellido*:\nPrimer\nSegundo apellido:\nDomicilio\nPaís*:\nMEXICO (ESTADOS UNIDOS MEXICANOS)\nEstado/localidad*:\nCHIHUAHUA\nMunicipio/alcaldía*:\nBUENAVENTURA\nLocalidad*:\nEJIDO LA CONSTITUCION\nCódigo postal o equivalente*:\n31891\nColonia*:\nBARRIO PROGRESO\nCalle*:\nPrimercalle\nNúmero exterior*:\n3232\nNúmero interior:\nLada:\nTeléfono:\nCorreo electrónico:",
+        "expected": "Record should get added without errors."
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16635,
+    "procedure": "260204",
+    "title": "Happypath:TC09_Verify Pago de derechos tab details and fill all mandatory details",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC08 should be executed.\nDo not fill any details and click on Continuar button",
+        "expected": "1.Pop up should be appeared with message -\n¿Está seguro que su solicitud no requiere los datos del Pago de derechos?\nand with button NO and SI"
+      },
+      {
+        "step": 2,
+        "action": "Click on button SI button",
+        "expected": "User should navigate to Paso 2"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16636,
+    "procedure": "260204",
+    "title": "Happypath:TC10_Verify Paso 2 documents and upload documents",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC09 should be executed.\nNavigate to paso 2",
+        "expected": "1.Mandatory documents should be present-\n\nLicencia Sanitaria o Aviso de Funcionamiento.\nAviso de responsable.\nRegistro Sanitario vigente y sus modificaciones.\n\n2.Optional document dshould be present -\n\nOtro\nProyectos de marbete.\nPago de derechos"
+      },
+      {
+        "step": 2,
+        "action": "Upload mandatory documents and click on Cargar archivos button",
+        "expected": "After clicking on Cargar archivos , pop up should be appeared with message-\n\nCarga de archivos\nPara poder adjuntar tu documento, deberá cumplir las siguientes características:\n• Debe ser formato PDF que no contenga formularios, objetos OLE incrustrados, código java script, etc.\n• No debe contener páginas en blanco."
+      },
+      {
+        "step": 3,
+        "action": "Click on \"Carga de archivos\" under pop up",
+        "expected": "Document should be uploaded"
+      },
+      {
+        "step": 4,
+        "action": "Click on Continuar button",
+        "expected": "User should move to Paso 3"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16637,
+    "procedure": "260204",
+    "title": "Happypath:TC11_Verify Paso 3 signing",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC10 should be executed.\nNavigate to Paso 3 Firmar solicitud",
+        "expected": "User should navigate to \"Firmar\" page"
+      },
+      {
+        "step": 2,
+        "action": "Upload .cer certificate - aal0409235e6.cer\nUpload .key private key - AAL0409235E6_1012231310.key\nEnter the password in Contraseña de clave privada field - <efirma-key-password>\nClick “Firmar” button",
+        "expected": "User should navigate to \"Acuse de Recibo\" page"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16639,
+    "procedure": "260204",
+    "title": "Happypath:TC12_Verify folio number generation",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC11 should be executed.\nUser navigates to Acuse de Recibo screen",
+        "expected": "Folio number and document should be generated with message -\nTu solicitud ha sido registrada con el siguiente número de folio .\n\nexample-\nTu solicitud ha sido registrada con el siguiente número de folio .\n\nDocument name shold be displayed - Acuse de recepción de trámite\n\nUser should be able to download and view the document"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16640,
+    "procedure": "260204",
+    "title": "Happypath:TC13_Verify document download",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC12 should be executed.\nClick on download icon for document \"Acuse de recepción de trámite\"",
+        "expected": "Below fields should be present in the document -\nRFC: AAL0409235E6\nFolio - 0402600200420264006000431\nTipo de documento\nCadena Original. Información de Solicitud que presenta(s) que declar"
+      },
+      {
+        "step": 2,
+        "action": "View the content",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16723,
+    "procedure": "260204",
+    "title": "Happypath:TC09_Verify Pago de derechos tab details and fill all details",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC08 should be executed.\nVerify all fields present on Pago de derechos section",
+        "expected": "Below fields should be available -\nClave de referencia:\nCadena de la dependencia:\nBanco:\nSeleccione una opción\nLlave de pago:\nFecha de pago:\nImporte de pago:"
+      },
+      {
+        "step": 2,
+        "action": "Fill all the fields-\n\nClave de referencia: REFPAGO20\nCadena de la dependencia: 0001012A0000EX\nBanco: CITIBANK\nLlave de pago: PAY789CV0001\nFecha de pago: 09/06/2026\nImporte de pago: 594",
+        "expected": "All fields completed without errors."
+      },
+      {
+        "step": 3,
+        "action": "Click on Continuar button",
+        "expected": "User should navigate to Paso 2"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16732,
+    "procedure": "260204",
+    "title": "Consulta:Happypath:TC01_Verify Evaluar Solicitud flow – Generar Dictamen Aceptado",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite:\nProcedure 260204 registration must be successfully completed.\nA valid folio number should already be generated and available for use in subsequent steps.\n\nNOTE:\ncurrently, after completing any consulta task, navigate to the database and set government user as MAVL621207C95 for functionario task, so tasks are always assigned to that user.",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Navigate to portal – Open the VUCEM portal in a browser- https://portal-v30.cloud-ultrasist.net/portal/login-funcionarios",
+        "expected": "User should navigate to VUCEM url"
+      },
+      {
+        "step": 3,
+        "action": "Hover on Iniciar sesión menu – Place the cursor over the Iniciar sesión menu option.\nClick Funcionario option – Click on Funcionario option from the dropdown.",
+        "expected": "Portal login page \"Iniciar sesión funcionario\"  should be displayed."
+      },
+      {
+        "step": 4,
+        "action": "Login with credentials with option- Con e.firma\nUpload .cer certificate - mavl621207c95.cer\nUpload .key private key - MAVL621207C95_1012241424.key\n\nEnter the password in \"Contraseña de clave privada\"  field - <efirma-key-password>\nClick on \"Ingresar\" button",
+        "expected": "User credentials authenticate and dashboard is shown"
+      },
+      {
+        "step": 5,
+        "action": "Click on Inicio menu",
+        "expected": "Screen \"Bandeja de tareas pendientes\" should be appeared"
+      },
+      {
+        "step": 6,
+        "action": "Enter folio number in the \"Folio\" field and click on Buscar button",
+        "expected": "\"Evaluar Solicitud\" record should get appeared under \"Lista de pendientes\" section"
+      },
+      {
+        "step": 7,
+        "action": "Click on pencil icon of the record",
+        "expected": "User should navigate to \"Evaluar\" screen"
+      },
+      {
+        "step": 8,
+        "action": "Verify Generar un dictamen, Generar requerimiento de información, Solicitud, Documentos, Dictamen, Requerimientos, Opiniones, Acuses y resoluciones, Tareas del trámite, Estado de la transmisión on the screen",
+        "expected": "All tabs should be present\n\nDictamen, Requerimientos, Opiniones, Estado de la transmisión should be present in disable mode"
+      },
+      {
+        "step": 9,
+        "action": "Verify Solicitud tab details",
+        "expected": "All registration tabs should be present and values should be prefilled and disabled mode"
+      },
+      {
+        "step": 10,
+        "action": "Verify Acuses y resoluciones tab details",
+        "expected": "\"Acuse de recepción de trámite\" document should be present.\nDocument should be downloadable without errors.\nThe downloaded file must contain all required contents in the correct format."
+      },
+      {
+        "step": 11,
+        "action": "Verify \"Tareas del trámite\" tab details",
+        "expected": "The Consulta de trámites table should be displayed on the screen.\n\n\n The table must contain the following columns:\nNombre de la tarea\n\nFecha de asignación\n\nFecha de atención\n\n\nThe table should also show complete details of the consulta flow corresponding to the selected trámite."
+      },
+      {
+        "step": 12,
+        "action": "Verify Generar un dictamen tab details-\nField Sentido dictamen present with options -  Aceptado, Rechazado, Parcial\nSiglas del dictaminador*: textfield\nAsignar autorizador*: dropdown",
+        "expected": "All fields should be present"
+      },
+      {
+        "step": 13,
+        "action": "Verify Generar un dictamen tab details with option - Sentido dictamen - Aceptado\n\nSelect Aceptado, below fields should be present-\nDestinado para*: -- Seleccione un destino --\nRestricciones*: -- Seleccione una restriccion --\nObservaciones*: -- Seleccione una observacion --\nPlazo*: Selecciona un opción\nSiglas del dictaminador*: textfield\nAsignar autorizador*: -- Selecciona un opción --",
+        "expected": "All fields should be present"
+      },
+      {
+        "step": 14,
+        "action": "Verify Generar un dictamen tab details with option - Sentido dictamen - Rechazado\n\nSelect Rechazado, below fields should be present-\nJustificación negativa del dictamen*:\nMotivo de rechazo*:-- Seleccione un motivo --\nSiglas del dictaminador*: textfield\nAsignar autorizador*:-- Seleccione un opción --",
+        "expected": "All fields should be present"
+      },
+      {
+        "step": 15,
+        "action": "Verify Generar un dictamen tab details with option - Sentido dictamen - Parcial\n\nSelect Parcial, below fields should be present-\nTable should be present with-\nCheckbox, Mercancia Descripción Denominación Específica value and Aceptada column\nbelow Fields should be present -\nDestinado para*:-- Seleccione un destino --\nRestricciones*:-- Seleccione una restriccion --\nObservaciones*:-- Seleccione una observacion --\nPlazo*:Selecciona un opción\nJustificación del oficio del dictamen*:\nMotivo del oficio*:-- Seleccione un motivo --\nSiglas del dictaminador*:textfield\nAsignar autorizador*:-- Seleccione un opción --",
+        "expected": "All fields should be present"
+      },
+      {
+        "step": 16,
+        "action": "Click on Guardar button after selecting Sentido dictamen as Aceptado and fill/select below values -\n\nDestinado para*:Acondicionamiento\nRestricciones*:PREVIO ASEGURAMIENTO Y MUESTREO (PRESERVATIVOS)\nObservaciones*:NUMERO DE PROGRAMA IMMEX\nPlazo*:180\nSiglas del dictaminador*:TESTACEPTQA\nAsignar autorizador*:BERNAL SALDIVAR MARIBEL",
+        "expected": "Success message should be appeared - \"Operación exitosa.\"\n\nDictamen tab enabled after clicking on Guardar button"
+      },
+      {
+        "step": 17,
+        "action": "Verify Dictamen tab details- Dictamenes",
+        "expected": "Table should be present with columns - Fecha de creación,\tFecha de generación,\tFecha de autorización,\tTipo,\tEstatus,\tSentido,\tDetalle"
+      },
+      {
+        "step": 18,
+        "action": "Verify Dictamenes tab values-\nFecha de creación - 2026-06-18 09:10:26\nTipo - Interno\nEstatus - Registrado\nSentido - Aceptado\nDetalle  - view icon",
+        "expected": "All values should be present in the table"
+      },
+      {
+        "step": 19,
+        "action": "Verify Dictamen tab details- Detalle\nClick on Dictamen --> Dictamenes --> View icon\n\nBelow fields should be present in disable mode-\nEstatus - Registrado\nSentido del dictamen - Aceptado\nFecha de creación - 2026-06-18 09:10:26\nDictaminado por\nFecha de generación\nVerificado por\nFecha de verificación\nAutorizado por\nFecha de autorización\nObservaciones-NUMERO DE PROGRAMA IMMEX\nDestinado para-Acondicionamiento\nRequisito que debe cumplir-PREVIO ASEGURAMIENTO Y MUESTREO (PRESERVATIVOS)\nPlazo:180\nSiglas del dictaminador-testaceptqa\nAsignar autorizador:-BERNAL SALDIVAR MARIBEL",
+        "expected": "User navigate to Detalle tab and details should be present"
+      },
+      {
+        "step": 20,
+        "action": "Verify Vista Preliminar Aceptado button",
+        "expected": "Button should be clickable and preview document should be downloadable"
+      },
+      {
+        "step": 21,
+        "action": "Clicking on Guardar y firmar button",
+        "expected": "User should navigate to Firmar screen after clicking on Guardar y firmar button"
+      },
+      {
+        "step": 22,
+        "action": "Enter user credentials and click on Firmar button\n \nCertificado (.cer)*:mavl621207c95.cer\nClave privada (.key)*:MAVL621207C95_1012241424.key\nContraseña de clave privada*:<efirma-key-password>\nClick on \"Ingresar\" button",
+        "expected": "Message should be \"El dictamen ha sido generado exitosamente.\" displayed"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16733,
+    "procedure": "260204",
+    "title": "Consulta:Happypath:TC02_Verify Verificar Dictamen flow – Dar Vo Bo",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite:\nProcedure 260204 registration must be successfully completed.\nA valid folio number should already be generated and available for use in subsequent steps.\nConsulta Generar Dictamen -> Aceptado task should be completed\n\nNOTE:\ncurrently, after completing any consulta task, navigate to the database and set government user as MAVL621207C95 for functionario task, so tasks are always assigned to that user.",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Navigate to portal – Open the VUCEM portal in a browser- https://portal-v30.cloud-ultrasist.net/portal/login-funcionarios",
+        "expected": "User should navigate to VUCEM url"
+      },
+      {
+        "step": 3,
+        "action": "Hover on Iniciar sesión menu – Place the cursor over the Iniciar sesión menu option.\nClick Funcionario option – Click on Funcionario option from the dropdown.",
+        "expected": "Portal login page \"Iniciar sesión funcionario\"  should be displayed."
+      },
+      {
+        "step": 4,
+        "action": "Login with credentials with option- Con e.firma\nUpload .cer certificate - mavl621207c95.cer\nUpload .key private key - MAVL621207C95_1012241424.key\n\nEnter the password in \"Contraseña de clave privada\"  field - <efirma-key-password>\nClick on \"Ingresar\" button",
+        "expected": "User credentials authenticate and dashboard is shown"
+      },
+      {
+        "step": 5,
+        "action": "Click on Inicio menu",
+        "expected": "Screen \"Bandeja de tareas pendientes\" should be appeared"
+      },
+      {
+        "step": 6,
+        "action": "Enter folio number in the \"Folio\" field and click on Buscar button",
+        "expected": "\"Verificar Dictamen\" record should get appeared under \"Lista de pendientes\" section"
+      },
+      {
+        "step": 7,
+        "action": "Click on pencil icon of the record",
+        "expected": "User should navigate to \"Verificar Dictamen\" screen"
+      },
+      {
+        "step": 8,
+        "action": "Verify prefilled details in Verificar dictamen screen -\nSentido del dictamen*: Aceptado\nDestinado para*: Acondicionamiento\nRestricciones*: PREVIO ASEGURAMIENTO Y MUESTREO (PRESERVATIVOS)\nObservaciones*: NUMERO DE PROGRAMA IMMEX\nSiglas del dictaminador: testaceptqa\nAsignar autorizador: BERNAL SALDIVAR MARIBEL",
+        "expected": "All details should be automatically prefilled in the current form.\n\nThese details must exactly match the information that was entered during the Generar Dictamen task."
+      },
+      {
+        "step": 9,
+        "action": "Verify Vista Preliminar Aceptado button",
+        "expected": "Button should be clickable and preview document should be downloadable"
+      },
+      {
+        "step": 10,
+        "action": "Verify Dictamen tab details- Dictamenes",
+        "expected": "Table should be present with columns - Fecha de creación,\tFecha de generación,\tFecha de autorización,\tTipo,\tEstatus,\tSentido,\tDetalle"
+      },
+      {
+        "step": 11,
+        "action": "Verify Dictamenes tab values-\nFecha de creación - 18/06/2026 09:10:26\nFecha de generación - 18/06/2026 20:55:06\nTipo - Interno\nEstatus - Generado\nSentido - Aceptado\nDetalle  - view icon",
+        "expected": "All values should be present in the table"
+      },
+      {
+        "step": 12,
+        "action": "Verify Dictamen tab details- Detalle\nClick on Dictamen --> Dictamenes --> View icon\n\nBelow fields should be present in disable mode-\nEstatus - Generado\nSentido del dictamen - Aceptado\nFecha de creación - 2026-06-18 09:10:26\nDictaminado por - EUROFOODS DE MEXICO GONZALEZ PINAL\nFecha de generación - 2026-06-18 20:55:06\nVerificado por\nFecha de verificación\nAutorizado por\nFecha de autorización\nObservaciones - NUMERO DE PROGRAMA IMMEX\nDestinado para - Acondicionamiento\nRequisito que debe cumplir - PREVIO ASEGURAMIENTO Y MUESTREO (PRESERVATIVOS)\nPlazo: 180\nSiglas del dictaminador - testaceptqa\nAsignar autorizador: - BERNAL SALDIVAR MARIBEL",
+        "expected": "User navigate to Detalle tab and details should be prefilled"
+      },
+      {
+        "step": 13,
+        "action": "Verify \"Tareas del trámite\" tab details",
+        "expected": "The Consulta de trámites table should be displayed on the screen.\n\n\nThe table must contain the following columns:\n\nNombre de la tarea\n\nFecha de asignación\n\nFecha de atención\n\nThe table should also show complete details of the consulta flow corresponding to the selected trámite."
+      },
+      {
+        "step": 14,
+        "action": "Click on Dar Vo. Bo. Button",
+        "expected": "User should navigate to Firmar screen"
+      },
+      {
+        "step": 15,
+        "action": "Enter user credentials and click on Firmar button\n\nCertificado (.cer)*:mavl621207c95.cer\nClave privada (.key)*:MAVL621207C95_1012241424.key\nContraseña de clave privada*:<efirma-key-password>\nClick on \"Ingresar\" button",
+        "expected": "User should navigate to \"Bandeja de tareas pendientes\" screen"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16734,
+    "procedure": "260204",
+    "title": "Consulta:Happypath:TC03_Verify Autorizar Dictamen flow – Autorizar option",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite:\nProcedure 260204 registration must be successfully completed.\nA valid folio number should already be generated and available for use in subsequent steps.\nConsulta Generar Dictamen -> Aceptado flow and Verificar Dictamen task should be completed\n\nNOTE:\ncurrently, after completing any consulta task, navigate to the database and set government user as MAVL621207C95 for functionario task, so tasks are always assigned to that user.",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Navigate to portal – Open the VUCEM portal in a browser- https://portal-v30.cloud-ultrasist.net/portal/login-funcionarios",
+        "expected": "User should navigate to VUCEM url"
+      },
+      {
+        "step": 3,
+        "action": "Hover on Iniciar sesión menu – Place the cursor over the Iniciar sesión menu option.\nClick Funcionario option – Click on Funcionario option from the dropdown.",
+        "expected": "Portal login page \"Iniciar sesión funcionario\"  should be displayed."
+      },
+      {
+        "step": 4,
+        "action": "Login with credentials with option- Con e.firma\nUpload .cer certificate - mavl621207c95.cer\nUpload .key private key - MAVL621207C95_1012241424.key\n\nEnter the password in \"Contraseña de clave privada\"  field - <efirma-key-password>\nClick on \"Ingresar\" button",
+        "expected": "User credentials authenticate and dashboard is shown"
+      },
+      {
+        "step": 5,
+        "action": "Click on Inicio menu",
+        "expected": "Screen \"Bandeja de tareas pendientes\" should be appeared"
+      },
+      {
+        "step": 6,
+        "action": "Enter folio number in the \"Folio\" field and click on Buscar button",
+        "expected": "\"Autorizer Dictamen\" record should get appeared under \"Lista de pendientes\" section"
+      },
+      {
+        "step": 7,
+        "action": "Click on pencil icon of the record",
+        "expected": "User should navigate to \"Autorizar Dictamen\" screen"
+      },
+      {
+        "step": 8,
+        "action": "Verify prefilled details in Verificar dictamen screen -\nSentido del dictamen*: Aceptado\nDestinado para*: Acondicionamiento\nRestricciones*: PREVIO ASEGURAMIENTO Y MUESTREO (PRESERVATIVOS)\nObservaciones*: NUMERO DE PROGRAMA IMMEX\nSiglas del dictaminador: testaceptqa\nAsignar autorizador: BERNAL SALDIVAR MARIBEL",
+        "expected": "All details should be automatically prefilled in the current form.\n\nThese details must exactly match the information that was entered during the Generar Dictamen task."
+      },
+      {
+        "step": 9,
+        "action": "Verify Vista Preliminar Aceptado button",
+        "expected": "Button should be clickable and preview document should be downloadable"
+      },
+      {
+        "step": 10,
+        "action": "Verify Dictamen tab details- Dictamenes",
+        "expected": "Table should be present with columns - Fecha de creación,\tFecha de generación,\tFecha de autorización,\tTipo,\tEstatus,\tSentido,\tDetalle"
+      },
+      {
+        "step": 11,
+        "action": "Verify Dictamenes tab values-\nFecha de creación - 18/06/2026 09:10:26\nFecha de generación - 18/06/2026 20:55:06\nTipo - Interno\nEstatus - Verificado\nSentido - Aceptado\nDetalle  - view icon",
+        "expected": "All values should be present in the table"
+      },
+      {
+        "step": 12,
+        "action": "Verify Dictamen tab details- Detalle\nClick on Dictamen --> Dictamenes --> View icon\n\nBelow fields should be present in disable mode-\nEstatus - Verificado\n\nSentido del dictamen - Aceptado\nFecha de creación - 2026-06-18 09:10:26\nDictaminado por - EUROFOODS DE MEXICO GONZALEZ PINAL\nFecha de generación - 2026-06-18 20:55:06\nVerificado por - EUROFOODS DE MEXICO GONZALEZ PINAL\nFecha de verificación - 2026-06-19 09:53:55\nAutorizado por\nFecha de autorización\nObservaciones - NUMERO DE PROGRAMA IMMEX\nDestinado para - Acondicionamiento\nRequisito que debe cumplir - PREVIO ASEGURAMIENTO Y MUESTREO (PRESERVATIVOS)\nPlazo: 180\nSiglas del dictaminador - testaceptqa\nAsignar autorizador: - BERNAL SALDIVAR MARIBEL",
+        "expected": "User navigate to Detalle tab and details should be present"
+      },
+      {
+        "step": 13,
+        "action": "Verify \"Tareas del trámite\" tab details",
+        "expected": "The Consulta de trámites table should be displayed on the screen.\n\n\nThe table must contain the following columns:\n\nNombre de la tarea\n\nFecha de asignación\n\nFecha de atención\n\nThe table should also show complete details of the consulta flow corresponding to the selected trámite."
+      },
+      {
+        "step": 14,
+        "action": "Click on Autorizar Button",
+        "expected": "User should navigate to Firmar screen"
+      },
+      {
+        "step": 15,
+        "action": "Enter user credentials and click on Firmar button\n\nCertificado (.cer)*:mavl621207c95.cer\nClave privada (.key)*:MAVL621207C95_1012241424.key\nContraseña de clave privada*:<efirma-key-password>\nClick on \"Ingresar\" button",
+        "expected": "User should move to Acuses y resoluciones screen\nToast message should be appeared - \"La firma del dictamen se ha realizado correctamente.\"\nOn Acuses y resoluciones screen- message should be appeared \"La notificación de la resolución para el trámite con número 0402600200420264006000431 ha sido confirmada.\"\n\"Oficio de resolución\" document should be present and downloadable"
+      },
+      {
+        "step": 16,
+        "action": "Verify \"Oficio de resolución\" document content",
+        "expected": "All details entered during registration should be displayed.\nAll details entered during the consultation should be displayed.\nAll values should be displayed in the \"Cadena original. Información del documento oficial que se presenta que declara:\" section."
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16735,
+    "procedure": "260204",
+    "title": "Consulta:Happypath:TC04_Verify Confirmar Notification flow",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite:\nProcedure 260204 registration must be successfully completed.\nA valid folio number should already be generated and available for use in subsequent steps.\nConsulta Generar Dictamen -> Aceptado flow , Verificar Dictamen and Autorizer Dictamen task should be completed",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Navigate to portal – Open the VUCEM portal in a browser- https://portal-v30.cloud-ultrasist.net/portal/login-solicitante",
+        "expected": "User should navigate to VUCEM url"
+      },
+      {
+        "step": 3,
+        "action": "Upload .cer certificate - aal0409235e6.cer\nUpload .key private key - AAL0409235E6_1012231310.key\n\nEnter the password in \"Contraseña de clave privada\"  field - <efirma-key-password>\nClick on \"Ingresar\" button",
+        "expected": "User credentials authenticate and dashboard is shown"
+      },
+      {
+        "step": 4,
+        "action": "Click on Inicio menu",
+        "expected": "Screen \"Bandeja de tareas pendientes\" should be appeared"
+      },
+      {
+        "step": 5,
+        "action": "Enter folio number in the \"Folio\" field and click on Buscar button",
+        "expected": "\"Confirmar Notificacion Resolucion\" record should get appeared under \"Lista de pendientes\" section"
+      },
+      {
+        "step": 6,
+        "action": "Click on pencil icon of the record",
+        "expected": "User should navigate to \"Confirmar notificacion\" screen"
+      },
+      {
+        "step": 7,
+        "action": "Verify Confirmar notificación page details",
+        "expected": "Solicitante user details and procedure name should be present"
+      },
+      {
+        "step": 8,
+        "action": "On Confirmar notificación page, click on Continuar button",
+        "expected": "User should navigate to Firmar screen"
+      },
+      {
+        "step": 9,
+        "action": "Enter user credentials and click on Firmar button\n\nCertificado (.cer)*:aal0409235e6.cer\nClave privada (.key)*:AAL0409235E6_1012231310.key\nContraseña de clave privada*:<efirma-key-password>\nClick on \"Ingresar\" button",
+        "expected": "User should navigate to \"Acuses y resoluciones\" screen"
+      },
+      {
+        "step": 10,
+        "action": "Verify details in \"Acuses y resoluciones\" screen",
+        "expected": "Message should be appeared -\nLa notificación de la resolución para el trámite con número 0402600200420264006000431 ha sido confirmada.\n\nAcuse(s) section should be present with \"Acuse de notificación\" document\n\nResolución(es) section should be present with \"Resolución(es)\" document"
+      },
+      {
+        "step": 11,
+        "action": "Verify \"Acuse de notificación\" document",
+        "expected": "Document should be downloadable and content should be present"
+      },
+      {
+        "step": 12,
+        "action": "Verify \"Resolución(es)\" document",
+        "expected": "Document should be downloadable and content should be present"
+      }
+    ],
+    "parameters": null
+  }
+]

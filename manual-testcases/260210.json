@@ -1,0 +1,380 @@
+[
+  {
+    "id": 16659,
+    "procedure": "260210",
+    "title": "Happy Path : Verify successful login and navigation to procedure workflow",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Launch URL: portal-v30.cloud-ultrasist.net/portal/login-solicitante\nUpload valid .cer certificate file\nUpload valid .key private key fil\nEnter password: <efirma-key-password>\nClick Ingresar",
+        "expected": "Login should be successful"
+      },
+      {
+        "step": 2,
+        "action": "On role selection page, select Persona Moral from dropdown and  click Aceptar",
+        "expected": "Role selection page should be displayed User should be navigated to home page after selecting role"
+      },
+      {
+        "step": 3,
+        "action": "On home page, click on Trámites Click on Solicitudes nuevas",
+        "expected": "“Selección de trámite” page should open"
+      },
+      {
+        "step": 4,
+        "action": "On “Selección de trámite” page, search for Procedure number 260210\n  Click on the hyperlink of the procedure",
+        "expected": "Clicking the hyperlink should open the procedure details page\n\nThe procedure title should be displayed as “Permiso sanitario de importación de medicamentos destinados a pruebas de laboratorio”"
+      },
+      {
+        "step": 5,
+        "action": "",
+        "expected": ""
+      },
+      {
+        "step": 6,
+        "action": "",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16662,
+    "procedure": "260210",
+    "title": "Happy Path – Verify pre-populated Solicitante details in Paso 1",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Login as solicitante user and navigate to the procedure details page",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Open Paso 1 – Solicitante tab\nObserve all the fields under “Datos generales del solicitante” and “Domicilio fiscal del solicitante”",
+        "expected": "All fields should be pre-populated with valid data as follows:\n\nRFC: AAL0409235E6\nDenominación o razón social: INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV\nCorreo electrónico: vucem30@ultrasist.com.mx\n\nPaís: ESTADOS UNIDOS MEXICANOS\nCódigo postal: 81210\nEstado: SINALOA\nMunicipio o alcaldía: AHOME\nLocalidad: LOS MOCHIS\nColonia: MIGUEL HIDALGO\nCalle: CAMINO VIEJO\nNúmero exterior: 1353\nNúmero interior: (blank)\nLada: 55\nTeléfono: 98764532"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16672,
+    "procedure": "260210",
+    "title": "Happy Path – Verify mandatory fields update in Datos de la solicitud",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Login as solicitante user and navigate to the procedure details page",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Click on Datos de la solicitud tab\nUpdate all mandatory fields marked with (*)\nEnter/select the following data in respective fields",
+        "expected": "All mandatory fields should accept valid data and be saved successfully as follows:\n\n¿Datos confidenciales?: SI\nRFC: MAVL621207C95\nNombre o Razón Social: EUROFOODS DE MEXICO\nApellido paterno: GONZALEZ\nApellido materno: PINAL\n\nRFC del responsable sanitario: MAVL621207C95\nDenominación o razón social: gas\nCorreo electrónico: QAS@ilink-systems.com\n\nCódigo postal: 626203\nEstado: Selected valid option\nMunicipio o alcaldía: 1234567\nLocalidad: Sattur\nCalle: QAS\nTeléfono: 8798799877\n\nRégimen: Definitivos\nAduanas de entradas: ACAPULCO, PUERTO Y AEROPUERTO\n\nMercancías:\nClasificación del producto: MEDICAMENTOS / FARMACO\nClasificación específica: Alopáticos\nDenominación específica: QAS\nDenominación distintiva: QAS\nDenominación común / científico: QAS\nForma farmacéutica: Jalea\nEstado físico: Granulado o polvo\nFracción arancelaria: 90183999\nDescripción de la fracción: Los demás\nUnidad de comercialización (UMC): Cápsula\nCantidad UMC: 12\nUnidad de medida (UMT): Kilogramo\nCantidad UMT: 12\nPresentación: QAS\nNúmero de registro sanitario: QAS\nPaís de origen: ALEMANIA (REPÚBLICA FEDERAL DE)\nPaís de procedencia: ANTILLAS NEERLANDESAS (TERRITORIO HOLANDÉS DE ULTRAMAR)\nTipo de producto: Aditivo\nUso específico: ANÁLISIS O PRUEBAS DE LABORATORIO\nLos datos o anexos pueden contener información confidencial ¿Está de acuerdo en hacerlos públicos?*: select SI radio button\n\n RFC*:MAVL621207C95-click on buscar\n\nDeclaración: Checkbox selected\n\n \n\n System should accept all inputs and allow user to proceed without validation errors"
+      },
+      {
+        "step": 3,
+        "action": "",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16708,
+    "procedure": "260210",
+    "title": "Happy Path – Verify Terceros relacionados tab details update and navigation to Paso 2",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Login as solicitante user and navigate to the procedure details page",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Click on Terceros relacionados tab\nAdd/update mandatory Destinatario (destino final) details\nEnter the following data in the popup form\nClick Guardar\nScroll to end of the page\nClick on Continuar\nIn confirmation popup, click Sí",
+        "expected": "Destinatario should be added successfully with valid data as follows:\n\nTipo persona: Física\nRFC: MAVL621207C95\n\nNombre(s): Test\nPrimer apellido: QAS\nSegundo apellido: Data\n\nPaís: MÉXICO (ESTADOS UNIDOS MEXICANOS)\nEstado/localidad: MORELOS\nMunicipio/alcaldía: MAZATEPEC\nLocalidad: OTRA NO ESPECIFICADA EN EL CATÁLOGO\nCódigo postal: 62636\nColonia: OTRA NO ESPECIFICADA EN EL CATÁLOGO\nCalle: QAS\nNúmero exterior: 123\nNúmero interior: (blank)\nTeléfono: 878955789\nCorreo electrónico: QAS@ilink-systems.com\n\nOn clicking Continuar and confirming Sí, system should navigate to Paso 2 – Anexar requisitos screen successfully"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16711,
+    "procedure": "260210",
+    "title": "Happy Path – Verify optional document upload and navigation to Paso 3",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Update mandatory fields in Paso 1 and navigate to Paso 2 – Anexar requisitos",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Observe optional documents section\nSelect any random document type from Tipo de documento dropdown\nClick on Agregar",
+        "expected": "Optional documents should be displayed"
+      },
+      {
+        "step": 3,
+        "action": "Upload documents using Choose File option\nVerify Cargar archivos button is enabled",
+        "expected": "Selected document should be added successfully\n\n“Cargar archivos” button should enabled"
+      },
+      {
+        "step": 4,
+        "action": "Click on Cargar archivos\nIn confirmation popup, click Cargar archivos\nVerify documents are uploaded successfully",
+        "expected": "Files should be uploaded successfully with status Cargado\n“Cargar archivos” button should work correctly"
+      },
+      {
+        "step": 5,
+        "action": "Click on Continuar",
+        "expected": "On clicking Continuar, system should navigate to Paso 3 – Firmar solicitud"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16714,
+    "procedure": "260210",
+    "title": "Happy Path – Verify signing, folio generation, and acuse download",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Update mandatory fields in Paso 1 and Paso 2 and navigate to Paso 3 – Firmar solicitud",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Upload valid .cer certificate file (AAL user)\nUpload valid .key private key file\nEnter password: <efirma-key-password>\nClick on Firmar",
+        "expected": "User should be navigated to Acuse de Recibo page\n\nSystem should display success message:\n\"Tu solicitud ha sido registrada con el siguiente número de folio .\"\n\nFolio number should be generated successfully\n\nUnder Acuse(s) section:\nDocumento: Acuse de recepción de trámite should be displayed"
+      },
+      {
+        "step": 3,
+        "action": "User should be able to click on download icon",
+        "expected": "File should be downloaded successfully to local system"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16731,
+    "procedure": "260210",
+    "title": "Happy Path – Consulta: Verify funcionario can search folio and access evaluation page",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Login with solicitante user and generate folio successfully",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Login with funcionario (MAVL user) using URL: https://portal-v30.cloud-ultrasist.net/portal/login-funcionarios and password: <efirma-key-password>",
+        "expected": "User should be logged in successfully and land on Bandeja de tareas pendientes page"
+      },
+      {
+        "step": 3,
+        "action": "After login, navigate to Bandeja de tareas pendientes page\nEnter generated folio in Folio textbox\nClick on Buscar",
+        "expected": "Entered folio should return matching record in the first row under Lista de pendientes\n \nRecord should display correct details such as folio number, trámite type, status, and dates"
+      },
+      {
+        "step": 4,
+        "action": "Verify record is displayed under Lista de pendientes\nClick on edit (pencil) icon for the record",
+        "expected": "On clicking edit icon, system should navigate to Evaluar page\n\nEvaluar page should display correct folio and trámite details"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16736,
+    "procedure": "260210",
+    "title": "Happy Path – Consulta : Verify Generar  dictamen , signing, and navigation to bandeja",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Login with funcionario user and navigate to Evaluar page",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Click on Generar un dictamen tab",
+        "expected": "User should be able to see the Dictamen details"
+      },
+      {
+        "step": 3,
+        "action": "Select Aceptado option\nUpdate all mandatory fields with valid data\nClick on Guardar y firmar",
+        "expected": "Sentido dictamen: Aceptado\n\nDestinado para: Acondicionamiento para exportación\n\nRestricciones:\nDEBERA INFORMAR A ESTA COMISION FEDERAL EL LOTE DE LAS MUESTRAS MEDICAS SUJETAS A ACONDICIONAMIENTO Y LA FECHA DE TERMINACION DE DICHO PROCESO PARA FINES DE EVALUACION\n\nObservaciones:\nEL CORRECTO EMPLEO DEL PRODUCTO A IMPORTAR ES RESPONSABILIDAD DE QUIEN LO USA\n\nPlazo: 180\n\nSiglas del dictaminador: QAS\n\nAsignar autorizador: BERNAL SALDIVAR MARIBEL\n\n\n\n System should navigate to Firmar page"
+      },
+      {
+        "step": 4,
+        "action": "Upload valid .cer certificate (MAVL user)\nUpload valid .key private key file\nEnter password: <efirma-key-password>\nClick on Firmar",
+        "expected": "After successful signing, task should be completed successfully\n\nUser should be redirected to Bandeja de tareas pendientes screen"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16737,
+    "procedure": "260210",
+    "title": "Happy Path –Conulta : Verify Verificar dictamen, VoBo approval, signing, and navigation to bandeja",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Login with funcionario user and navigate to Bandeja de tareas pendientes",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Enter folio and select Tipo de solicitud: Funcionario\nClick on Buscar",
+        "expected": "Record should be displayed correctly based on folio search"
+      },
+      {
+        "step": 3,
+        "action": "Verify record appears under Lista de pendientes\nClick on edit (pencil) icon",
+        "expected": "On clicking edit icon, user should navigate to Verificar Dictamen page with correct folio details"
+      },
+      {
+        "step": 4,
+        "action": "User navigates to Verificar Dictamen page\nClick on Vista preliminar aceptado\nVerify file is downloaded locally\nClick on Dar Vo. Bo.",
+        "expected": "On clicking Vista preliminar aceptado, preview document should be downloaded successfully\n\nOn clicking Dar Vo. Bo., system should navigate to Firmar page"
+      },
+      {
+        "step": 5,
+        "action": "User navigates to Firmar page\nUpload valid .cer certificate (MAVL user)\nUpload valid .key private key file\nEnter password: <efirma-key-password>\nClick on Firmar",
+        "expected": "After successful signing, task should be completed successfully\n\nUser should be redirected back to Bandeja de tareas pendientes screen"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16738,
+    "procedure": "260210",
+    "title": "Happy Path – Consulta : Verify Autorizar dictamen, signing, resolution notification, and document download",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Login with funcionario user and navigate to Bandeja de tareas pendientes",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Enter folio and select Tipo de solicitud: Funcionario\nClick on Buscar",
+        "expected": "Record should be displayed correctly based on folio search"
+      },
+      {
+        "step": 3,
+        "action": "Verify record appears under Lista de pendientes\nClick on edit (pencil) icon",
+        "expected": "On clicking edit icon, user should navigate to Autorizar Dictamen page with correct folio details"
+      },
+      {
+        "step": 4,
+        "action": "User navigates to Autorizar Dictamen page\nClick on Vista preliminar aceptado",
+        "expected": "On clicking Vista preliminar aceptado, document should be downloaded successfully"
+      },
+      {
+        "step": 5,
+        "action": "Verify preview document is downloaded locally\nClick on Autorizar\nUser navigates to Firmar page",
+        "expected": "On clicking Autorizar, system should navigate to Firmar page"
+      },
+      {
+        "step": 6,
+        "action": "Upload valid .cer certificate (MAVL user)\nUpload valid .key private key file\nEnter password: <efirma-key-password>\nClick on Firmar",
+        "expected": "After successful signing, system should navigate to Acuses y resoluciones page"
+      },
+      {
+        "step": 7,
+        "action": "Observe success message and\n\n click on download icon",
+        "expected": "Success message should be displayed:\n\"La notificación de la resolución para el trámite con número 0402600201020264006000175 ha sido confirmada.\"\n\nUnder Acuse(s) section:\nDocumento: Oficio de resolución should be displayed\n\nUser should be able to click on download icon\nDocument should be downloaded successfully to local system"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16739,
+    "procedure": "260210",
+    "title": "Happy Path – COnsulta : Verify solicitante confirms notification, signs, and downloads resolution documents",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Login with solicitante user and navigate to Bandeja de tareas pendientes",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Enter folio and click on Buscar",
+        "expected": "Record should be displayed correctly based on folio search"
+      },
+      {
+        "step": 3,
+        "action": "Verify record appears under Lista de pendientes\nClick on edit (pencil) icon",
+        "expected": "On clicking edit icon, user should navigate to Confirmar notificación page with correct folio details"
+      },
+      {
+        "step": 4,
+        "action": "User navigates to Confirmar notificación de resolución page\nClick on Continuar\nUser navigates to Firmar page",
+        "expected": "On clicking Continuar, system should navigate to Firmar page"
+      },
+      {
+        "step": 5,
+        "action": "Upload valid .cer certificate (AAL user)\nUpload valid .key private key file\nEnter password: <efirma-key-password>\nClick on Firmar",
+        "expected": "After successful signing, system should navigate to Acuses y resoluciones page"
+      },
+      {
+        "step": 6,
+        "action": "Observe Acuses y resoluciones page and\n\nClick on the download icon in the documents",
+        "expected": "Success message should be displayed:\n\"La notificación de la resolución para el trámite con número 0402600201020264006000175 ha sido confirmada.\"\n\nUnder Acuse(s) section:\nAcuse de notificación and Oficio de resolución documents should be displayed\n\nUser should be able to click on download icon for both documents\n\nDocuments should be downloaded successfully to local system"
+      }
+    ],
+    "parameters": null
+  }
+]

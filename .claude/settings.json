@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(d:/VucemDev/**)",
+      "Read(d:\\VucemDev\\**)",
+      "Edit(d:/VucemDev/**)",
+      "Write(d:/VucemDev/**)",
+      "Edit(d:\\VucemDev\\**)",
+      "Write(d:\\VucemDev\\**)"
+    ]
+  }
+}

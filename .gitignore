@@ -1,0 +1,39 @@
+node_modules/
+dist/
+
+# Playwright output
+playwright-report/
+test-results/
+all-results/
+
+# Allure output (raw results + generated report)
+allure-results/
+allure-report/
+
+# Playwright Agent CLI runtime snapshots/artifacts
+.playwright-cli/
+
+# Auth state — NEVER commit this, it contains session tokens
+auth/state.json
+
+# Sensitive binary assets — e.firma cert/key + real PDFs (see test-data/files/README.md).
+# NEVER commit. Keep only the README so the required-files list stays documented.
+test-data/files/*
+!test-data/files/README.md
+
+# Env configs carry the real e.firma password in plaintext — provide locally / via CI secrets.
+# Only the *.example.json templates are versioned.
+test-data/envs/*.json
+!test-data/envs/*.example.json
+
+# Runtime outputs from executed procedures (generated PDFs, submission folios)
+executed-procedure-artifacts/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp

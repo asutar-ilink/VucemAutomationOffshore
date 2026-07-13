@@ -1,0 +1,117 @@
+{
+  "procedureCode": "260203",
+  "procedureTitle": "Permiso sanitario de importación de materias primas destinadas a la elaboración de medicamentos con registro sanitario",
+  "tabs": [
+    "Solicitante",
+    "Datos de la solicitud",
+    "Terceros relacionados",
+    "Pago de derechos"
+  ],
+
+  "efirma": {
+    "cerPath": "test-data/files/aal0409235e6.cer",
+    "keyPath": "test-data/files/AAL0409235E6_1012231310.key",
+    "password": "<efirma-key-password>"
+  },
+
+  "solicitante": {
+    "rfc": "AAL0409235E6",
+    "razonSocial": "INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV",
+    "correo": "vucem30@ultrasist.com.mx",
+    "codigoPostal": "81210",
+    "estado": "SINALOA"
+  },
+
+  "establecimiento": {
+    "rfcResponsable": "MAVL621207C95",
+    "denominacion": "gas",
+    "correo": "QAS@ilink-systems.com",
+    "codigoPostal": "626203",
+    "estado": "GUANAJUATO",
+    "municipio": "1234567",
+    "calle": "QAS",
+    "telefono": "8798799877"
+  },
+
+  "scian": {
+    "clave": "311311",
+    "descripcion": "Congelación de frutas y legumbres"
+  },
+
+  "licenciaSanitaria": "LIC12334",
+  "regimen": "Definitivos",
+  "aduana": "ACAPULCO, PUERTO Y AEROPUERTO",
+
+  "mercancia": {
+    "clasificacionProducto": "MEDICAMENTOS/ FARMACO",
+    "especificarClasificacion": "I) Alopáticos",
+    "denominacionEspecifica": "QAS",
+    "denominacionDistintiva": "QAS",
+    "denominacionComun": "QAS",
+    "tipoProducto": "Aditivo",
+    "formaFarmaceutica": "Jalea",
+    "estadoFisico": "Granulado o polvo",
+    "fraccionArancelaria": "90183999",
+    "descripcionFraccion": "Los demás",
+    "cantidadUmt": "12",
+    "umt": "Kilogramo",
+    "cantidadUmc": "12",
+    "umc": "Capsula",
+    "presentacion": "QAS",
+    "numeroRegistroSanitario": "QAS",
+    "marcasDistintivas": "QAS",
+    "fechaCaducidad": "2026-12-31",
+    "paisOrigen": "ALEMANIA (REPÚBLICA FEDERAL DE)",
+    "paisProcedencia": "ANTILLAS NEERLANDESAS (TERRITORIO HOLANDÉS DE ULTRAMAR)",
+    "usoEspecifico": "ANÁLISIS O PRUEBAS DE LABORATORIO"
+  },
+
+  "datosPublicos": "Si",
+
+  "representanteLegal": {
+    "rfc": "MAVL621207C95",
+    "nombre": "EUROFOODS DE MEXICO",
+    "apellidoPaterno": "GONZALEZ",
+    "apellidoMaterno": "PINAL"
+  },
+
+  "fabricante": {
+    "nacionalidad": "Nacional",
+    "tipoPersona": "Física",
+    "rfc": "MAVL621207C95",
+    "nombre": "fabricante",
+    "primerApellido": "aa",
+    "pais": "MEXICO (ESTADOS UNIDOS MEXICANOS)",
+    "estado": "CHIHUAHUA",
+    "municipio": "CARICHI",
+    "localidad": "JOJUTLA",
+    "codigoPostal": "33287",
+    "colonia": "MIRAMAR",
+    "calle": "fabricantecalle",
+    "numeroExterior": "34334"
+  },
+
+  "destinatario": {
+    "tipoPersona": "Física",
+    "rfc": "MAVL621207C95",
+    "nombre": "Test",
+    "primerApellido": "QAS",
+    "segundoApellido": "Data",
+    "pais": "MÉXICO (ESTADOS UNIDOS MEXICANOS)",
+    "estado": "MORELOS",
+    "municipio": "MAZATEPEC",
+    "localidad": "OTRA NO ESPECIFICADA EN EL CATÁLOGO",
+    "codigoPostal": "62636",
+    "colonia": "OTRA NO ESPECIFICADA EN EL CATÁLOGO",
+    "calle": "QAS",
+    "numeroExterior": "123",
+    "telefono": "878955789",
+    "correo": "QAS@ilink-systems.com"
+  },
+
+  "documents": [
+    { "type": "licencia_sanitaria_vigente", "path": "test-data/files/licencia_sanitaria.pdf" },
+    { "type": "aviso_responsable",          "path": "test-data/files/aviso_responsable.pdf" },
+    { "type": "registro_sanitario_vigente", "path": "test-data/files/registro_sanitario.pdf" }
+  ]
+}

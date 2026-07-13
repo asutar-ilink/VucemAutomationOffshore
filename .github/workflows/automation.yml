@@ -1,0 +1,132 @@
+name: VUCEM Automation
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  # Allow manual trigger with environment selection
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'qa'
+        type: choice
+        options: [qa, staging]
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options: [all, se, cofepris]
+
+jobs:
+
+  # ─── Lint and type-check before running tests ──────────────────────────────
+  lint:
+    name: Lint & typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+
+  # ─── Run Playwright tests ──────────────────────────────────────────────────
+  test:
+    name: Playwright tests (${{ matrix.shard }}/4)
+    runs-on: ubuntu-latest
+    needs: lint
+
+    strategy:
+      fail-fast: false   # Run all shards even if one fails
+      matrix:
+        shard: [1, 2, 3, 4]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run tests (shard ${{ matrix.shard }}/4)
+        run: npx playwright test --shard=${{ matrix.shard }}/4
+        env:
+          ENV: ${{ github.event.inputs.environment || 'qa' }}
+          CI: true
+
+      - name: Upload test results
+        if: always()   # Upload even on failure — this is how you see what went wrong
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-shard-${{ matrix.shard }}
+          path: |
+            playwright-report/
+            test-results/
+            allure-results/
+          retention-days: 14
+
+  # ─── Merge reports from all shards into one HTML report ───────────────────
+  merge-reports:
+    name: Merge test reports
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+
+      - name: Download all shard results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-results-shard-*
+          merge-multiple: true
+          path: all-results/
+
+      - name: Merge HTML reports
+        run: npx playwright merge-reports --reporter html ./all-results
+
+      - name: Upload merged report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-merged
+          path: playwright-report/
+          retention-days: 30
+
+      # ─── Allure report: aggregate every shard's raw results into one report ──
+      # allure-results/ from all shards is merged by download-artifact above
+      # (UUID-named files never collide). The Allure CLI needs a JDK to run.
+      - name: Set up JDK for Allure
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Generate Allure report
+        run: npx allure generate all-results/allure-results --clean -o allure-report
+
+      - name: Upload Allure report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
+          retention-days: 30

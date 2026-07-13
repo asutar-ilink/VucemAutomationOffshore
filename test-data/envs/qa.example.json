@@ -1,0 +1,13 @@
+{
+  "baseUrl": "https://front.v30.ultrasist.net",
+  "credentials": {
+    "username": "<qa-username>",
+    "password": "<set-in-ci-secret>"
+  },
+  "efirma": {
+    "cerPath": "test-data/files/<solicitante>.cer",
+    "keyPath": "test-data/files/<solicitante>.key",
+    "password": "<efirma-key-password>"
+  },
+  "role": "Persona Moral"
+}

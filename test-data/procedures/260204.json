@@ -1,0 +1,131 @@
+{
+  "procedureCode": "260204",
+  "procedureTitle": "Permiso sanitario de importación de medicamentos con registro sanitario",
+  "tabs": [
+    "Solicitante",
+    "Datos de la solicitud",
+    "Terceros relacionados",
+    "Pago de derechos"
+  ],
+
+  "efirma": {
+    "cerPath": "test-data/files/aal0409235e6.cer",
+    "keyPath": "test-data/files/AAL0409235E6_1012231310.key",
+    "password": "<efirma-key-password>"
+  },
+
+  "solicitante": {
+    "rfc": "AAL0409235E6",
+    "razonSocial": "INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV",
+    "correo": "vucem30@ultrasist.com.mx",
+    "pais": "ESTADOS UNIDOS MEXICANOS",
+    "codigoPostal": "81210",
+    "estado": "SINALOA",
+    "municipio": "AHOME",
+    "localidad": "LOS MOCHIS",
+    "colonia": "MIGUEL HIDALGO",
+    "calle": "CAMINO VIEJO",
+    "numeroExterior": "1353",
+    "lada": "55",
+    "telefono": "98764532"
+  },
+
+  "establecimiento": {
+    "rfcResponsable": "AAL0409235E6",
+    "denominacion": "Denominación ódig",
+    "correo": "test@test.com",
+    "codigoPostal": "01234",
+    "estado": "GUANAJUATO",
+    "municipio": "Municipio ódig",
+    "calle": "Calle ódig",
+    "telefono": "5551234567"
+  },
+
+  "scian": {
+    "clave": "311311",
+    "descripcion": "Congelación de frutas y legumbres"
+  },
+
+  "licenciaSanitaria": "LIC12334",
+  "regimen": "Definitivos",
+  "aduana": "COLOMBIA",
+
+  "mercancia": {
+    "clasificacionProducto": "MEDICAMENTOS/ FARMACO",
+    "especificarClasificacion": "I) Alopáticos",
+    "denominacionEspecifica": "Denominación específica del producto",
+    "denominacionDistintiva": "Denominación distintiva",
+    "denominacionComun": "Denominación o nombre científico",
+    "tipoProducto": "Aditivo",
+    "formaFarmaceutica": "Tabletas",
+    "estadoFisico": "Granulado o polvo",
+    "fraccionArancelaria": "30039013",
+    "descripcionFraccion": "Preparación de hidroxialuminato de sodio o de magnesio y sorbitol.",
+    "cantidadUmt": "11",
+    "umt": "Kilogramo",
+    "cantidadUmc": "22",
+    "umc": "Caja",
+    "presentacion": "Presentación farmacéutica o tipo de envase qa",
+    "numeroRegistroSanitario": "1111",
+    "fechaCaducidad": "2026-06-30",
+    "paisOrigen": "ALBANIA",
+    "paisProcedencia": "BELICE",
+    "usoEspecifico": "DISTRIBUCIÓN"
+  },
+
+  "datosPublicos": "No",
+
+  "representanteLegal": {
+    "rfc": "MAVL621207C95",
+    "nombre": "EUROFOODS DE MEXICO",
+    "apellidoPaterno": "GONZALEZ",
+    "apellidoMaterno": "PINAL"
+  },
+
+  "terceros": {
+    "fabricante": {
+      "nacionalidad": "Nacional",
+      "tipoPersona": "Física",
+      "rfc": "MAVL621207C95",
+      "nombre": "fabricante",
+      "primerApellido": "aa",
+      "pais": "MEXICO (ESTADOS UNIDOS MEXICANOS)",
+      "estado": "CHIHUAHUA",
+      "municipio": "CARICHI",
+      "localidad": "JOJUTLA",
+      "codigoPostal": "33287",
+      "colonia": "MIRAMAR",
+      "calle": "fabricantecalle",
+      "numeroExterior": "34334"
+    },
+    "destinatario": {
+      "tipoPersona": "Física",
+      "rfc": "MAVL621207C95",
+      "nombre": "destinatario",
+      "primerApellido": "Primer",
+      "pais": "MEXICO (ESTADOS UNIDOS MEXICANOS)",
+      "estado": "CHIHUAHUA",
+      "municipio": "BUENAVENTURA",
+      "localidad": "EJIDO LA CONSTITUCION",
+      "codigoPostal": "31891",
+      "colonia": "BARRIO PROGRESO",
+      "calle": "Primercalle",
+      "numeroExterior": "3232"
+    }
+  },
+
+  "pago": {
+    "claveReferencia": "REFPAGO20",
+    "cadenaDependencia": "0001012A0000EX",
+    "banco": "CITIBANK",
+    "llavePago": "PAY789CV0001",
+    "fechaPago": "2026-06-09",
+    "importePago": "594"
+  },
+
+  "documents": [
+    { "type": "licencia_sanitaria_o_aviso", "path": "test-data/files/licencia_sanitaria.pdf" },
+    { "type": "aviso_responsable",          "path": "test-data/files/aviso_responsable.pdf" },
+    { "type": "registro_sanitario_vigente", "path": "test-data/files/registro_sanitario.pdf" }
+  ]
+}

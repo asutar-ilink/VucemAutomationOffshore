@@ -1,0 +1,65 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "rules": {
+    // No hardcoded waits — use Playwright's built-in waiting
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "CallExpression[callee.property.name='waitForTimeout']",
+        "message": "Avoid waitForTimeout. Use waitForSelector, waitForURL, or expect with toBeVisible instead."
+      }
+    ],
+
+    // TypeScript rules
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-floating-promises": "error",
+
+    // General
+    "no-console": "off"
+  },
+  "overrides": [
+    {
+      // Spec files are the ONLY place the fixtures-import rule applies: tests
+      // must import { test, expect } from src/fixtures, not @playwright/test.
+      // Framework source (components/flows/fixtures/utils) legitimately imports
+      // from @playwright/test and must not be restricted.
+      "files": ["tests/**/*.spec.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@playwright/test",
+                "message": "Import from 'src/fixtures' instead to get custom fixtures."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      // Setup projects run before fixtures exist and load env JSON dynamically.
+      "files": ["tests/**/*.setup.ts"],
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
+      }
+    }
+  ],
+  "env": {
+    "node": true,
+    "es2022": true
+  }
+}
