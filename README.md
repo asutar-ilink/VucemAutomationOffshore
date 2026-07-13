@@ -11,6 +11,26 @@ npm install
 npx playwright install chromium
 ```
 
+### Local setup (required before first run)
+
+Secrets are **not** committed, so a fresh clone needs two things supplied locally before any test
+can run. Both are gitignored on purpose — provide them on your machine or via CI secrets.
+
+1. **Env config.** Copy the versioned template to a real env file and fill in your credentials:
+
+   ```bash
+   cp test-data/envs/qa.example.json test-data/envs/qa.json
+   ```
+
+   Only the `*.example.json` templates are in git; the real `qa.json` / `staging.json` are ignored.
+
+2. **e.firma files + upload PDFs.** Drop the solicitante `.cer` / `.key` and the required PDFs into
+   `test-data/files/`. The exact filenames are documented in
+   [`test-data/files/README.md`](test-data/files/README.md). Set the private-key password in your
+   `qa.json` (`efirma.password`).
+
+Without these, `auth.setup.ts` cannot authenticate and the whole suite fails at the setup step.
+
 Run the full suite against QA:
 
 ```bash
@@ -71,7 +91,13 @@ You should not need to modify any flow or component file for a standard procedur
 ENV=staging npm test
 ```
 
-Environment configs live in `test-data/envs/`. Update credentials there or use CI secrets.
+Environment configs live in `test-data/envs/`. Only the `*.example.json` templates are committed —
+the real `qa.json` / `staging.json` (which carry credentials) are gitignored. To add a new
+environment, copy its example template and fill it in:
+
+```bash
+cp test-data/envs/staging.example.json test-data/envs/staging.json
+```
 
 ---
 
@@ -92,3 +118,50 @@ Every test restores this state — no re-login on every test.
 If your session expires or login breaks: delete `auth/state.json` and re-run.
 
 The `auth/` directory is gitignored. Never commit session state.
+
+---
+
+## Contributing / commit workflow
+
+Routine loop for every change:
+
+```bash
+git status                                    # 1. see what changed
+
+# 2. safety check — make sure no secret is about to be committed (should print "clean")
+git add -n . | grep -Ei '\.key|\.cer|state\.json|envs/(qa|staging)\.json|delfin40' || echo "clean"
+
+git add .                                     # 3. stage
+npm run typecheck && npm run lint             # 4. quality gates
+git commit -m "Add T260215 procedure and spec"
+git push                                      # 5. push
+```
+
+For anything non-trivial, work on a feature branch and open a PR — keep `main` clean:
+
+```bash
+git checkout -b add-260215
+# ...work, commit...
+git push -u origin add-260215
+```
+
+### Never commit secrets
+
+`.gitignore` blocks the sensitive paths — do not force them in:
+
+| Path | Why |
+|---|---|
+| `auth/state.json` | Session tokens |
+| `test-data/files/*` (except `README.md`) | Real e.firma `.cer` / `.key` + upload PDFs |
+| `test-data/envs/*.json` (except `*.example.json`) | Real credentials / private-key password |
+| `executed-procedure-artifacts/` | Runtime outputs (generated PDFs, submission folios) |
+
+Before committing any new credential or asset, confirm it's ignored:
+
+```bash
+git check-ignore test-data/files/my-new.key   # prints the path if ignored (good)
+```
+
+The real e.firma password lives **only** in your local, gitignored `test-data/envs/qa.json` — never
+in committed test data, procedures, or docs. When you add a new env, also commit a matching
+`*.example.json` template so others know the required shape.
