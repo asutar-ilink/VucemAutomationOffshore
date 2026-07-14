@@ -16,20 +16,27 @@ fi
 
 # File paths that must never be committed (matched against changed file names).
 badfile_regex='\.key$|\.cer$|\.pfx$|\.p12$|(^|/)auth/state\.json$|test-data/envs/(qa|staging)\.json$'
-# Secret content patterns (matched against added/changed lines).
-secret_regex='delfin40|-----BEGIN [A-Z ]*PRIVATE KEY-----'
 
-# Look at both staged changes (commit) and commits not yet on the upstream (push).
-names=$( { git diff --cached --name-only; git diff @{upstream}..HEAD --name-only 2>/dev/null; } | sort -u )
-content=$( { git diff --cached; git diff @{upstream}..HEAD 2>/dev/null; } )
+# Collect staged changes (commit) plus commits not yet on the upstream (push).
+gitdiff() { git diff --cached "$@"; git diff @{upstream}..HEAD "$@" 2>/dev/null; }
+
+names=$(gitdiff --name-only | sort -u)
+content_all=$(gitdiff)
+# The e.firma password literal is scanned everywhere EXCEPT the files that
+# legitimately name it: this scanner and the rule docs (CLAUDE.md/README.md).
+content_pw=$(gitdiff -- . ':(exclude).claude/hooks/**' ':(exclude)CLAUDE.md' ':(exclude)README.md')
 
 violations=""
 bad_names=$(printf '%s\n' "$names" | grep -Ei "$badfile_regex" || true)
 [ -n "$bad_names" ] && violations="${violations}Sensitive file(s) in the change:
 ${bad_names}
 "
-if printf '%s' "$content" | grep -Eq "$secret_regex"; then
-  violations="${violations}Secret pattern found in changed content (e.g. 'delfin40' or a PRIVATE KEY block).
+if printf '%s' "$content_all" | grep -Eq -- '-----BEGIN [A-Z ]*PRIVATE KEY-----'; then
+  violations="${violations}A PRIVATE KEY block was found in changed content.
+"
+fi
+if printf '%s' "$content_pw" | grep -q 'delfin40'; then
+  violations="${violations}The e.firma password 'delfin40' was found in changed content.
 "
 fi
 
@@ -37,7 +44,7 @@ if [ -n "$violations" ]; then
   {
     echo "BLOCKED to prevent a secret leak:"
     printf '%s\n' "$violations"
-    echo "Unstage/scrub the secret (keep it only in the gitignored test-data/envs/qa.json) and retry."
+    echo "Keep secrets only in the gitignored test-data/envs/qa.json, then unstage/scrub and retry."
   } >&2
   exit 2
 fi
