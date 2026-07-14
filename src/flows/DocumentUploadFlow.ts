@@ -157,6 +157,9 @@ export class DocumentUploadFlow {
       pago_de_derechos:           'Pago de derechos',
       // 260215 (dispositivos médicos, investigación) mandatory requisito.
       carta_tecnica:              'Carta técnica del producto',
+      // 260205 (medicamentos y materias primas, investigación) mandatory requisito
+      // (distinctive prefix of a long label).
+      oficio_protocolo_investigacion: 'Oficio de aprobación del protocolo de investigación',
       otro:                       'Otro',
     };
 
