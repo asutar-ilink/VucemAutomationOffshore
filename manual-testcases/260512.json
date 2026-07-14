@@ -1,0 +1,180 @@
+[
+  {
+    "id": 16661,
+    "procedure": "260512",
+    "title": "Happy Path : TC01_Login to Application, navigating to Procedure and Verifying Paso1>Solicitante  tab",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Navigate to the official VUCEM login - page\nhttps://portal-v30.cloud-ultrasist.net/portal/login-solicitante",
+        "expected": "- User should be navigated to VUCEM application\n- Portal login page should be displayed."
+      },
+      {
+        "step": 2,
+        "action": "Login with credentials with option- Con e.firma\nUpload .cer certificate - aal0409235e6.cer\nUpload .key private key - AAL0409235E6_1012231310.key\npassword - <efirma-key-password>\n\nClick “Ingresar” to access the dashboard.",
+        "expected": "User should be landed in Selección de rol page"
+      },
+      {
+        "step": 3,
+        "action": "Selección de rol - select role from dropdown - Persona Moral\nClick on Aceptar",
+        "expected": "User should be landed in Página de inicio"
+      },
+      {
+        "step": 4,
+        "action": "Navigate to menu - Trámites -> Solicitudes nuevas",
+        "expected": "Procedures list should be displayed."
+      },
+      {
+        "step": 5,
+        "action": "Click On Procedure 260512\n(COFEPRIS >Permiso de importación de plaguicidas nutrientes vegetales, sustancias o materiales tóxicos o peligrosos.>Permiso de Importación de sustancias tóxicas )",
+        "expected": "(i) User should be landed in Procedure page, Paso1             >Solicitante tab\n \n (ii) Procedure Title should be Permiso de   importación de sustancias tóxicas\n\n(iii) below 4 tabs should be seen,\nSolicitante\nDatos de la solicitud\nTerceros relacionados\nPago de derechos"
+      },
+      {
+        "step": 6,
+        "action": "Navigate to Solicitante tab",
+        "expected": "Below prefilled and disabled fields should be correctly displayed-\n\nDatos generales del solicitante\nRFC: AAL0409235E6\nDenominación o razón social: INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV\nCorreo electrónico: vucem30@ultrasist.com.mx\n\n\nDomicilio fiscal del solicitante\nPaís: ESTADOS UNIDOS MEXICANOS\nCódigo postal: 81210\nEstado: SINALOA\nMunicipio o alcaldía: AHOME\nLocalidad: LOS MOCHIS\nColonia: MIGUEL HIDALGO\nCalle: CAMINO VIEJO\nNúmero exterior: 1353\nNúmero interior:\nLada: 55\nTeléfono: 98764532"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16675,
+    "procedure": "260512",
+    "title": "Happy Path : TC02_ Verifying Paso1>Datos de la solicitud tab",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Navigate to Datos de la solicitud tab",
+        "expected": "(i).In Datos de la solicitud → Datos del establecimiento and Domicilio del establecimiento, all fields should be disabled except the Estado field.\n\n\n\n(ii) All other sections and fields should be enabled in this tab.\n\nAfter clicking the \"Seleccionar establecimiento\" button -\nall fields should be enabled."
+      },
+      {
+        "step": 2,
+        "action": "Click  on the button Seleccionar establecimiento",
+        "expected": "A Pop up should be appear  - \"Por el momento no hay comunicación con el Sistema de COFEPRIS, favor de capturar su establecimiento.\" with Aceptar button"
+      },
+      {
+        "step": 3,
+        "action": "Click Aceptar in the Pop up",
+        "expected": "All fields in this page should be enabled"
+      },
+      {
+        "step": 4,
+        "action": "Verify sections/tables/fields",
+        "expected": "Below sections, checkbox, radio buttons and tables should be present in the form-\n\nSection- Datos del establecimiento\nRFC del responsable sanitario*:\nDenominación o razón social*:\nCorreo electrónico*:\n \nSecction - Domicilio del establecimiento\nCódigo postal*:\nEstado*:\nSelecciona una opción\nMunicipio o alcaldía*:\nLocalidad:\nColonia:\nCalle*:\nLada:\nTeléfono*:\n \nTable- S.C.I.A.N.*:\nClave S.C.I.A.N.\nDescripción del S.C.I.A.N.\n\nFields :\nAviso de funcionamiento:\nNo. de licencia sanitaria:\nAduanas de entrada disponibles:\n Aduanas de entrada seleccionadas * :\n\nTable-  Datos de la mercancía *:\n \nNombre comercial * :\nNombre común * :\nNombre químico o científico * :\nUso específico * :\nEstado físico * :\nSelecciona un valor\nFracción arancelaria * :\nDescripción de la fracción arancelaria * :\nCantidad UMT * :\nUMT:\nCantidad UMC * :\nUMC * :\nSelecciona un valor\nNúmero CAS * :\nPorcentaje de concentración * :\nPaís de origen\n\nPaís de procedencia/País del último puerto de embarque\n\nClasificación toxicológica * :\n\nObjeto de la importación * :\n\n\nCheckbox-\nManifiestos y declaraciones\n\n* Cumplo con los requisitos y normatividad aplicable, sin que me eximan de que la autoridad sanitaria verifique su cumplimiento, esto sin perjuicio de las sanciones en que puedo incurrir por falsedad de declaraciones dadas a una autoridad. Asimismo acepto que la notificación de este trámite, sea a través de la Ventanilla Única de Comercio Exterior por los mecanismos de la misma.\n\n \nLos datos o anexos pueden contener información confidencial ¿Está de acuerdo en hacerlos públicos?*:\nNo  / Si\n\n \nRepresentante legal\nRFC*:\n \nNombre o Razón Social*:\nApellido paterno*:\nApellido materno:"
+      },
+      {
+        "step": 5,
+        "action": "Fill details in all mandatory fields\n\n Datos del establecimientoRFC del responsable sanitario : MAVL621207C95\n\nDenominación o razón social* : QA razon\n\nCorreo electrónico* : QA.admin@test.com\n\n\nDomicilio del establecimiento\n\nCódigo postal* : 12345\n\nEstado* : MÉXICO\n\nMunicipio y alcaldía* : 121 Municipio\n\nLocalidad : (empty)\n\nColonia : (empty)\n\nCalle* : calle 123\n\nLada : (empty)\n\nTeléfono* : 1234567890\n\n\nS.C.I.A.N.\n\n\n\n\nClave S.C.I.A.N. : 311222\n\nDescripción del S.C.I.A.N. : Elaboración de aceites y grasas vegetales comestibles\n\n \n\n\n\nAviso de funcionamiento : Checked (Yes)\n\nNo. de licencia sanitaria : LIC1234567\n\n\nAduanas de entrada seleccionadas* : CD. JUAREZ\n\nTable-\nMercancías*:\n \nNombre comercial* : NOMBRE COMERCIAL qa\n\nNombre común* : Nombre común qa\n\nNombre químico o científico* : Nombre químico o científico qa\n\nUso específico* : Uso específico qa\n\nEstado físico* : Sólido\n\nFracción arancelaria* : 29309099\n\nCantidad UMT* : 100\n\nCantidad UMC* : 200\n\nUMC* : Milligramo\n\nNombre CAS* : 123\n\nPorcentaje de concentración* : 123\nPaís de origen: País(es) seleccionado(s) : AUSTRIA (REPÚBLICA DE)\n\nPaís de procedencia / Último puerto de embarque : País(es) seleccionado(s) : ARGENTINA (REPÚBLICA)\n\nClasificación toxicológica : EXTREMADAMENTE TÓXICO\n\nObjeto de la importación : Experimentación\n\n\nChecked - checkbox\nManifiestos y declaraciones\n*\nCumplo con los requisitos y normatividad aplicable, sin que me eximan de que la autoridad sanitaria verifique su cumplimiento, esto sin perjuicio de las sanciones en que puedo incurrir por falsedad de declaraciones dadas a una autoridad. Asimismo acepto que la notificación de este trámite, sea a través de la Ventanilla Única de Comercio Exterior por los mecanismos de la misma.\n\nSelect No option from radio button-\nLos datos o anexos pueden contener información confidencial ¿Está de acuerdo en hacerlos públicos?*:\nNo /Si\n\n\nRepresentante legal\nRFC*: MAVL621207C95\n\nNombre o Razón Social*: EUROFOODS DE MEXICO\n\nApellido paterno*: GONZALEZ\n\nApellido materno: PINAL",
+        "expected": "User should be able to enter data in all required fields."
+      },
+      {
+        "step": 6,
+        "action": "",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16791,
+    "procedure": "260512",
+    "title": "Happy Path : TC03_ Verifying Paso1>Terceros relacionados tab",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Navigate to Terceros relacionados tab",
+        "expected": "No tables should be seen."
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16798,
+    "procedure": "260512",
+    "title": "Happy Path : TC04_ Verifying Paso1>Verify Pago de derechos tab details and fill all mandatory details",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Navigate to Pago de derechos  tab\n\nEnter values for all required fields and Click Continuar\n\n\nClave de referencia : Clave 123\n\nCadena de la dependencia : Cadena123\n\nBanco : BANSI\n\nLlave de pago : LLAVE123QA\n\nFecha de pago : 19/06/2026\n\n\n\nImporte de pago : 2500",
+        "expected": "User should be navigated to Paso 2"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16809,
+    "procedure": "260512",
+    "title": "Happy Path : TC05_ Verify Paso 2 documents and upload documents",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Navigate to paso 2",
+        "expected": "(a)Below message should be seen\n\n La solicitud ha quedado registrada con el número temporal 203568325. Este no tiene válidez legal y sirve solamente para efectos de identificar tu solicitud. Un folio oficial le será asignado a la solicitud al momento en que ésta sea firmada.\n\n(b). Instruction section should be seen,\n\nInstrucciones\n- De acuerdo al caso particular, algunos documentos podrían ser obligatorios\n\n- En caso de que no requieras algún documento, selecciónalo y elimínalo\n\n- Si necesitas anexar más de un documento del mismo tipo selecciónalo de la lista y presiona \"Agregar nuevo\"\n\n(c)  Requisitos obligatorios section should be seen, with below documents,\n \n(i)Documento que acredite la personalidad jurídica del promovente, cuando se trate de personas morales o se actúe en representación de otro, número de referencia del Registro de Personas Acreditadas o el número de referencia del trámite en el que haya acreditado previamente la personalidad jurídica en caso de haber realizado algún otro trámite ante COFEPRIS y, en su caso, documento en el que se designen las personas autorizadas para oír y recibir documentos y notificaciones.*:\n\n(ii)Aviso de funcionamiento o número de licencia sanitaria.*:\n\n(iii)Hoja de datos de seguridad del producto en español o acompañada de su traducción al español por perito traductor autorizado, cuando esté redactada en idioma extranjero.*:\n \n(d) Requisitos opcionales section should be seen, with below documents,\nOtros\nPago de derechos"
+      },
+      {
+        "step": 2,
+        "action": "Upload all 3 Mandatory documents , Click Cargar archivos button",
+        "expected": "pop up should be appear with message-\n\nCarga de archivos\nPara poder adjuntar tu documento, deberá cumplir las siguientes características:\n• Debe ser formato PDF que no contenga formularios, objetos OLE incrustrados, código java script, etc.\n• No debe contener páginas en blanco.\n \nDocument should be uploaded\n\nclick on Continuar button"
+      },
+      {
+        "step": 3,
+        "action": "Carga de archivos modal > Click Cargo Archivo",
+        "expected": "User should be on Carga de documentos page, uploaded document should be seen with Estatus(yes)"
+      },
+      {
+        "step": 4,
+        "action": "Click Continuar",
+        "expected": "User should be navigated to Paso3"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16828,
+    "procedure": "260512",
+    "title": "Happy Path : TC06_Verify Paso 3 signing",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Navigate to Paso 3 Firmar solicitud",
+        "expected": "User should navigate to \"Firmar\" page"
+      },
+      {
+        "step": 2,
+        "action": "Upload .cer certificate - aal0409235e6.cer\nUpload .key private key - AAL0409235E6_1012231310.key\nEnter the password in Contraseña de clave privada field - <efirma-key-password>\nClick “Firmar” button",
+        "expected": "(i). User should be navigated to \"Acuse de Recibo\" page\n\n(ii) Folio number should be generated\n Tu solicitud ha sido registrada con el siguiente número de folio .\n\n(iii) Acuse de recepción de trámite document should be generated."
+      }
+    ],
+    "parameters": null
+  }
+]
