@@ -460,11 +460,37 @@ export class CofeprisRegistrationFlow {
    * given text.
    */
   private static async selectByLabelInModal(modal: Locator, labelContains: string, value: string): Promise<void> {
-    const select = modal.locator(
-      `xpath=.//label[contains(normalize-space(.),"${labelContains}")]/following::select[1]`,
-    );
     const norm = (s: string) =>
       s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+    // Resolve the target select by its index among the modal's selects (document
+    // order). "First label containing X, then its following select" is ambiguous:
+    // "Colonia" also matches the hidden "Colonia o equivalente" variant
+    // (extranjero/proveedor), which made the xpath resolve to two selects (strict-
+    // mode violation). Prefer a label whose text (minus "*"/":") equals the
+    // target, then take its nearest following select; fall back to the first
+    // substring match. For single-match labels this is identical to before.
+    const targetIndex = await modal.evaluate((root, target) => {
+      const nrm = (s: string) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .toLowerCase().replace(/\s+/g, ' ').trim();
+      const strip = (s: string) => nrm(s).replace(/[*:]/g, '').trim();
+      const t = nrm(target);
+      const selects = Array.from(root.querySelectorAll('select'));
+      const nearestFollowing = (label: Element) => selects.find(
+        s => (label.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0);
+      const labels = Array.from(root.querySelectorAll('label'))
+        .filter(l => nrm(l.textContent).includes(t));
+      const exact = labels.filter(l => strip(l.textContent || '') === strip(target));
+      for (const l of [...exact, ...labels]) {
+        const s = nearestFollowing(l);
+        if (s) return selects.indexOf(s);
+      }
+      return -1;
+    }, labelContains);
+    if (targetIndex < 0) {
+      throw new Error(`No select found for label "${labelContains}" in the tercero modal`);
+    }
+    const select = modal.locator('select').nth(targetIndex);
 
     // Some selects are auto-filled and permanently disabled (e.g. País is fixed
     // to MEXICO for a Nacional tercero). If the field is disabled but already

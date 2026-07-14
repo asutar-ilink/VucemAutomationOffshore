@@ -1,0 +1,114 @@
+{
+  "procedureCode": "260205",
+  "procedureTitle": "Permiso sanitario de importación de medicamentos y materias primas destinados a investigación en humanos",
+  "tabs": [
+    "Solicitante",
+    "Datos de la solicitud",
+    "Terceros relacionados",
+    "Pago de derechos"
+  ],
+
+  "solicitante": {
+    "rfc": "AAL0409235E6",
+    "razonSocial": "INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV",
+    "correo": "vucem30@ultrasist.com.mx",
+    "pais": "ESTADOS UNIDOS MEXICANOS",
+    "codigoPostal": "81210",
+    "estado": "SINALOA",
+    "municipio": "AHOME",
+    "localidad": "LOS MOCHIS",
+    "colonia": "MIGUEL HIDALGO",
+    "calle": "CAMINO VIEJO",
+    "numeroExterior": "1353",
+    "lada": "55",
+    "telefono": "98764532"
+  },
+
+  "establecimiento": {
+    "rfcResponsable": "AAL0409235E6",
+    "denominacion": "Denominación",
+    "correo": "test@test.com",
+    "codigoPostal": "06000",
+    "estado": "DURANGO",
+    "municipio": "Municipio",
+    "calle": "Calle",
+    "telefono": "5551234567"
+  },
+
+  "scian": {
+    "clave": "311239",
+    "descripcion": "Producción de otros alimentos a base de leche."
+  },
+
+  "licenciaSanitaria": "LIC123456",
+  "regimen": "Definitivos",
+  "aduana": "COLOMBIA",
+
+  "mercancia": {
+    "clasificacionProducto": "MEDICAMENTOS/ FARMACO",
+    "especificarClasificacion": "II) Homeopáticos.",
+    "denominacionEspecifica": "Denominación específica del producto test",
+    "denominacionDistintiva": "Denominación distintiva test",
+    "denominacionComun": "Denominación o nombre científico test",
+    "tipoProducto": "Producto terminado",
+    "formaFarmaceutica": "Tabletas",
+    "estadoFisico": "Solido",
+    "fraccionArancelaria": "30039013",
+    "descripcionFraccion": "",
+    "cantidadUmt": "22222",
+    "umt": "",
+    "cantidadUmc": "44444",
+    "umc": "Botellas",
+    "presentacion": "Presentación farmacéutica o tipo de envase qa",
+    "numeroRegistroSanitario": "",
+    "fechaCaducidad": "",
+    "paisOrigen": "ALEMANIA (REPUBLICA FEDERAL DE)",
+    "paisProcedencia": "ARGENTINA (REPUBLICA)",
+    "usoEspecifico": "INVESTIGACIÓN CIENTÍFICA"
+  },
+
+  "datosPublicos": "No",
+
+  "representanteLegal": {
+    "rfc": "MAVL621207C95",
+    "nombre": "EUROFOODS DE MEXICO",
+    "apellidoPaterno": "GONZALEZ",
+    "apellidoMaterno": "PINAL"
+  },
+
+  "terceros": {
+    "fabricante": {
+      "nacionalidad": "Nacional",
+      "tipoPersona": "Física",
+      "rfc": "MAVL621207C95",
+      "nombre": "fabricante",
+      "primerApellido": "aa",
+      "pais": "MEXICO (ESTADOS UNIDOS MEXICANOS)",
+      "estado": "CHIHUAHUA",
+      "municipio": "CARICHI",
+      "localidad": "JOJUTLA",
+      "codigoPostal": "33287",
+      "colonia": "MIRAMAR",
+      "calle": "fabricantecalle",
+      "numeroExterior": "34334"
+    },
+    "destinatario": {
+      "tipoPersona": "Física",
+      "rfc": "MAVL621207C95",
+      "nombre": "destinatario",
+      "primerApellido": "Primer",
+      "pais": "MEXICO (ESTADOS UNIDOS MEXICANOS)",
+      "estado": "CHIHUAHUA",
+      "municipio": "BUENAVENTURA",
+      "localidad": "EJIDO LA CONSTITUCION",
+      "codigoPostal": "31891",
+      "colonia": "BARRIO PROGRESO",
+      "calle": "Primercalle",
+      "numeroExterior": "3232"
+    }
+  },
+
+  "documents": [
+    { "type": "oficio_protocolo_investigacion", "path": "test-data/files/registro_sanitario.pdf" }
+  ]
+}
