@@ -1,0 +1,252 @@
+[
+  {
+    "id": 16754,
+    "procedure": "260604",
+    "title": "Happypath : TC01_Verify the VUCEM 3.0 portal launch",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Navigate to the official VUCEM login - page\nhttps://portal-v30.cloud-ultrasist.net/portal/login-solicitante",
+        "expected": "1.User should navigate to VUCEM URL\n2.Portal login page should be displayed."
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16755,
+    "procedure": "260604",
+    "title": "Happypath : TC02_Verify the login authentication process",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 should be executed.\n\nLogin with credentials with option- Con e.firma",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Upload .cer certificate - aal0409235e6.cer",
+        "expected": "User credentials authenticate and dashboard is shown."
+      },
+      {
+        "step": 3,
+        "action": "Upload .key private key - AAL0409235E6_1012231310.key",
+        "expected": ""
+      },
+      {
+        "step": 4,
+        "action": "Enter the password - <efirma-key-password>",
+        "expected": ""
+      },
+      {
+        "step": 5,
+        "action": "Click “Ingresar” to access the dashboard.",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16757,
+    "procedure": "260604",
+    "title": "Happypath : TC03_Verify navigation to procedures",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01, 02 should be executed.\n Selección de rol - select role from dropdown - Persona Moral",
+        "expected": "Procedures list should be displayed."
+      },
+      {
+        "step": 2,
+        "action": "Click on Aceptar",
+        "expected": ""
+      },
+      {
+        "step": 3,
+        "action": "Navigate to menu - Trámites -> Solicitudes nuevas",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16759,
+    "procedure": "260604",
+    "title": "Happypath : TC04_Validate the Selection of Procedure 260604",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC03 should be executed.\n Search 260601 procedure",
+        "expected": "User should be able to navigate 260601 procedure, and Procedure form opens correctly."
+      },
+      {
+        "step": 2,
+        "action": "Click on procedure 260604",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16760,
+    "procedure": "260604",
+    "title": "Happypath : TC05_Verify that all expected tabs are present and visible",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC04 should be executed.\n Navigate to all tabs",
+        "expected": "1.Procedure Tiltle should be \"Aviso de exportación de precursores químicos o productos químicos esenciales\"\n 2.Tabs displayed: Solicitante, Datos de la solicitud and Terceros relacionados,"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16761,
+    "procedure": "260604",
+    "title": "Happypath : TC06_Verify that all fields in the Solicitante tab are present and correct",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC05 should be executed.\n Navigate to Solicitante tab",
+        "expected": "Below prefilled and disabled fields should be correctly displayed-\n\nDatos generales del solicitante\nRFC:\nAAL0409235E6\nDenominación o razón social:\nINTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV\nCorreo electrónico:\nvucem30@ultrasist.com.mx\n\n\nDomicilio fiscal del solicitante\nPaís:\nESTADOS UNIDOS MEXICANOS\nCódigo postal:\n81210\nEstado:\nSINALOA\nMunicipio o alcaldía:\nAHOME\nLocalidad:\nLOS MOCHIS\nColonia:\nMIGUEL HIDALGO\nCalle:\nCAMINO VIEJO\nNúmero exterior:\n1353\nNúmero interior:\nLada:\n55\nTeléfono:\n98764532"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16763,
+    "procedure": "260604",
+    "title": "Happypath : TC07_Validate Datos de la Solicitud Tab and Complete All Mandatory Fields",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC06 should be executed.\n Navigate to Datos de la solicitud tab",
+        "expected": "1.In Datos de la solicitud → Datos del establecimiento and Domicilio del establecimiento, all fields should be disabled except the Estado field.\n\n\n\n\nAll other sections and fields should be enabled in this tab.\n\nAfter clicking the \"Seleccionar establecimiento\" button -\nall fields should be enabled."
+      },
+      {
+        "step": 2,
+        "action": "After clicking on \"Seleccionar establecimiento\" button",
+        "expected": "Pop up should be appeared - \"Por el momento no hay comunicación con el Sistema de COFEPRIS, favor de capturar su establecimiento.\" with Aceptar button."
+      },
+      {
+        "step": 3,
+        "action": "Verify all fields available",
+        "expected": "Section-\nDatos del establecimiento\nRFC del responsable sanitario*:\nDenominación o razón social*:\nCorreo electrónico*:\nDomicilio del establecimiento\nCódigo postal*:\nEstado*:\nSelecciona una opción\nMunicipio o alcaldía*:\nLocalidad:\nColonia:\nCalle*:\nLada:\nTeléfono*:\n\nTable-\nS.C.I.A.N.*:\nClave S.C.I.A.N.\nDescripción del S.C.I.A.N.\nSIN DATOS\nAviso de funcionamiento:\nRégimen al que se destinará*:\nAduana\n\n\nTable-\nDatos del producto*:\n\n\nClasificación del producto*:\nEspecificar clasificación del producto*:\nMarca comercial o denominación distintiva*:\nDenominación común internacional (DCI) o denominación genérica*:\nTipo de producto*:\nEstado físico*:\nFracción arancelaria*:\nDescripción de la fracción arancelaria*:\nCantidad UMC*:\nUMC*:\nPorcentaje de concentración*:\nValor comercial (dólares)*:\nFecha de movimiento en caso de importación o exportación*:\nPresentación farmacéutica o tipo de envase*:\nPaís de origen\nPaís de destino\nPaís de procedencia\nPaís de procedencia* --- disabled\nUso especifico\n\nCheckbox-\nManifiestos y declaraciones\n\n*\nCumplo con los requisitos y normatividad aplicable, sin que me eximan de que la autoridad sanitaria verifique su cumplimiento, esto sin perjuicio de las sanciones en que puedo incurrir por falsedad de declaraciones dadas a una autoridad. Asimismo acepto que la notificación de este trámite, sea a través de la Ventanilla Única de Comercio Exterior por los mecanismos de la misma.\n\n\nLos datos o anexos pueden contener información confidencial ¿Está de acuerdo en hacerlos públicos?*:\nNo\n Si\n\n\nRepresentante legal\nRFC*:\n\nNombre o Razón Social*:\nApellido paterno*:\nApellido materno:"
+      },
+      {
+        "step": 4,
+        "action": "Fill details in all mandatory fields\n\nSection -\nDatos del establecimiento\nRFC del responsable sanitario*:\nAAL0409235E6\nDenominación o razón social*:\nDenominación\nCorreo electrónico*:\ntest@test.com\nDomicilio del establecimiento\nCódigo postal*:\n06000\nEstado*:\nDURANGO\nMunicipio o alcaldía*:\nMunicipio\nLocalidad:\nColonia:\nCalle*:\nCalle\nLada:\nTeléfono*:\n5551234567\n\nTable-\nS.C.I.A.N.*:\nClave S.C.I.A.N.\nDescripción del S.C.I.A.N.\n311239\tProducción de otros alimentos a base de leche.\n\n\nAviso de funcionamiento:\nNo. de licencia sanitaria:\nLIC123456\n\n\nRégimen*:\nDefinitivos\n\nAduanas de entradas*:\nCOLOMBIA\n\nTable-\nDatos del producto*:\n\nClasificación del producto*:\nEspecificar clasificación del producto*:\nMarca comercial o denominación distintiva*:\nDenominación común internacional (DCI) o denominación genérica*:\nTipo de producto*:\nEstado físico*:\nFracción arancelaria*:\nDescripción de la fracción arancelaria*:\nCantidad UMC*:\nUMC*:\nPorcentaje de concentración*:\nValor comercial (dólares)*:\nFecha de movimiento en caso de importación o exportación*:\nPresentación farmacéutica o tipo de envase*:\nPaís de origen\nPaís de destino\nPaís de procedencia\nPaís de procedencia* --- disabled\nUso especifico\n\n\n\n\nPRECURSORES QUIMICOS\nNo aplica\ntest23432\ntest32432432\nAditivo\nLíquido\n29333299\nLos demás\n12\nJuego\n12\n12\n26/06/2026\ntest34\nARUBA (TERRITORIO HOLANDES DE ULTRAMAR)\nMEXICO (ESTADOS UNIDOS MEXICANOS)\nARGENTINA (REPUBLICA)\nCONSERVACIÓN\n\n\n\nChecked - checkbox\nManifiestos y declaraciones\n*\nCumplo con los requisitos y normatividad aplicable, sin que me eximan de que la autoridad sanitaria verifique su cumplimiento, esto sin perjuicio de las sanciones en que puedo incurrir por falsedad de declaraciones dadas a una autoridad. Asimismo acepto que la notificación de este trámite, sea a través de la Ventanilla Única de Comercio Exterior por los mecanismos de la misma.\n\nSelect No option from radio button-\nLos datos o anexos pueden contener información confidencial ¿Está de acuerdo en hacerlos públicos?*:\nNoSi\n\n\nRepresentante legal\nRFC*:\nMAVL621207C95\n\nNombre o Razón Social*:\nEUROFOODS DE MEXICO\n\nApellido paterno*:\nGONZALEZ\n\nApellido materno:\nPINAL",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16765,
+    "procedure": "260604",
+    "title": "Happypath : TC08_Validate Terceros Relacionados Tab and Complete All Mandatory Fields",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC07 should be executed.\nNavigate to Terceros relacionados tab",
+        "expected": "Tables should be present -\nFacturador/Consignatario\nwith column names -\n\nNombre/denominación o razón social\nR.F.C.\nCURP\nTeléfono\nCorreo electrónico\nCalle\nNúmero exterior\nNúmero interior\nPaís\nColonia\nMunicipio o alcaldía\nLocalidad\nEntidad federativa\nEstado/localidad\nCódigo postal"
+      },
+      {
+        "step": 2,
+        "action": "Navigate to table Fabricante and click on Agregar button\nSelect combination -\nTipo persona*:\nFísica",
+        "expected": "Fields should be present\n\nAgregar fabricante\nTipo persona*:\nNombre(s)*:\nPrimer apellido*:\nSegundo apellido:\nPaís*:\nEstado\nCódigo postal o equivalente*:\nCalle*:\nNúmero exterior*:\nNúmero interior:\nLada:\nTeléfono:\nCorreo electrónico:"
+      },
+      {
+        "step": 3,
+        "action": "filled the value in Fabricante table.\n\nAgregar proveedor\nDatos generales\nTipo persona*:\nFísica\nMoral\nNombre(s)*:\nAmarnath\nPrimer apellido*:\ntest\nSegundo apellido:\nSutar\nDomicilio\nPaís*:\nINDIA (REPUBLICA DE)\nEstado*:\nCAMPECHE\nCódigo postal o equivalente*:\n06700\nCalle*:\n343\nNúmero exterior*:\n3434\nNúmero interior:\n3432432\nLada:\n3243\nTeléfono:\n55551234\nCorreo electrónico:\namarnath.sutar@ilink-systems.com",
+        "expected": "Record should get added without errors."
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16770,
+    "procedure": "260604",
+    "title": "Happypath : TC09_Validate and Upload Documents in Paso 2",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC08 should be executed.\n Navigate to paso 2",
+        "expected": "1.Optional document dshould be present -\n\nOtro"
+      },
+      {
+        "step": 2,
+        "action": "Upload Optional document and click on Cargar archivos button",
+        "expected": "3.After clicking on Cargar archivos , pop up should be appeared with message-\n\nCarga de archivos\nPara poder adjuntar tu documento, deberá cumplir las siguientes características:\n• Debe ser formato PDF que no contenga formularios, objetos OLE incrustrados, código java script, etc.\n• No debe contener páginas en blanco.\n \nDocument should be uploaded\n\nclick on Continuar button"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 16771,
+    "procedure": "260604",
+    "title": "Happypath : TC10_Validate the Signing Process in Paso 3",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC09 should be executed.\nNavigate to Paso 3 Firmar solicitud",
+        "expected": "User should navigate to \"Firmar\" page"
+      },
+      {
+        "step": 2,
+        "action": "Upload .cer certificate - aal0409235e6.cer\nUpload .key private key - AAL0409235E6_1012231310.key\nEnter the password in Contraseña de clave privada field - <efirma-key-password>\nClick “Firmar” button",
+        "expected": "User should navigate to \"Acuse de Recibo\" page"
+      }
+    ],
+    "parameters": null
+  }
+]

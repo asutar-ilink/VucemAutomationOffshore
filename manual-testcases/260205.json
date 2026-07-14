@@ -1,0 +1,145 @@
+[
+  {
+    "id": 18060,
+    "procedure": "260205",
+    "title": "Extensive:TC01_Verify VUCEM portal launch",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Navigate to the official VUCEM login page -\nhttps://portal-v30.cloud-ultrasist.net/portal/login-solicitante",
+        "expected": "1.User should navigate to VUCEM url\n2.Portal login page should be displayed."
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 18062,
+    "procedure": "260205",
+    "title": "Extensive:TC02_Verify login authentication",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 should be executed.\n\nLogin with credentials with option- Con e.firma",
+        "expected": "User credentials authenticate and dashboard is shown"
+      },
+      {
+        "step": 2,
+        "action": "Upload .cer certificate - aal0409235e6.cer",
+        "expected": ""
+      },
+      {
+        "step": 3,
+        "action": "Upload .key private key - AAL0409235E6_1012231310.key",
+        "expected": ""
+      },
+      {
+        "step": 4,
+        "action": "Enter the password - <efirma-key-password>",
+        "expected": ""
+      },
+      {
+        "step": 5,
+        "action": "Click “Ingresar” to access the dashboard.",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 18063,
+    "procedure": "260205",
+    "title": "Extensive:TC03_Verify navigation to procedures",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01, 02 should be executed.\nSelección de rol - select role from dropdown - Persona Moral",
+        "expected": "Procedures list should be displayed."
+      },
+      {
+        "step": 2,
+        "action": "Click on Aceptar",
+        "expected": ""
+      },
+      {
+        "step": 3,
+        "action": "Navigate to menu - Trámites -> Solicitudes nuevas",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 18105,
+    "procedure": "260205",
+    "title": "Extensive:TC04_Verify procedure 260205 selection",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC03 should be executed.\nSearch 260205 procedure",
+        "expected": "User should be able to navigate 260205 procedure and Procedure form opens correctly."
+      },
+      {
+        "step": 2,
+        "action": "Click on procedure 260205",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 18107,
+    "procedure": "260205",
+    "title": "Extensive:TC05_Verify all tabs presence",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC04 should be executed.\nNavigate to all tabs",
+        "expected": "1.Procedure Tiltle should be \"Permiso sanitario de importación de medicamentos y materias primas destinados a investigación en humanos\"\n 2.Tabs displayed: Solicitante, Datos de la solicitud, Terceros relacionados, Pago de derechos."
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 18108,
+    "procedure": "260205",
+    "title": "Extensive:TC06_Verify Solicitante tab fields",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC05 should be executed.\nNavigate to Solicitante tab",
+        "expected": "Below prefilled and disabled fields should be correctly displayed-\n\nDatos generales del solicitante\nRFC:\nAAL0409235E6\nDenominación o razón social:\nINTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV\nCorreo electrónico:\nvucem30@ultrasist.com.mx\n\n\nDomicilio fiscal del solicitante\nPaís:\nESTADOS UNIDOS MEXICANOS\nCódigo postal:\n81210\nEstado:\nSINALOA\nMunicipio o alcaldía:\nAHOME\nLocalidad:\nLOS MOCHIS\nColonia:\nMIGUEL HIDALGO\nCalle:\nCAMINO VIEJO\nNúmero exterior:\n1353\nNúmero interior:\nLada:\n55\nTeléfono:\n98764532"
+      }
+    ],
+    "parameters": null
+  }
+]
