@@ -15,7 +15,7 @@
 
 import { test as base, Page } from '@playwright/test';
 import { LoginFlow } from '../flows/LoginFlow';
-import { EnvConfig } from '../types';
+import { EnvConfig, EfirmaCredentials } from '../types';
 import qa from '../../test-data/envs/qa.json';
 import staging from '../../test-data/envs/staging.json';
 
@@ -23,6 +23,7 @@ const envConfig = (process.env.ENV === 'staging' ? staging : qa) as EnvConfig;
 
 type CustomFixtures = {
   authenticatedPage: Page;
+  efirma: EfirmaCredentials;
 };
 
 export const test = base.extend<CustomFixtures>({
@@ -42,6 +43,17 @@ export const test = base.extend<CustomFixtures>({
     await use(page);
 
     await context.close();
+  },
+
+  // The real e.firma credentials — cert/key paths + private-key password — live
+  // only in the gitignored env config (test-data/envs/qa.json), never in the
+  // committed procedure test data. Signing must draw from here, same as login.
+  // eslint-disable-next-line no-empty-pattern
+  efirma: async ({}, use) => {
+    if (!envConfig.efirma) {
+      throw new Error(`Env "${process.env.ENV || 'qa'}" has no efirma credentials configured.`);
+    }
+    await use(envConfig.efirma);
   },
 
 });

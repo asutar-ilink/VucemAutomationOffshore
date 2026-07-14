@@ -1,0 +1,140 @@
+{
+  "procedureCode": "260202",
+  "procedureTitle": "Permiso sanitario de importación de materias primas",
+  "tabs": [
+    "Solicitante",
+    "Datos de la solicitud",
+    "Terceros relacionados",
+    "Pago de derechos"
+  ],
+
+  "solicitante": {
+    "rfc": "AAL0409235E6",
+    "razonSocial": "INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV",
+    "correo": "vucem30@ultrasist.com.mx",
+    "codigoPostal": "81210",
+    "estado": "SINALOA"
+  },
+
+  "establecimiento": {
+    "rfcResponsable": "RESP123456ABC",
+    "denominacion": "LABORATORIOS SALUD SA DE CV",
+    "correo": "contacto@salud.com",
+    "codigoPostal": "64000",
+    "estado": "NUEVO LEÓN",
+    "municipio": "MONTERREY",
+    "localidad": "CENTRO",
+    "colonia": "OBISPADO",
+    "calle": "AVENIDA SALUD",
+    "lada": "81",
+    "telefono": "12345678"
+  },
+
+  "scians": [
+    { "clave": "311101" },
+    { "clave": "311112" }
+  ],
+  "deleteScianClave": "311101",
+
+  "avisoFuncionamiento": true,
+  "regimen": "Definitivos",
+  "aduana": "AEROPUERTO INTERNACIONAL FELIPE ANGELES, MEXICO",
+  "aduanaAicm": true,
+
+  "mercancias": [
+    {
+      "clasificacionProducto": "BIOLOGICOS",
+      "especificarClasificacion": "VII. Antibióticos",
+      "denominacionEspecifica": "Amoxicilina suspensión",
+      "denominacionDistintiva": "AmoxiCare",
+      "denominacionComun": "Amoxicillin trihydrate",
+      "tipoProducto": "Producto a granel",
+      "formaFarmaceutica": "Suspensiones",
+      "estadoFisico": "Liquido",
+      "fraccionArancelaria": "30039013",
+      "descripcionFraccion": "",
+      "cantidadUmt": "100",
+      "umt": "",
+      "cantidadUmc": "50",
+      "umc": "Caja",
+      "presentacion": "Frasco",
+      "numeroRegistroSanitario": "",
+      "fechaCaducidad": "2027-12-31",
+      "paisOrigen": "MÉXICO (ESTADOS UNIDOS MEXICANOS)",
+      "paisProcedencia": "ALEMANIA (REPÚBLICA FEDERAL DE)",
+      "usoEspecifico": "VENTA O COMERCIALIZACIÓN"
+    },
+    {
+      "clasificacionProducto": "BIOLOGICOS",
+      "especificarClasificacion": "VII. Antibióticos",
+      "denominacionEspecifica": "Penicilina inyectable",
+      "denominacionDistintiva": "PeniCare",
+      "denominacionComun": "Benzylpenicillin",
+      "tipoProducto": "Producto a granel",
+      "formaFarmaceutica": "Suspensiones",
+      "estadoFisico": "Liquido",
+      "fraccionArancelaria": "30039013",
+      "descripcionFraccion": "",
+      "cantidadUmt": "100",
+      "umt": "",
+      "cantidadUmc": "50",
+      "umc": "Caja",
+      "presentacion": "Frasco",
+      "numeroRegistroSanitario": "",
+      "fechaCaducidad": "2027-12-31",
+      "paisOrigen": "MÉXICO (ESTADOS UNIDOS MEXICANOS)",
+      "paisProcedencia": "ALEMANIA (REPÚBLICA FEDERAL DE)",
+      "usoEspecifico": "VENTA O COMERCIALIZACIÓN"
+    }
+  ],
+  "deleteMercanciaIndex": 1,
+
+  "datosPublicos": "No",
+
+  "representanteLegal": {
+    "rfc": "MAVL621207C95",
+    "nombre": "EUROFOODS DE MEXICO",
+    "apellidoPaterno": "GONZALEZ",
+    "apellidoMaterno": "PINAL"
+  },
+
+  "terceros": {
+    "fabricante": {
+      "nacionalidad": "Nacional",
+      "tipoPersona": "Física",
+      "rfc": "MAVL621207C95",
+      "nombre": "fabricante",
+      "primerApellido": "aa",
+      "pais": "MEXICO (ESTADOS UNIDOS MEXICANOS)",
+      "estado": "CHIHUAHUA",
+      "municipio": "CARICHI",
+      "localidad": "JOJUTLA",
+      "codigoPostal": "33287",
+      "colonia": "MIRAMAR",
+      "calle": "fabricantecalle",
+      "numeroExterior": "34334"
+    },
+    "destinatario": {
+      "tipoPersona": "Física",
+      "rfc": "MAVL621207C95",
+      "nombre": "Test",
+      "primerApellido": "QAS",
+      "segundoApellido": "Data",
+      "pais": "MÉXICO (ESTADOS UNIDOS MEXICANOS)",
+      "estado": "MORELOS",
+      "municipio": "MAZATEPEC",
+      "localidad": "OTRA NO ESPECIFICADA EN EL CATÁLOGO",
+      "codigoPostal": "62636",
+      "colonia": "OTRA NO ESPECIFICADA EN EL CATÁLOGO",
+      "calle": "QAS",
+      "numeroExterior": "123",
+      "telefono": "878955789",
+      "correo": "QAS@ilink-systems.com"
+    }
+  },
+
+  "documents": [
+    { "type": "licencia_o_aviso_funcionamiento", "path": "test-data/files/licencia_sanitaria.pdf" },
+    { "type": "aviso_responsable",               "path": "test-data/files/aviso_responsable.pdf" }
+  ]
+}

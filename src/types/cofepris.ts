@@ -10,8 +10,6 @@
  * add, pago, documents) are composed on top in each procedure's own data type.
  */
 
-import { EfirmaCredentials } from './index';
-
 export interface SolicitanteData {
   rfc: string;
   razonSocial: string;
@@ -29,6 +27,15 @@ export interface EstablecimientoData {
   municipio: string;
   calle: string;
   telefono: string;
+  /**
+   * Localidad / Colonia / Lada are free-text inputs on the materias-primas
+   * establecimiento form (260202) but absent on the medicamentos siblings'
+   * form. Optional so a procedure that omits them fills only the eight core
+   * fields, unchanged.
+   */
+  localidad?: string;
+  colonia?: string;
+  lada?: string;
 }
 
 export interface MercanciaData {
@@ -107,7 +114,6 @@ export interface CofeprisRegistrationData {
   procedureCode: string;
   procedureTitle: string;
   tabs: string[];
-  efirma: EfirmaCredentials;
   solicitante: SolicitanteData;
   establecimiento: EstablecimientoData;
   scian: { clave: string; descripcion: string };
@@ -115,6 +121,36 @@ export interface CofeprisRegistrationData {
   regimen: string;
   aduana: string;
   mercancia: MercanciaData;
+  datosPublicos: string;
+  representanteLegal: RepresentanteLegalData;
+}
+
+/**
+ * The Datos-de-la-solicitud data for the 260202 "materias primas" trámite,
+ * which diverges from the medicamentos siblings above:
+ *   - the S.C.I.A.N. table takes several claves (one is later deleted),
+ *   - the establishment declares an "Aviso de funcionamiento" (a checkbox that
+ *     disables the No. de licencia sanitaria field) instead of a licencia value,
+ *   - selecting the AIFA aduana reveals an extra "AICM" checkbox to tick, and
+ *   - the Mercancías table takes several records (one is later deleted).
+ * The Mercancía modal itself is the medicamentos shape, so it is filled with
+ * CofeprisRegistrationFlow.addMercanciaMedicamentos (no numeroRegistroSanitario
+ * field is rendered — the handler skips it). Driven by CofeprisRegistrationFlow.
+ */
+export interface MateriasPrimasSolicitudData {
+  establecimiento: EstablecimientoData;
+  /** S.C.I.A.N. claves to add; `deleteClave` (if set) is removed after adding. */
+  scians: { clave: string }[];
+  deleteScianClave?: string;
+  /** Tick "Aviso de funcionamiento" (disables licencia) instead of typing one. */
+  avisoFuncionamiento: boolean;
+  regimen: string;
+  aduana: string;
+  /** Tick the "Aeropuerto Internacional Ciudad de México (AICM)" checkbox. */
+  aduanaAicm?: boolean;
+  /** Mercancía records to add; the record at `deleteMercanciaIndex` is removed. */
+  mercancias: MercanciaData[];
+  deleteMercanciaIndex?: number;
   datosPublicos: string;
   representanteLegal: RepresentanteLegalData;
 }

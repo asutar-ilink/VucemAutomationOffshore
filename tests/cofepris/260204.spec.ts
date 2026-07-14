@@ -52,7 +52,7 @@ test.describe('260204 — Permiso sanitario de importación de medicamentos', ()
 
   // 🚧 TC07–TC13 — pending live-validation of establecimiento dropdowns, the
   // add-record modals (S.C.I.A.N./Mercancías/Terceros), Pago, upload and firmar.
-  test('TC07–TC13: fills all tabs, uploads documents, signs, and receives a folio', async ({ authenticatedPage }) => {
+  test('TC07–TC13: fills all tabs, uploads documents, signs, and receives a folio', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260204(authenticatedPage);
 
     await procedure.open(data.procedureCode);
@@ -63,7 +63,7 @@ test.describe('260204 — Permiso sanitario de importación de medicamentos', ()
     await procedure.fillTerceros(data);
     await procedure.fillPago(data.pago);
     await procedure.uploadDocuments(data.documents);
-    await procedure.sign(data.efirma);
+    await procedure.sign(efirma);
 
     await expect(procedure.folioMessage).toBeVisible();
     await expect(procedure.acuseDocument).toBeVisible();

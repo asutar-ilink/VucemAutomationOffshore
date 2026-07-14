@@ -97,6 +97,30 @@ export class DynamicTable {
   }
 
   /**
+   * Ticks the row-select checkbox of the (visible) row containing the given text.
+   *
+   * COFEPRIS add-record tables (`app-tabla-dinamica`) carry no <caption>, so the
+   * row is located page-scoped like expectRowExists. Each data row has a leading
+   * checkbox used to mark it before clicking the table's "Eliminar" button.
+   */
+  async selectRowByText(text: string): Promise<void> {
+    const row = this.page.getByRole('row').filter({ hasText: text }).first();
+    await row.locator('input[type="checkbox"]').first().check();
+  }
+
+  /**
+   * Asserts no visible row contains the given text — e.g. after a delete.
+   * Hidden duplicate rows (in closed modals) are excluded by the visibility
+   * intersection, so a stale template row never masks a real deletion.
+   */
+  async expectRowAbsent(text: string): Promise<void> {
+    const visibleRow = this.page.getByRole('row')
+      .filter({ hasText: text })
+      .and(this.page.locator(':visible'));
+    await expect(visibleRow).toHaveCount(0);
+  }
+
+  /**
    * Asserts the table contains exactly N rows (excluding the header row).
    */
   async expectRowCount(count: number): Promise<void> {

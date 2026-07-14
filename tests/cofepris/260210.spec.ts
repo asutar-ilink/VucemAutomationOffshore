@@ -27,7 +27,7 @@ test.describe('260210 — Permiso sanitario de importación de medicamentos (pru
     await new T260210(authenticatedPage).startNewSubmission();
   });
 
-  test('registration: fills all tabs, uploads a document, signs, generates a folio, downloads the acuse', async ({ authenticatedPage }) => {
+  test('registration: fills all tabs, uploads a document, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260210(authenticatedPage);
 
     // Open the procedure form and verify structure + Solicitante prefill.
@@ -44,7 +44,7 @@ test.describe('260210 — Permiso sanitario de importación de medicamentos (pru
 
     // Paso 2 — one optional document, then Paso 3 — firmar.
     await procedure.uploadOptionalDocument(data.optionalDocument);
-    await procedure.sign(data.efirma);
+    await procedure.sign(efirma);
 
     // Acuse — folio generated; persist folio + downloaded acuse as artifacts.
     await expect(procedure.folioMessage).toBeVisible();
