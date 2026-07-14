@@ -16,6 +16,20 @@ export interface SolicitanteData {
   correo: string;
   codigoPostal: string;
   estado: string;
+  /**
+   * Full "Domicilio fiscal del solicitante" fields. Prefilled and disabled from
+   * the e.firma certificate; optional so procedures that assert only the core
+   * five stay unchanged, while those whose manual verifies the whole address
+   * (e.g. 260215) supply and assert all of them.
+   */
+  pais?: string;
+  municipio?: string;
+  localidad?: string;
+  colonia?: string;
+  calle?: string;
+  numeroExterior?: string;
+  lada?: string;
+  telefono?: string;
 }
 
 export interface EstablecimientoData {

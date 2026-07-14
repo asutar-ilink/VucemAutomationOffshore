@@ -10,6 +10,7 @@ import { Logger } from '../utils/Logger';
 import {
   CofeprisRegistrationData,
   MateriasPrimasSolicitudData,
+  SolicitanteData,
   EstablecimientoData,
   MercanciaData,
   RepresentanteLegalData,
@@ -38,6 +39,33 @@ import {
  * vucem-framework skill's COFEPRIS DOM→component mapping).
  */
 export class CofeprisRegistrationFlow {
+
+  // ─── Solicitante tab (prefilled, read-only) ───────────────────────────────
+
+  /**
+   * Verifies the prefilled, disabled Solicitante fields. Asserts only the fields
+   * present in `data`, so a procedure that verifies just the core five behaves as
+   * before while one whose manual lists the whole domicilio (e.g. 260215) asserts
+   * every field. All Solicitante inputs carry a plain id and no formcontrolname
+   * (the establecimiento copies add one), so each is scoped with
+   * `:not([formcontrolname])` to beat the duplicate establecimiento field.
+   */
+  static async verifySolicitante(page: Page, d: SolicitanteData): Promise<void> {
+    await Logger.step('Verify Solicitante prefilled details', async () => {
+      const fields: [string, string | undefined][] = [
+        ['rfc', d.rfc], ['razonSocial', d.razonSocial], ['correo', d.correo],
+        ['pais', d.pais], ['codigoPostal', d.codigoPostal], ['estado', d.estado],
+        ['municipio', d.municipio], ['localidad', d.localidad], ['colonia', d.colonia],
+        ['calle', d.calle], ['numeroExterior', d.numeroExterior],
+        ['lada', d.lada], ['telefono', d.telefono],
+      ];
+      for (const [id, value] of fields) {
+        if (value !== undefined) {
+          await expect(page.locator(`#${id}:not([formcontrolname])`)).toHaveValue(value);
+        }
+      }
+    });
+  }
 
   // ─── Datos de la solicitud tab ────────────────────────────────────────────
 
