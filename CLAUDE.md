@@ -121,3 +121,21 @@ positional selectors, fragile classes, or XPath unless there's genuinely no alte
   running, filtering, trace viewer, UI mode, debug. Invoke when running the app or any Playwright
   command. (Installed globally; run `playwright-cli install --skills` to refresh the skill after upgrades.)
 - Commands: `/add-procedure <code> [dept]` · `/probe-selectors [url]` · `/debug-test [title]`.
+
+## Git & pushing rules (follow for every commit/push)
+
+1. **Secret safety check before staging.** Never commit secrets. Run and confirm it prints `clean`:
+   ```bash
+   git add -n . | grep -Ei '\.key|\.cer|state\.json|envs/(qa|staging)\.json|delfin40' || echo "clean"
+   ```
+   A `PreToolUse` hook (`.claude/hooks/pre-git-secret-scan.sh`) also **blocks** any `git commit`/`git push`
+   whose staged/unpushed content carries a secret — treat a block as a real finding, not a nuisance.
+2. **Quality gates before committing:** `npm run typecheck && npm run lint` must pass.
+3. **These paths are gitignored and must never be force-added:** `auth/state.json`,
+   `test-data/files/*` (real e.firma `.cer`/`.key` + PDFs, except `README.md`),
+   `test-data/envs/*.json` (except `*.example.json`), `executed-procedure-artifacts/`.
+   Verify a new asset is ignored with `git check-ignore <path>` before committing.
+4. **The real e.firma password lives only in the local, gitignored `test-data/envs/qa.json`** — never in
+   committed test data, procedures, manual-testcases, or docs. When adding an env, commit a matching
+   `*.example.json` template with placeholders instead of real values.
+5. **Branch for non-trivial work** (`git checkout -b <topic>` → PR); keep `main` clean.

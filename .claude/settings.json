@@ -8,5 +8,20 @@
       "Edit(d:\\VucemDev\\**)",
       "Write(d:\\VucemDev\\**)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git *)",
+            "command": "bash .claude/hooks/pre-git-secret-scan.sh",
+            "statusMessage": "Scanning for secrets before git commit/push"
+          }
+        ]
+      }
+    ]
   }
 }
