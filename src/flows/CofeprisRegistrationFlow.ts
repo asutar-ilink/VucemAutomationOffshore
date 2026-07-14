@@ -9,6 +9,7 @@ import { DynamicTable } from '../components/layout/DynamicTable';
 import { Logger } from '../utils/Logger';
 import {
   CofeprisRegistrationData,
+  MateriasPrimasSolicitudData,
   EstablecimientoData,
   MercanciaData,
   RepresentanteLegalData,
@@ -63,6 +64,139 @@ export class CofeprisRegistrationFlow {
   }
 
   /**
+   * The Datos de la solicitud tab for the 260202 "materias primas" trámite.
+   * Same shared building blocks as fillDatosSolicitud, but the sequence diverges:
+   * several S.C.I.A.N. claves (one deleted), an "Aviso de funcionamiento"
+   * checkbox instead of a licencia value, the AIFA→AICM checkbox, and several
+   * Mercancía records (one deleted). The Mercancía modal is the medicamentos
+   * shape, so it defaults to addMercanciaMedicamentos.
+   */
+  static async fillDatosSolicitudMateriasPrimas(
+    page: Page,
+    data: MateriasPrimasSolicitudData,
+    addMercancia: (page: Page, m: MercanciaData) => Promise<void> = CofeprisRegistrationFlow.addMercanciaMedicamentos,
+  ): Promise<void> {
+    await new Tab(page).click('Datos de la solicitud');
+    await CofeprisRegistrationFlow.openEstablecimiento(page);
+    await CofeprisRegistrationFlow.fillEstablecimiento(page, data.establecimiento);
+
+    await CofeprisRegistrationFlow.addScianRecords(page, data.scians);
+    if (data.deleteScianClave) {
+      await CofeprisRegistrationFlow.deleteScian(page, data.deleteScianClave);
+    }
+
+    if (data.avisoFuncionamiento) {
+      await CofeprisRegistrationFlow.selectAvisoFuncionamiento(page);
+    }
+    await CofeprisRegistrationFlow.fillRegimenAduanaMateriasPrimas(page, data);
+
+    await CofeprisRegistrationFlow.addMercancias(page, data.mercancias, addMercancia);
+    if (data.deleteMercanciaIndex !== undefined) {
+      const target = data.mercancias[data.deleteMercanciaIndex];
+      await CofeprisRegistrationFlow.deleteMercancia(page, target.denominacionEspecifica);
+    }
+
+    await CofeprisRegistrationFlow.acceptManifiestos(page);
+    await CofeprisRegistrationFlow.setDatosPublicos(page, data.datosPublicos);
+    await CofeprisRegistrationFlow.fillRepresentanteLegal(page, data.representanteLegal);
+  }
+
+  /** Adds each S.C.I.A.N. clave via the "Clave S.C.I.A.N." modal. */
+  private static async addScianRecords(page: Page, scians: { clave: string }[]): Promise<void> {
+    for (const s of scians) {
+      await Logger.step(`Add S.C.I.A.N. ${s.clave}`, async () => {
+        await page.locator('button[name="agregarScian"]').click();
+        // Modal select is <app-catalogo-select name="clave"> whose option text is
+        // the clave itself; descripción autofills.
+        await new Dropdown(page, 'clave', 'control').select(s.clave);
+        await CofeprisRegistrationFlow.dialogButton(page, /^\s*agregar\s*$/i).click();
+        await new DynamicTable(page, 'S.C.I.A.N.').expectRowExists(s.clave);
+      });
+    }
+  }
+
+  /** Marks the S.C.I.A.N. row and deletes it (Eliminar → confirm Aceptar). */
+  private static async deleteScian(page: Page, clave: string): Promise<void> {
+    await Logger.step(`Delete S.C.I.A.N. ${clave}`, async () => {
+      const table = new DynamicTable(page, 'S.C.I.A.N.');
+      await table.selectRowByText(clave);
+      await page.locator('button[name="eliminarScian"]').click();
+      await CofeprisRegistrationFlow.resolveDeleteDialog(page, 'accept');
+      await table.expectRowAbsent(clave);
+    });
+  }
+
+  /**
+   * Ticks "Aviso de funcionamiento", which disables the No. de licencia
+   * sanitaria field (the two are mutually exclusive on the materias-primas form).
+   */
+  private static async selectAvisoFuncionamiento(page: Page): Promise<void> {
+    await Logger.step('Select Aviso de funcionamiento (disables licencia sanitaria)', async () => {
+      await new Checkbox(page, 'aviso', 'control').check();
+      await expect(page.locator('[formcontrolname="licenciaSanitaria"]:visible')).toBeDisabled();
+    });
+  }
+
+  /** Régimen, Aduana, and (when the AIFA aduana is chosen) the AICM checkbox. */
+  private static async fillRegimenAduanaMateriasPrimas(page: Page, data: MateriasPrimasSolicitudData): Promise<void> {
+    await Logger.step('Fill régimen, aduana (+AICM)', async () => {
+      await new Dropdown(page, 'regimen', 'control').select(data.regimen);
+      await new Dropdown(page, 'adunasDeEntradas', 'control').select(data.aduana);
+      if (data.aduanaAicm) {
+        // Selecting the AIFA aduana reveals the "Aeropuerto Internacional Ciudad
+        // de México (AICM)" checkbox (formcontrolname="aeropuerto").
+        await new Checkbox(page, 'aeropuerto', 'control').check();
+      }
+    });
+  }
+
+  /** Adds each Mercancía record via the given modal handler. */
+  private static async addMercancias(
+    page: Page,
+    mercancias: MercanciaData[],
+    addMercancia: (page: Page, m: MercanciaData) => Promise<void>,
+  ): Promise<void> {
+    for (const m of mercancias) {
+      await addMercancia(page, m);
+    }
+  }
+
+  /**
+   * Deletes a Mercancía row, exercising both confirmation paths (manual TC16):
+   * first Eliminar → Cancelar (the row must remain), then Eliminar → Aceptar
+   * (the row is removed).
+   */
+  private static async deleteMercancia(page: Page, denominacionEspecifica: string): Promise<void> {
+    await Logger.step(`Delete Mercancía ${denominacionEspecifica} (cancel, then confirm)`, async () => {
+      const table = new DynamicTable(page, 'Mercancías');
+      // Cancel path — the row stays.
+      await table.selectRowByText(denominacionEspecifica);
+      await page.locator('button[name="eliminarMercancias"]').click();
+      await CofeprisRegistrationFlow.resolveDeleteDialog(page, 'cancel');
+      await table.expectRowExists(denominacionEspecifica);
+      // Confirm path — the row is deleted.
+      await table.selectRowByText(denominacionEspecifica);
+      await page.locator('button[name="eliminarMercancias"]').click();
+      await CofeprisRegistrationFlow.resolveDeleteDialog(page, 'accept');
+      await table.expectRowAbsent(denominacionEspecifica);
+    });
+  }
+
+  /**
+   * Resolves the shared COFEPRIS delete-confirmation dialog ("¿Estás seguro que
+   * deseas eliminar los registros marcados?"). Like the add-record modals it is a
+   * `.modal-content` with no accessible name, so it is scoped by its body text.
+   */
+  private static async resolveDeleteDialog(page: Page, action: 'accept' | 'cancel'): Promise<void> {
+    const dialog = page.locator('.modal-content')
+      .filter({ hasText: /eliminar los registros marcados/i });
+    await expect(dialog).toBeVisible();
+    const button = action === 'accept' ? /^\s*aceptar\s*$/i : /^\s*cancelar\s*$/i;
+    await dialog.getByRole('button', { name: button }).click();
+    await expect(dialog).toBeHidden({ timeout: 15_000 });
+  }
+
+  /**
    * Returns the Agregar/confirm button inside the currently-open modal.
    * The COFEPRIS add-record modals (S.C.I.A.N., Mercancía, Terceros) are
    * Bootstrap `.modal-content` dialogs with no reliable accessible name, so the
@@ -96,7 +230,20 @@ export class CofeprisRegistrationFlow {
       await new TextField(page, 'codigoPostal', 'control').fill(d.codigoPostal);
       await new Dropdown(page, 'estado', 'control').select(d.estado);
       await new TextField(page, 'municipioAlcaldia', 'control').fill(d.municipio);
+      // Localidad / Colonia are extra free-text fields on the materias-primas
+      // establecimiento form (260202); absent on the medicamentos siblings, so
+      // fill them only when supplied.
+      if (d.localidad) {
+        await new TextField(page, 'localidad', 'control').fill(d.localidad);
+      }
+      if (d.colonia) {
+        await new TextField(page, 'colonia', 'control').fill(d.colonia);
+      }
       await new TextField(page, 'calle', 'control').fill(d.calle);
+      // Lada likewise exists only on the materias-primas form (it precedes Teléfono).
+      if (d.lada) {
+        await new TextField(page, 'lada', 'control').fill(d.lada);
+      }
       await new TextField(page, 'telefono', 'control').fill(d.telefono);
     });
   }

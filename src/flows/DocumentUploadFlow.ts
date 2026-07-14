@@ -146,6 +146,11 @@ export class DocumentUploadFlow {
       // period-free substring so hasText matches regardless of the label's punctuation.
       licencia_sanitaria_o_aviso: 'Licencia Sanitaria o Aviso de Funcionamiento',
       licencia_sanitaria_vigente: 'Licencia Sanitaria vigente con el giro correspondiente',
+      // 260202 (materias primas) combines licencia + aviso de funcionamiento in a
+      // single row ("Licencia Sanitaria vigente, con el giro correspondiente o …
+      // Aviso de funcionamiento") — the comma breaks the 260204 substring, so use
+      // the shorter distinctive prefix which matches only this row.
+      licencia_o_aviso_funcionamiento: 'Licencia Sanitaria vigente',
       aviso_responsable:          'Aviso de responsable',
       registro_sanitario_vigente: 'Registro Sanitario vigente y sus modificaciones',
       proyectos_de_marbete:       'Proyectos de marbete.',

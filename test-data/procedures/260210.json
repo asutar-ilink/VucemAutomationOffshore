@@ -8,12 +8,6 @@
     "Pago de derechos"
   ],
 
-  "efirma": {
-    "cerPath": "test-data/files/aal0409235e6.cer",
-    "keyPath": "test-data/files/AAL0409235E6_1012231310.key",
-    "password": "<efirma-key-password>"
-  },
-
   "solicitante": {
     "rfc": "AAL0409235E6",
     "razonSocial": "INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV",

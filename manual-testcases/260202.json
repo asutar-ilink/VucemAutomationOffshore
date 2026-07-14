@@ -1,0 +1,100 @@
+[
+  {
+    "id": 16657,
+    "procedure": "260202",
+    "title": "registration Testcase",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Launch the application - https://portal-v30.cloud-ultrasist.net/portal/login-solicitante\n \nUpload Certificate and key for solicitante user. Certificate - aal0409235e6.cer and key  AAL0409235E6_1012231310.key and enter the password - <efirma-key-password>\nClick Ingresar\nSelect option Persona Moral from the dropdown - Seleccione la forma en la que desea ingresar and\nclick Aceptar\n\n\nClick Tramites and choose\noption Solicitudes nuevas and Launch the procedure - 260202",
+        "expected": "Page loads with header: “Permiso sanitario de importación de materias primas”\nStep indicator shows:\n\nPaso 1: Capturar solicitud (active)\nPaso 2: Anexar requisitos\nPaso 3: Firmar solicitud\n\nCheck whether Paso 1 - Capturar solicitud has below subtabs\nSolicitante | Datos de la solicitud | Terceros relacionados |Pago de derechos"
+      },
+      {
+        "step": 2,
+        "action": "Validate the below fields in each sections:\nNavigate to section - Datos generales del solicitante\nValidate below fields.\nRFC | Denominación o razón social | Correo electrónico\nNavigate to section : Domicilio fiscal del solicitante\nValidate below fields:\nPaís | Código postal |  Estado | Municipio o alcaldía | Localidad | Colonia | Calle | Número exterior",
+        "expected": "All fields are visible and non-editable\nAll values are auto-populated with below details\nSection - Datos generales del solicitante\nRFC → AALO40923SE6\nDenominación o razón social → INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV\nCorreo electrónico → vucem30@ultrasist.com.mx\n \nSection - Domicilio fiscal del solicitante\nPaís → ESTADOS UNIDOS MEXICANOS\nCódigo postal → 81210\nEstado → SINALOA\nMunicipio o alcaldía → AHOME\nLocalidad → LOS MOCHIS\nColonia → MIGUEL HIDALGO\nCalle → CAMINO VIEJO\nNúmero exterior → 1353"
+      },
+      {
+        "step": 3,
+        "action": "Navigate to Datos de la solicitud\nValidate fields are disabled before selecting Seleccionar\nEstablecimiento:\nObserve fields under Datos del establecimiento (RFC del responsable\nsanitario, Denominación o razón social, Correo electrónico)\nObserve fields under Domicilio del establecimiento (Código postal, Estado, Municipio o alcaldía, Localidad, Colonia, Calle, Lada, Teléfono)",
+        "expected": "All fields are disabled / non-editable\nUser is able to enter data successfully\nValues are retained correctly without errors"
+      },
+      {
+        "step": 4,
+        "action": "Navigate to Datos de la solicitud and click Seleccionar establecimiento\nClick Aceptar button in the popup.",
+        "expected": ""
+      },
+      {
+        "step": 5,
+        "action": "Enter details in Section - Datos del establecimiento\nRFC del responsable sanitario → RESP123456ABC\nDenominación o razón social → LABORATORIOS SALUD SA DE CV\nCorreo electrónico → contacto@salud.com",
+        "expected": "User is able to enter data successfully\nValues are retained correctly without errors"
+      },
+      {
+        "step": 6,
+        "action": "Enter details in Section - Domicilio\ndel establecimiento\nCódigo postal → 64000\nEstado → NUEVO LEÓN\nMunicipio o alcaldía → MONTERREY\nLocalidad → CENTRO\nColonia → OBISPADO\nCalle → AVENIDA SALUD\nLada → 81\nTeléfono → 12345678",
+        "expected": "User is able to enter data successfully\nValues are retained correctly without errors"
+      },
+      {
+        "step": 7,
+        "action": "Click Agregar under S.C.I.A.N.\n\n\nUser selects \"\" in \"Clave S.C.I.A.N dropdown with data\nbelow\nObserve Descripción del S.C.I.A.N.\nClick Agregar button in popup\nClave - 311101, 311112",
+        "expected": "Validate popup will be displayed with title: Clave S.C.I.A.N.\n \nVerify the records got added to the table."
+      },
+      {
+        "step": 8,
+        "action": "Select a record in the Table: S.C.I.A.N.\nClick Eliminar.\n\n\nClick Aceptar",
+        "expected": "Verify a popup is displayed is with\nmessage ¿Estás seguro que deseas eliminar los registros marcados?\n\n\nVerify popup is deleted from the\ntable."
+      },
+      {
+        "step": 9,
+        "action": "Select Aviso de funcionamiento check box",
+        "expected": "No. de licencia sanitaria will be disabled."
+      },
+      {
+        "step": 10,
+        "action": "1. Select a dropdown value for Régimen - Definitivos\n2. Select a dropdown value in Aduanas de entradas -\nAEROPUERTO INTERNACIONAL FELIPE ANGELES, MEXICO\n3. Select the checkbox value",
+        "expected": "2. Aeropuerto Internacional Ciudad de México (AICM) check box will be displayed."
+      },
+      {
+        "step": 11,
+        "action": "Validate the Mercancías table headers",
+        "expected": "Clasificación del product | Especificar clasificación del product | Denominación específica\ndel product | Denominación distintiva | Denominación común, nombre común o\nnombre científico | Forma farmacéutica | Estado físico | Fracción arancelaria |\nDescripción de la fracción | Unidad de medida de comercialización (UMC) |\nCantidad UMC | Unidad de medida de tarifa (UMT) | Cantidad UMT | Presentación\n|Número de registro sanitario| País de origen |País de procedencia | Tipo\nproducto| Uso especifico"
+      },
+      {
+        "step": 12,
+        "action": "Click Agregar to add a new record\n \nEnter/select values for all mandatory fields: Clasificación del producto →\nAlimentos Especificar clasificación del producto → Procesados Denominación\nespecífica del producto → Conserva de frutas Denominación distintiva → Marca\nSalud Denominación o nombre científico → Fructus conservatus Tipo de producto →\nConsumo humano Forma farmacéutica → No aplica Estado físico → Sólido Fracción\narancelaria → 20079999 Cantidad UMT → 100 Cantidad UMC → 50 UMC → Caja\nPresentación farmacéutica o tipo de envase → Envase de vidrio",
+        "expected": "A popup with title : Agregar Datos de Mercancía, will be displayed."
+      },
+      {
+        "step": 13,
+        "action": "Enter/select values for all mandatory fields in Datos mercancia form\nClasificación del producto → BIOLOGICOS\nEspecificar clasificación del producto → VII. Antibióticos\nDenominación específica del producto → Amoxicilina suspensión\nDenominación distintiva → AmoxiCare\nDenominación o nombre científico → Amoxicillin trihydrate\nTipo de producto → Producto a granel\nForma farmacéutica → Suspensiones\nEstado físico → Líquido\nFracción arancelaria → 30039013\nCantidad UMT → 100\nCantidad UMC → 50\nUMC → Caja\nPresentación farmacéutica o tipo de envase → Frasco\nIn País de origen, select MÉXICO from left list and click Agregar selección\nIn País de procedencia, select ALEMANIA and click Agregar selección\nIn Uso específico, select VENTA O COMERCIALIZACIÓN and click Agregar selección\n\n\n\n  Click Agregar.",
+        "expected": "All fields accept input/selection and values are displayed correctly\n\nSelected value moves to País(es) seleccionado(s) panel\n\nSelected value moves to Uso específico seleccionado panel\n\n\n\n   The form is saved and closed."
+      },
+      {
+        "step": 14,
+        "action": "Validate the details in the form mapped to the Mercancia table",
+        "expected": "Record is displayed in Mercancías table grid\nAll column values match the entered data\nData is correctly mapped from form to table\nNo data is missing or incorrectly placed"
+      },
+      {
+        "step": 15,
+        "action": "Repeat above steps to add an additional record",
+        "expected": "Once record is added, validate a new record with required details is displayed in\nthe table."
+      },
+      {
+        "step": 16,
+        "action": "Select a record in Mercancias table\nClick Eliminar\n\nClick Cancelar\n\nSelect a record in Mercancias tableClick Eliminar\nOn clicking Aceptar",
+        "expected": "The error message displayed in the popup¿Estás seguro que deseas eliminar los registros marcados?\n\nThe popup is dismissed and no record is deleted.\n\nThe record is deleted."
+      },
+      {
+        "step": 17,
+        "action": "Manifiestos y declaraciones: Validate the content displayed\n\nCumplo con los requisitos y normatividad aplicable, sin que me eximan de que la\nautoridad sanitaria verifique su cumplimiento, esto sin perjuicio de las\nsanciones en que puedo incurrir por falsedad de declaraciones dadas a una\nautoridad. Asimismo acepto que la notificación de este trámite, sea a través de\nla Ventanilla Única de Comercio Exterior por los mecanismos de la misma.\n\nSelect the checkbox",
+        "expected": "The content is given as expected. And the checkbox is selected"
+      }
+    ],
+    "parameters": null
+  }
+]
