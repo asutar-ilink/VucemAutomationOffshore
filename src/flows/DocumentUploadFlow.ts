@@ -155,6 +155,8 @@ export class DocumentUploadFlow {
       registro_sanitario_vigente: 'Registro Sanitario vigente y sus modificaciones',
       proyectos_de_marbete:       'Proyectos de marbete.',
       pago_de_derechos:           'Pago de derechos',
+      // 260215 (dispositivos médicos, investigación) mandatory requisito.
+      carta_tecnica:              'Carta técnica del producto',
       otro:                       'Otro',
     };
 
