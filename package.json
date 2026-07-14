@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "VUCEM government portal automation framework — Playwright + TypeScript",
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks",
     "test": "playwright test",
     "test:cofepris": "playwright test tests/cofepris/",
     "test:headed": "playwright test --headed",

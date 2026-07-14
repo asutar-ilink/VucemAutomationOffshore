@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Git-native pre-push guard — backstop that scans commits being pushed for
+# secrets. pre-commit is the primary guard; this catches anything already in
+# local history before it reaches the remote.
+exec "$(dirname "$0")/secret-scan.sh" --range "@{upstream}" "HEAD"

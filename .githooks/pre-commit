@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Git-native pre-commit guard — blocks a commit whose staged content contains
+# a secret. Protects everyone using plain git, not just Claude Code.
+# Enabled via `core.hooksPath=.githooks` (set by `npm install` → prepare script).
+exec "$(dirname "$0")/secret-scan.sh" --staged
