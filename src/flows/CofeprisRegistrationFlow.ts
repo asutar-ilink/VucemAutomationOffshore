@@ -468,10 +468,16 @@ export class CofeprisRegistrationFlow {
       // <select multiple>, then click its VISIBLE "Agregar selección" (hidden país
       // dual-lists carry the same button label), verifying the value lands.
       if (m.usoEspecifico) {
+        // Expand the collapsed panel, then let the crosslist's Angular component
+        // initialise BEFORE selecting — otherwise "Agregar selección" moves the
+        // option in the DOM but not in the reactive-form model, so the commit stays
+        // invalid (the "seleccionado" target keeps value="" / ng-invalid).
         if (!(await modal.locator('select[multiple]:visible').first().count())) {
           await modal.getByText('Uso específico', { exact: true }).first().click();
           await modal.locator('select[multiple]:visible').first().waitFor({ state: 'visible', timeout: 10_000 });
         }
+        await CofeprisRegistrationFlow.settle(800);
+
         const norm = (s: string) =>
           s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
         const source = modal.locator('select[multiple]:visible').first();
@@ -483,34 +489,32 @@ export class CofeprisRegistrationFlow {
         if (!match) {
           throw new Error(`No uso específico option ~ "${uso}". Got: ${options.map(o => o.text).slice(0, 8).join(' | ')}`);
         }
-        const isMoved = () => modal.evaluate((root, u) => {
-          const n = (s: string) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
-          const vis = (e: Element) => !!(e as HTMLElement).offsetParent;
-          const sels = Array.from(root.querySelectorAll('select[multiple]')).filter(vis) as HTMLSelectElement[];
-          // the "seleccionado" list is the small one (source holds the whole catalogue).
-          return sels.some(s => s.options.length > 0 && s.options.length < 10
-            && Array.from(s.options).some(o => n(o.textContent).includes(n(u))));
-        }, uso);
-        let ok = false;
-        for (let attempt = 0; attempt < 6 && !ok; attempt++) {
-          await source.selectOption(match.value);
-          await modal.locator('button').filter({ hasText: /Agregar selección/ })
-            .locator('visible=true').first().click();
-          ok = await isMoved();
-          if (!ok) {
-            await source.waitFor({ state: 'visible' }).catch(() => undefined);
+        const agregarSel = modal.locator('button').filter({ hasText: /Agregar selección/ }).locator('visible=true').first();
+        const commit = modal.getByRole('button', { name: /^\s*agregar\s*$/i });
+        // Moving the uso into the "seleccionado" list registers in Angular's model
+        // racily, so the commit can no-op. Retry the whole move+commit until the
+        // modal actually closes: re-select the value (only while it's still in the
+        // source list), settle, then commit.
+        let committed = false;
+        for (let attempt = 0; attempt < 5 && !committed; attempt++) {
+          const stillInSource = await source.locator('option')
+            .filter({ hasText: new RegExp(match.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') }).count();
+          if (stillInSource) {
+            await source.selectOption(match.value).catch(() => undefined);
+            await agregarSel.click().catch(() => undefined);
           }
+          await CofeprisRegistrationFlow.settle(800);
+          await commit.click().catch(() => undefined);
+          committed = await modal.isHidden().catch(() => false);
+          if (!committed) await CofeprisRegistrationFlow.settle(700);
         }
-        if (!ok) {
-          throw new Error(`Uso específico "${uso}" could not be moved to the selected list`);
+        if (!committed) {
+          throw new Error(`Uso específico "${uso}" / Mercancía commit did not register`);
         }
-        // Let Angular's reactive-form model catch up with the moved uso before commit.
-        await CofeprisRegistrationFlow.settle(800);
+      } else {
+        await modal.getByRole('button', { name: /^\s*agregar\s*$/i }).click();
+        await expect(modal).toBeHidden({ timeout: 15_000 });
       }
-
-      // Commit (single Agregar in the modal once the país/uso widgets have settled).
-      await modal.getByRole('button', { name: /^\s*agregar\s*$/i }).click();
-      await expect(modal).toBeHidden({ timeout: 15_000 });
       await new DynamicTable(page, 'Mercancías').expectRowExists(m.marcaComercial ?? m.denominacionDistintiva);
     });
   }
