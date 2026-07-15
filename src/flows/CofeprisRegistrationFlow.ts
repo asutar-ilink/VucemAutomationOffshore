@@ -531,7 +531,35 @@ export class CofeprisRegistrationFlow {
   /** Accept the Manifiestos y declaraciones declaration. */
   private static async acceptManifiestos(page: Page): Promise<void> {
     await Logger.step('Accept Manifiestos y declaraciones', async () => {
-      await new Checkbox(page, 'manifesto', 'control').check();
+      // Medicamentos: the checkbox has a formcontrolname ('manifesto'). Precursores
+      // (260604) uses a bare checkbox with no formcontrolname/id.
+      const byFcn = page.locator(
+        'input[type="checkbox"][formcontrolname="manifesto"]:visible, ' +
+        'input[type="checkbox"][formcontrolname="cumplimiento"]:visible',
+      );
+      if (await byFcn.count()) {
+        await byFcn.first().check();
+        return;
+      }
+      // Tag the visible checkbox nearest (in DOM order) to the "Cumplo con los
+      // requisitos…" declaration, then check it via Playwright so Angular registers it.
+      const tagged = await page.evaluate(() => {
+        // The manifiestos declaration is the only standalone checkbox: the other
+        // checkboxes are the S.C.I.A.N./Mercancías/Terceros table "select all"
+        // headers (inside a table) and the "Aviso de funcionamiento" toggle.
+        const box = Array.from(document.querySelectorAll('input[type="checkbox"]')).find(cb =>
+          !!(cb as HTMLElement).offsetParent
+          && cb.getAttribute('formcontrolname') !== 'aviso'
+          && cb.id !== 'aviso'
+          && !cb.closest('table, thead, tbody, app-tabla-dinamica, [role="grid"], [role="row"], [role="columnheader"]'));
+        if (!box) return false;
+        box.setAttribute('data-vucem-manifiesto', '1');
+        return true;
+      });
+      if (!tagged) {
+        throw new Error('Manifiestos declaration checkbox not found');
+      }
+      await page.locator('[data-vucem-manifiesto="1"]').check();
     });
   }
 
