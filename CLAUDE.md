@@ -13,17 +13,25 @@ Keep it simple — this repo is small.
 
 ```
 1. Read manual-testcases/<proc>.json   → scenarios, steps, expected results
-2. Explore the happy path in the LIVE app with the Playwright Agent CLI (playwright-cli skill:
-     `playwright-cli open <baseUrl>` → `state-load auth/state.json` → `snapshot`)
+2. Explore the happy path in the LIVE app with the Playwright Agent CLI (playwright-cli skill;
+     needs a FRESH e.firma login — see "Driving the live app" below)
      → understand tabs/dialogs/uploads/validations, derive & verify selectors
 3. Write framework code (vucem-framework templates): component → flow → procedure → spec
 4. Run the spec (npm run test:headed), then npm run typecheck && npm run lint
      (review results via `npm run allure:serve` or the Playwright HTML report; see vucem-framework skill)
-5. On failure: inspect error-context + trace FIRST (`/debug-test` command) — don't rewrite blind
+5. On failure: inspect error-context + trace AND **`Read` the failure screenshot**
+     (`test-results/…/test-failed-1.png`) FIRST — validation dialogs render there but are easy to miss
+     in the a11y text (`/debug-test` command); don't rewrite blind
 6. Fix at the correct layer, re-run to green
 ```
 
 - **Explore before you code.** Never guess selectors, invent page structure, or work from memory.
+- **Never use a manual's literal date — use a FUTURE date.** COFEPRIS date fields (e.g. Fecha de
+  movimiento) reject past dates with a validation dialog that silently blocks the modal commit;
+  the manuals' hard-coded dates go stale. Pick a date ≥1–2 weeks ahead in `test-data/procedures/<proc>.json`.
+- **COFEPRIS forms diverge a lot by procedure family — never assume the medicamentos shape.** Field
+  names, Mercancía shape (modal vs inline), tab count/markup, and dual-list widgets differ; always
+  probe the specific procedure. Details in the `vucem-framework` skill.
 - **Reuse what you already probed this session.** Only re-probe when a selector or behavior is
   genuinely uncertain — repeated codegen runs waste time.
 - **A derived locator is a discovery aid, not code to keep** — read it off (Agent CLI `generate-locator`
@@ -36,24 +44,29 @@ The official `playwright-cli` (global install; `playwright-cli install --skills`
 version nag**) is the primary way to explore VUCEM. Reuse the saved **e.firma** session — never log in
 by hand.
 
-**The session is cross-origin — hit the portal before the app.** `auth/state.json` stores the token in
-`portal-v30.cloud-ultrasist.net` localStorage (+ a `refresh_token` cookie on `api-v30…`), **not** on
-`front.v30`. Opening `front.v30` directly always bounces to login. Correct handshake:
+**`auth/state.json` is NOT enough to reach the app — do a fresh e.firma login.** state-load + `goto
+portal-v30…/` reaches `/portal/home`, but `front.v30` keeps its token in **sessionStorage** (which
+storageState does not restore), so going there just shows an empty role picker / bounces to login.
+Replay the real login in the CLI (same steps the `authenticatedPage` fixture uses; password from the
+gitignored `test-data/envs/qa.json`):
 
 ```
 playwright-cli open
-playwright-cli state-load auth/state.json
-playwright-cli goto https://portal-v30.cloud-ultrasist.net/          # activates the session → /portal/home
-playwright-cli goto https://front.v30.ultrasist.net/seleccion-rol    # authenticated app: "Selección de rol"
-playwright-cli snapshot                                              # role picker + "Aceptar" → then pick role & proceed
-# ...walk the happy path; derive selectors with generate-locator / eval...
+playwright-cli goto https://portal-v30.cloud-ultrasist.net/portal/login-solicitante
+# the e.firma widget is inside an iframe, so drive it via run-code:
+#   frameLocator('iframe[src*="/login"]') → #cer.setInputFiles(.cer) · #key.setInputFiles(.key)
+#   · #password.fill(pw) · click "Ingresar"  → waits for /seleccion-rol
+playwright-cli run-code --filename=login.js
+# then role: select 'Persona Moral' + Aceptar → bandeja → Trámites → Solicitudes nuevas → open <code>
+playwright-cli run-code --filename=open-<code>.js
+playwright-cli snapshot            # derive selectors (generate-locator / eval)
 playwright-cli close
 ```
 
-If the portal itself shows "Ingreso a VUCEM" / `/login`, the session is stale → `npm run auth` to
-refresh `auth/state.json`, then retry. Read `formcontrolname` off a snapshot ref with
-`playwright-cli eval "el => el.getAttribute('formcontrolname')" e5` (see COFEPRIS note under Locator
-strategy). Locators still belong **only in components** — the CLI just discovers them.
+**Drive probes via `run-code --filename=<script.js>` (use `page.evaluate` for DOM reads) — inline
+`eval` mangles quotes/newlines in this shell.** Read `formcontrolname` with
+`playwright-cli eval "el => el.getAttribute('formcontrolname')" e5` (see the COFEPRIS note under
+Locator strategy). Locators still belong **only in components** — the CLI just discovers them.
 
 ## Where information comes from
 
