@@ -1,0 +1,87 @@
+{
+  "procedureCode": "260604",
+  "procedureTitle": "Aviso de exportación de precursores químicos o productos químicos esenciales",
+  "tabs": [
+    "Solicitante",
+    "Datos de la solicitud",
+    "Terceros relacionados"
+  ],
+
+  "solicitante": {
+    "rfc": "AAL0409235E6",
+    "razonSocial": "INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV",
+    "correo": "vucem30@ultrasist.com.mx",
+    "pais": "ESTADOS UNIDOS MEXICANOS",
+    "codigoPostal": "81210",
+    "estado": "SINALOA",
+    "municipio": "AHOME",
+    "localidad": "LOS MOCHIS",
+    "colonia": "MIGUEL HIDALGO",
+    "calle": "CAMINO VIEJO",
+    "numeroExterior": "1353",
+    "lada": "55",
+    "telefono": "98764532"
+  },
+
+  "establecimiento": {
+    "rfcResponsable": "AAL0409235E6",
+    "denominacion": "Denominación",
+    "correo": "test@test.com",
+    "codigoPostal": "06000",
+    "estado": "DURANGO",
+    "municipio": "Municipio",
+    "calle": "Calle",
+    "telefono": "5551234567"
+  },
+
+  "scian": {
+    "clave": "311239",
+    "descripcion": "Producción de otros alimentos a base de leche."
+  },
+
+  "licenciaSanitaria": "LIC123456",
+  "regimen": "Definitivos",
+  "aduana": "COLOMBIA",
+
+  "mercancia": {
+    "clasificacionProducto": "PRECURSORES QUIMICOS",
+    "especificarClasificacion": "No aplica",
+    "denominacionEspecifica": "",
+    "denominacionDistintiva": "",
+    "denominacionComun": "",
+    "tipoProducto": "Aditivo",
+    "formaFarmaceutica": "",
+    "estadoFisico": "Líquido",
+    "fraccionArancelaria": "29333299",
+    "descripcionFraccion": "",
+    "cantidadUmt": "",
+    "umt": "",
+    "cantidadUmc": "12",
+    "umc": "Juego",
+    "presentacion": "test34",
+    "numeroRegistroSanitario": "",
+    "fechaCaducidad": "",
+    "paisOrigen": "ARUBA (TERRITORIO HOLANDES DE ULTRAMAR)",
+    "paisProcedencia": "ARGENTINA (REPUBLICA)",
+    "usoEspecifico": "CONSERVACIÓN",
+    "marcaComercial": "test23432",
+    "denominacionGenericaDci": "test32432432",
+    "porcentajeConcentracion": "12",
+    "valorComercial": "12",
+    "fechaMovimiento": "2026-06-26",
+    "paisDestino": "MEXICO (ESTADOS UNIDOS MEXICANOS)"
+  },
+
+  "datosPublicos": "No",
+
+  "representanteLegal": {
+    "rfc": "MAVL621207C95",
+    "nombre": "EUROFOODS DE MEXICO",
+    "apellidoPaterno": "GONZALEZ",
+    "apellidoMaterno": "PINAL"
+  },
+
+  "documents": [
+    { "type": "Otro", "path": "test-data/files/registro_sanitario.pdf" }
+  ]
+}

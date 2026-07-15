@@ -75,6 +75,18 @@ export interface MercanciaData {
   paisOrigen: string;
   paisProcedencia: string;
   usoEspecifico: string;
+  /**
+   * Precursores-químicos modal (260604) fields, absent on the other modals:
+   * marca comercial / DCI, porcentaje de concentración, valor comercial, the
+   * "Fecha de movimiento" calendar, and a País de destino (a plain dropdown, not
+   * a crosslist). Optional so the other Mercancía handlers are unaffected.
+   */
+  marcaComercial?: string;
+  denominacionGenericaDci?: string;
+  porcentajeConcentracion?: string;
+  valorComercial?: string;
+  fechaMovimiento?: string;
+  paisDestino?: string;
 }
 
 export interface RepresentanteLegalData {
