@@ -27,7 +27,7 @@ src/types/cofepris.ts  CofeprisRegistrationData SolicitanteData EstablecimientoD
                        RepresentanteLegalData TerceroData PagoData
 src/utils/Logger.ts    Logger.step() wraps test.step() (trace viewer + Allure) · Allure metadata helpers (attach/severity/tags/suite)
 src/utils/ArtifactStore.ts  saveFolio() / saveDocument() → executed-procedure-artifacts/ (both async; also attach to Allure)
-tests/auth.setup.ts    setup project, saves auth/state.json (used by codegen; see fixture note below)
+tests/auth.setup.ts    setup project, saves auth/state.json once (reused by every test + codegen; see fixture note below)
 tests/cofepris/*.spec.ts
 test-data/envs/*.json  baseUrl + credentials per env   ·   procedures/*.json  ·  files/ (upload PDFs + .cer/.key)
 ```
@@ -88,11 +88,14 @@ SubmissionFlow.startNewSolicitud(page) | openProcedureFromCatalogue(page, code) 
 import { test, expect } from '../../src/fixtures';
 test('...', async ({ authenticatedPage }) => { /* already logged in — no LoginFlow call */ });
 ```
-`authenticatedPage` performs a **fresh e.firma login per test** (in its own context), then selects the
-role from `test-data/envs/{ENV}.json`, landing on the bandeja. It does **not** restore `auth/state.json`:
-VUCEM keeps its token in `sessionStorage`, which Playwright's `storageState` does not persist, so a saved
-state bounces to the login page. Costs ~20s/test but is the only reliable model. (`auth/state.json` is
-still used by `npm run codegen` for interactive exploration.)
+`authenticatedPage` **reuses the saved session** (`auth/state.json`) — it does not log in per test.
+It restores the state (cookies + localStorage) into a fresh context and navigates straight to the
+bandeja (~2s). front.v30's own access token lives in `sessionStorage` (which `storageState` drops), but
+it is silently re-minted from the 24h `refresh_token` cookie the saved state carries, so a restored
+context is fully authenticated once it hits an app route. Role selection is skipped — `seleccion-rol`
+builds its dropdown only from the one-time login fragment, so `restoreSession` goes to the bandeja
+directly and the app defaults to the user's principal role. If the state is missing/expired the fixture
+falls back to a full e.firma login (using `test-data/envs/{ENV}.json`) and re-saves fresh state.
 
 ---
 
@@ -285,11 +288,13 @@ procedencia, descripción de la fracción, régimen on some forms); guard with `
 
 ## Auth & env
 
-- `authenticatedPage` logs in fresh per test (see the Fixture note above) using `test-data/envs/{ENV}.json`
-  e.firma creds — it does **not** restore `auth/state.json`. Login flow changed → update
-  `src/flows/LoginFlow.ts`.
-- `tests/auth.setup.ts` (the `setup` project) still writes `auth/state.json`, which `npm run codegen` loads
-  for interactive selector exploration. "Not logged in" during codegen → `npm run auth` to refresh it.
+- `authenticatedPage` reuses the saved session per test (see the Fixture note above), falling back to a
+  full e.firma login only when `auth/state.json` is missing/expired. Login flow changed → update
+  `src/flows/LoginFlow.ts` (the e.firma submit button is **"Iniciar sesión"**; `restoreSession` lands on
+  `/bandeja-de-tareas-pendientes`).
+- `tests/auth.setup.ts` (the `setup` project) writes `auth/state.json` once before the suite; every test
+  then reuses it, and `npm run codegen` loads it for interactive exploration. The state's `refresh_token`
+  is valid ~24h. "Not logged in" (tests bounce, or codegen) → `npm run auth` to refresh it.
 - Target env via `ENV` (`qa` default, `staging`). New env → add `test-data/envs/<name>.json` like `qa.json`.
 
 ## Reporting (Allure + Playwright HTML)
@@ -327,9 +332,10 @@ setting up a JDK, aggregates every shard's `allure-results/` into a single **`al
 - **No page-object-per-procedure** — ~70% shared UI; shared code in components/flows, procedures hold only
   what differs. **Static flow methods** — flows are stateless action sequences. **JSON test data** — native
   typed imports, no parser. **`getByLabel` primary, `'control'` for COFEPRIS** — reactive forms repeat ids.
-  **Fresh e.firma login per test** — the app's `sessionStorage` token can't be restored from disk; correctness
-  over the ~20s cost. **`fullyParallel: false`, `workers: 2` locally** — government portal may rate-limit;
-  raise workers only after verifying.
+  **Reuse the saved session per test** — restore `auth/state.json` and land on the bandeja (~2s); front.v30
+  re-mints its `sessionStorage` access token from the 24h `refresh_token` cookie, so no e.firma login per
+  test (fixture falls back to a full login only when state is missing/expired). **`fullyParallel: false`,
+  `workers: 2` locally** — government portal may rate-limit; raise workers only after verifying.
 
 Not built yet (add when a procedure needs it, following existing patterns): `Accordion`,
 `ApprovalFlow`/`ObservationFlow` (review/resubmission cycle), the `se/` and `aga/` departments, and further

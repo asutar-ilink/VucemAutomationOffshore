@@ -252,7 +252,11 @@ export class CofeprisRegistrationFlow {
     await Logger.step('Fill Datos del establecimiento', async () => {
       // Fields share ids with the Solicitante section, so target by unique
       // formControlName (see TextField 'control' strategy).
-      await new TextField(page, 'rfcSanitario', 'control').fill(d.rfcResponsable);
+      // rfcSanitario is absent on some establecimiento forms (e.g. 260604), so
+      // fill it only when present.
+      if (await page.locator('[formcontrolname="rfcSanitario"]:visible').count()) {
+        await new TextField(page, 'rfcSanitario', 'control').fill(d.rfcResponsable);
+      }
       await new TextField(page, 'denominacionRazon', 'control').fill(d.denominacion);
       await new TextField(page, 'correoElectronico', 'control').fill(d.correo);
       await new TextField(page, 'codigoPostal', 'control').fill(d.codigoPostal);
@@ -291,7 +295,12 @@ export class CofeprisRegistrationFlow {
   private static async fillLicenciaRegimenAduana(page: Page, data: CofeprisRegistrationData): Promise<void> {
     await Logger.step('Fill licencia sanitaria, régimen, aduana', async () => {
       await new TextField(page, 'licenciaSanitaria', 'control').fill(data.licenciaSanitaria);
-      await new Dropdown(page, 'regimen', 'control').select(data.regimen);
+      // On some procedures (e.g. the aviso-exportación 260604) Régimen is rendered
+      // read-only/disabled (fixed by the trámite), so select it only when editable.
+      const regimen = page.locator('app-catalogo-select[name="regimen"] select:visible');
+      if (await regimen.count() && !(await regimen.first().isDisabled())) {
+        await new Dropdown(page, 'regimen', 'control').select(data.regimen);
+      }
       await new Dropdown(page, 'adunasDeEntradas', 'control').select(data.aduana);
     });
   }
@@ -392,10 +401,165 @@ export class CofeprisRegistrationFlow {
     });
   }
 
+  /**
+   * Mercancía modal for the *precursores químicos* trámite (260604). A distinct
+   * "Datos del producto" shape: marca comercial / DCI instead of the medicamentos
+   * denominaciones, a Porcentaje de concentración, a Valor comercial, a "Fecha de
+   * movimiento" calendar, and País de origen/destino/procedencia as plain
+   * dropdowns (not crosslists). No Uso específico or Número de registro.
+   */
+  /**
+   * A small fixed pause for the precursores Mercancía modal only. Its País
+   * auto-derive and Uso dual-list update the DOM BEFORE Angular's reactive-form
+   * model, and expose no observable completion signal — polling the DOM passes
+   * while the model is still empty, so the commit sees an invalid form. Used
+   * sparingly and only here (not a substitute for real waits elsewhere).
+   */
+  private static settle(ms: number): Promise<void> {
+    return new Promise(resolve => { setTimeout(resolve, ms); });
+  }
+
+  static async addMercanciaPrecursores(page: Page, m: MercanciaData): Promise<void> {
+    await Logger.step('Add Mercancía record (precursores químicos)', async () => {
+      await page.locator('button[name="agregarMercancias"]')
+        .filter({ hasText: /agregar/i }).locator('visible=true').first().click();
+
+      await new Dropdown(page, 'clasificacionProducto', 'control').select(m.clasificacionProducto);
+      await new Dropdown(page, 'especificarClasificacionProducto', 'control').select(m.especificarClasificacion);
+      await new TextField(page, 'marcaComercialODenominacionDistintiva', 'control')
+        .fill(m.marcaComercial ?? m.denominacionDistintiva);
+      await new TextField(page, 'denominacionComunInternacional', 'control')
+        .fill(m.denominacionGenericaDci ?? m.denominacionComun);
+      await new Dropdown(page, 'tipoProducto', 'control').select(m.tipoProducto);
+      await new Dropdown(page, 'estadoFisico', 'control').select(m.estadoFisico);
+      // fraccionArancelaria is a text input; descripcionFraccion auto-fills (disabled).
+      await new TextField(page, 'fraccionArancelaria', 'control').fill(m.fraccionArancelaria);
+      await new TextField(page, 'cantidadUmcValor', 'control').fill(m.cantidadUmc);
+      await new Dropdown(page, 'cantidadUmc', 'control').select(m.umc);
+      await new TextField(page, 'PorcentajeDeConcentracion', 'control').fill(m.porcentajeConcentracion ?? '');
+      await new TextField(page, 'valorComercial', 'control').fill(m.valorComercial ?? '');
+      await new TextField(page, 'presentacion', 'control').fill(m.presentacion);
+      if (m.fechaMovimiento) {
+        await CofeprisRegistrationFlow.setFechaByLabel(page, 'Fecha de movimiento', m.fechaMovimiento);
+      }
+
+      const modal = page.locator('#mercanciaModal');
+
+      // País de origen / destino / procedencia are single-select dropdowns here
+      // (not crosslists). País de procedencia is auto-derived and rendered
+      // disabled, so each is set only when present and editable.
+      const selectPais = async (name: string, value: string): Promise<void> => {
+        const sel = page.locator(`app-catalogo-select[name="${name}"] select:visible`);
+        if (await sel.count() && !(await sel.first().isDisabled())) {
+          await new Dropdown(page, name, 'control').select(value);
+        }
+      };
+      await selectPais('paisDeOrigen', m.paisOrigen);
+      await selectPais('paisDestino', m.paisDestino ?? m.paisProcedencia);
+      await selectPais('paisProcedencia', m.paisProcedencia);
+
+      // Selecting país de destino auto-derives país de procedencia and re-renders
+      // the modal; let Angular finish that re-render before the uso dual-list,
+      // otherwise the re-render corrupts a just-moved uso value.
+      await CofeprisRegistrationFlow.settle(1200);
+
+      // Uso específico is a dual-list in a COLLAPSED panel (no <crosslist> wrapper,
+      // so CrossList can't drive it). Expand it, select the value in the source
+      // <select multiple>, then click its VISIBLE "Agregar selección" (hidden país
+      // dual-lists carry the same button label), verifying the value lands.
+      if (m.usoEspecifico) {
+        // Expand the collapsed panel, then let the crosslist's Angular component
+        // initialise BEFORE selecting — otherwise "Agregar selección" moves the
+        // option in the DOM but not in the reactive-form model, so the commit stays
+        // invalid (the "seleccionado" target keeps value="" / ng-invalid).
+        if (!(await modal.locator('select[multiple]:visible').first().count())) {
+          await modal.getByText('Uso específico', { exact: true }).first().click();
+          await modal.locator('select[multiple]:visible').first().waitFor({ state: 'visible', timeout: 10_000 });
+        }
+        await CofeprisRegistrationFlow.settle(800);
+
+        const norm = (s: string) =>
+          s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+        const source = modal.locator('select[multiple]:visible').first();
+        await expect.poll(async () => source.locator('option').count()).toBeGreaterThan(0);
+        const options = await source.locator('option').evaluateAll(els =>
+          (els as HTMLOptionElement[]).map(e => ({ value: e.value, text: (e.textContent || '').replace(/\s+/g, ' ').trim() })));
+        const uso = m.usoEspecifico;
+        const match = options.find(o => norm(o.text) === norm(uso)) ?? options.find(o => norm(o.text).includes(norm(uso)));
+        if (!match) {
+          throw new Error(`No uso específico option ~ "${uso}". Got: ${options.map(o => o.text).slice(0, 8).join(' | ')}`);
+        }
+        const agregarSel = modal.locator('button').filter({ hasText: /Agregar selección/ }).locator('visible=true').first();
+        const commit = modal.getByRole('button', { name: /^\s*agregar\s*$/i });
+        // Moving the uso into the "seleccionado" list registers in Angular's model
+        // racily, so the commit can no-op. Retry the whole move+commit until the
+        // modal actually closes: re-select the value (only while it's still in the
+        // source list), settle, then commit.
+        let committed = false;
+        for (let attempt = 0; attempt < 5 && !committed; attempt++) {
+          const stillInSource = await source.locator('option')
+            .filter({ hasText: new RegExp(match.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') }).count();
+          if (stillInSource) {
+            await source.selectOption(match.value).catch(() => undefined);
+            await agregarSel.click().catch(() => undefined);
+          }
+          await CofeprisRegistrationFlow.settle(800);
+          await commit.click().catch(() => undefined);
+          committed = await modal.isHidden().catch(() => false);
+          if (!committed) await CofeprisRegistrationFlow.settle(700);
+        }
+        if (!committed) {
+          throw new Error(`Uso específico "${uso}" / Mercancía commit did not register`);
+        }
+      } else {
+        await modal.getByRole('button', { name: /^\s*agregar\s*$/i }).click();
+        await expect(modal).toBeHidden({ timeout: 15_000 });
+      }
+      await new DynamicTable(page, 'Mercancías').expectRowExists(m.marcaComercial ?? m.denominacionDistintiva);
+    });
+  }
+
+  /**
+   * Advances Paso 1 → Paso 2 for procedures with no Pago de derechos tab
+   * (e.g. the 3-tab 260604): a single Continuar with no "no requiere pago"
+   * confirmation.
+   */
+  static async continueToPaso2(page: Page): Promise<void> {
+    await CofeprisRegistrationFlow.continuarToPaso2(page, false);
+  }
+
   /** Accept the Manifiestos y declaraciones declaration. */
   private static async acceptManifiestos(page: Page): Promise<void> {
     await Logger.step('Accept Manifiestos y declaraciones', async () => {
-      await new Checkbox(page, 'manifesto', 'control').check();
+      // Medicamentos: the checkbox has a formcontrolname ('manifesto'). Precursores
+      // (260604) uses a bare checkbox with no formcontrolname/id.
+      const byFcn = page.locator(
+        'input[type="checkbox"][formcontrolname="manifesto"]:visible, ' +
+        'input[type="checkbox"][formcontrolname="cumplimiento"]:visible',
+      );
+      if (await byFcn.count()) {
+        await byFcn.first().check();
+        return;
+      }
+      // Tag the visible checkbox nearest (in DOM order) to the "Cumplo con los
+      // requisitos…" declaration, then check it via Playwright so Angular registers it.
+      const tagged = await page.evaluate(() => {
+        // The manifiestos declaration is the only standalone checkbox: the other
+        // checkboxes are the S.C.I.A.N./Mercancías/Terceros table "select all"
+        // headers (inside a table) and the "Aviso de funcionamiento" toggle.
+        const box = Array.from(document.querySelectorAll('input[type="checkbox"]')).find(cb =>
+          !!(cb as HTMLElement).offsetParent
+          && cb.getAttribute('formcontrolname') !== 'aviso'
+          && cb.id !== 'aviso'
+          && !cb.closest('table, thead, tbody, app-tabla-dinamica, [role="grid"], [role="row"], [role="columnheader"]'));
+        if (!box) return false;
+        box.setAttribute('data-vucem-manifiesto', '1');
+        return true;
+      });
+      if (!tagged) {
+        throw new Error('Manifiestos declaration checkbox not found');
+      }
+      await page.locator('[data-vucem-manifiesto="1"]').check();
     });
   }
 
@@ -593,21 +757,28 @@ export class CofeprisRegistrationFlow {
     await CofeprisRegistrationFlow.continuarToPaso2(page);
   }
 
-  /**
-   * Fecha de pago is a custom calendar widget (no <input>, and its id
-   * "input_fecha" repeats across every date field). Click the calendar icon
-   * next to the "Fecha de pago" label, then pick the day from the popup.
-   */
+  /** Set Fecha de pago (custom calendar widget). */
   private static async setFechaPago(page: Page, iso: string): Promise<void> {
-    await Logger.step('Set Fecha de pago', async () => {
+    await CofeprisRegistrationFlow.setFechaByLabel(page, 'Fecha de pago', iso);
+  }
+
+  /**
+   * Picks a date in one of VUCEM's custom calendar widgets. These have no
+   * <input> (their id "input_fecha" repeats across every date field), so the
+   * calendar is opened via the icon next to its label, then year/month/day are
+   * chosen from the popup. Shared by "Fecha de pago" (Pago tab) and "Fecha de
+   * movimiento…" (precursores Mercancía modal, 260604).
+   */
+  private static async setFechaByLabel(page: Page, labelContains: string, iso: string): Promise<void> {
+    await Logger.step(`Set ${labelContains}`, async () => {
       const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
       const [year, month, dayNum] = iso.split('-');
       const monthName = months[Number(month) - 1];
       const day = String(Number(dayNum));
 
-      // Open the calendar for the Fecha de pago field via its calendar icon.
-      await page.locator('label:has-text("Fecha de pago")')
+      // Open the calendar via the icon following this field's label.
+      await page.locator(`label:has-text("${labelContains}")`)
         .locator('xpath=following::i[contains(@class,"bi-calendar-event")][1]')
         .click();
 

@@ -14,7 +14,7 @@ Keep it simple — this repo is small.
 ```
 1. Read manual-testcases/<proc>.json   → scenarios, steps, expected results
 2. Explore the happy path in the LIVE app with the Playwright Agent CLI (playwright-cli skill;
-     needs a FRESH e.firma login — see "Driving the live app" below)
+     reuse the saved session — see "Driving the live app" below)
      → understand tabs/dialogs/uploads/validations, derive & verify selectors
 3. Write framework code (vucem-framework templates): component → flow → procedure → spec
 4. Run the spec (npm run test:headed), then npm run typecheck && npm run lint
@@ -44,29 +44,33 @@ The official `playwright-cli` (global install; `playwright-cli install --skills`
 version nag**) is the primary way to explore VUCEM. Reuse the saved **e.firma** session — never log in
 by hand.
 
-**`auth/state.json` is NOT enough to reach the app — do a fresh e.firma login.** state-load + `goto
-portal-v30…/` reaches `/portal/home`, but `front.v30` keeps its token in **sessionStorage** (which
-storageState does not restore), so going there just shows an empty role picker / bounces to login.
-Replay the real login in the CLI (same steps the `authenticatedPage` fixture uses; password from the
-gitignored `test-data/envs/qa.json`):
+**The session is cross-origin — reuse the saved state, land on the bandeja.** `auth/state.json` stores a
+`token` in `portal-v30.cloud-ultrasist.net` localStorage plus a **24h `refresh_token` cookie on
+`api-v30…`**. front.v30 keeps no token of its own (its 30-min access token lives in `sessionStorage`,
+which `storageState` drops) — it silently re-mints one from that cookie on any app route. So a
+state-restored context is authenticated the moment it hits the bandeja. Correct handshake:
 
 ```
 playwright-cli open
-playwright-cli goto https://portal-v30.cloud-ultrasist.net/portal/login-solicitante
-# the e.firma widget is inside an iframe, so drive it via run-code:
-#   frameLocator('iframe[src*="/login"]') → #cer.setInputFiles(.cer) · #key.setInputFiles(.key)
-#   · #password.fill(pw) · click "Ingresar"  → waits for /seleccion-rol
-playwright-cli run-code --filename=login.js
-# then role: select 'Persona Moral' + Aceptar → bandeja → Trámites → Solicitudes nuevas → open <code>
-playwright-cli run-code --filename=open-<code>.js
-playwright-cli snapshot            # derive selectors (generate-locator / eval)
+playwright-cli state-load auth/state.json
+playwright-cli goto https://portal-v30.cloud-ultrasist.net/                       # activates the session → /portal/home
+playwright-cli goto https://front.v30.ultrasist.net/bandeja-de-tareas-pendientes # authenticated workspace (skip seleccion-rol)
+playwright-cli snapshot                                                          # bandeja: "Trámites" toggle, "Solicitudes"
+# ...walk the happy path; derive selectors with generate-locator / eval...
 playwright-cli close
 ```
 
-**Drive probes via `run-code --filename=<script.js>` (use `page.evaluate` for DOM reads) — inline
-`eval` mangles quotes/newlines in this shell.** Read `formcontrolname` with
-`playwright-cli eval "el => el.getAttribute('formcontrolname')" e5` (see the COFEPRIS note under
-Locator strategy). Locators still belong **only in components** — the CLI just discovers them.
+Do **not** navigate to `seleccion-rol` with a restored session — its role dropdown is built only from the
+one-time login URL fragment, so it comes up empty. Go straight to the bandeja; the app uses the principal
+role. If the portal shows "Ingreso a VUCEM" / `/login`, or the bandeja bounces, the state is stale (>24h)
+→ `npm run auth` to refresh `auth/state.json`, then retry. (Verified Aug 2026: state reuse reaches the app
+via the `refresh_token` cookie — the earlier "must do a fresh e.firma login" belief came from probing
+`seleccion-rol` instead of the bandeja.)
+
+**Drive multi-step probes via `run-code --filename=<script.js>` (use `page.evaluate` for DOM reads) —
+inline `eval` mangles quotes/newlines in this shell.** Read `formcontrolname` off a snapshot ref with
+`playwright-cli eval "el => el.getAttribute('formcontrolname')" e5` (see COFEPRIS note under Locator
+strategy). Locators still belong **only in components** — the CLI just discovers them.
 
 ## Where information comes from
 
