@@ -13,17 +13,25 @@ Keep it simple — this repo is small.
 
 ```
 1. Read manual-testcases/<proc>.json   → scenarios, steps, expected results
-2. Explore the happy path in the LIVE app with the Playwright Agent CLI (playwright-cli skill:
-     `playwright-cli open <baseUrl>` → `state-load auth/state.json` → `snapshot`)
+2. Explore the happy path in the LIVE app with the Playwright Agent CLI (playwright-cli skill;
+     reuse the saved session — see "Driving the live app" below)
      → understand tabs/dialogs/uploads/validations, derive & verify selectors
 3. Write framework code (vucem-framework templates): component → flow → procedure → spec
 4. Run the spec (npm run test:headed), then npm run typecheck && npm run lint
      (review results via `npm run allure:serve` or the Playwright HTML report; see vucem-framework skill)
-5. On failure: inspect error-context + trace FIRST (`/debug-test` command) — don't rewrite blind
+5. On failure: inspect error-context + trace AND **`Read` the failure screenshot**
+     (`test-results/…/test-failed-1.png`) FIRST — validation dialogs render there but are easy to miss
+     in the a11y text (`/debug-test` command); don't rewrite blind
 6. Fix at the correct layer, re-run to green
 ```
 
 - **Explore before you code.** Never guess selectors, invent page structure, or work from memory.
+- **Never use a manual's literal date — use a FUTURE date.** COFEPRIS date fields (e.g. Fecha de
+  movimiento) reject past dates with a validation dialog that silently blocks the modal commit;
+  the manuals' hard-coded dates go stale. Pick a date ≥1–2 weeks ahead in `test-data/procedures/<proc>.json`.
+- **COFEPRIS forms diverge a lot by procedure family — never assume the medicamentos shape.** Field
+  names, Mercancía shape (modal vs inline), tab count/markup, and dual-list widgets differ; always
+  probe the specific procedure. Details in the `vucem-framework` skill.
 - **Reuse what you already probed this session.** Only re-probe when a selector or behavior is
   genuinely uncertain — repeated codegen runs waste time.
 - **A derived locator is a discovery aid, not code to keep** — read it off (Agent CLI `generate-locator`
@@ -55,7 +63,12 @@ playwright-cli close
 Do **not** navigate to `seleccion-rol` with a restored session — its role dropdown is built only from the
 one-time login URL fragment, so it comes up empty. Go straight to the bandeja; the app uses the principal
 role. If the portal shows "Ingreso a VUCEM" / `/login`, or the bandeja bounces, the state is stale (>24h)
-→ `npm run auth` to refresh `auth/state.json`, then retry. Read `formcontrolname` off a snapshot ref with
+→ `npm run auth` to refresh `auth/state.json`, then retry. (Verified Aug 2026: state reuse reaches the app
+via the `refresh_token` cookie — the earlier "must do a fresh e.firma login" belief came from probing
+`seleccion-rol` instead of the bandeja.)
+
+**Drive multi-step probes via `run-code --filename=<script.js>` (use `page.evaluate` for DOM reads) —
+inline `eval` mangles quotes/newlines in this shell.** Read `formcontrolname` off a snapshot ref with
 `playwright-cli eval "el => el.getAttribute('formcontrolname')" e5` (see COFEPRIS note under Locator
 strategy). Locators still belong **only in components** — the CLI just discovers them.
 

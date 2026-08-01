@@ -236,8 +236,38 @@ The COFEPRIS forms are one long Angular reactive-form page. Recurring DOM traps 
 
 Strategies: `TextField`/`Dropdown`/`Checkbox` accept `'control'` (formcontrolname), `'id'`, or default
 `'label'` — all `'control'`/`'id'` variants are `:visible`-scoped so on-screen fields beat hidden modal
-copies. `Tab` handles ARIA `role="tab"` and Bootstrap `<a data-toggle="tab">`. If a control type isn't
-covered, **extend the component** (add a strategy) — never put the locator in a flow/procedure/spec.
+copies. `Tab` handles ARIA `role="tab"`, Bootstrap `<a data-toggle="tab">`, **and bare `<li>` tabs with
+no role** (falls back to the list item — needed by 3-tab 260604). If a control type isn't covered,
+**extend the component** (add a strategy) — never put the locator in a flow/procedure/spec.
+
+## COFEPRIS procedure-family divergence — probe every new procedure
+
+**Never assume the medicamentos shape.** The Datos-de-la-solicitud tab varies a lot between families;
+what changed across the ones automated so far (medicamentos 260204/260215/260205 · materias-primas
+260202/260203 · precursores 260604 · sustancias-tóxicas 260512):
+
+| Aspect | Variants seen |
+|---|---|
+| Tabs | 4 (Solicitante/Datos/Terceros/Pago), or **3 with no Pago** (260604 — advance to Paso 2 via `Continuar`, `CofeprisRegistrationFlow.continueToPaso2`) |
+| Establecimiento field names | medicamentos `rfcSanitario`/`denominacionRazon`/`municipioAlcaldia`; tóxicas `rfcDel`/`denominacionRazonSocial`/`muncipio` [sic]; precursores has **no** RFC-del-responsable. Extra `localidad`/`colonia`/`lada` on some. → guard optional fields; don't reuse `fillEstablecimiento` blindly |
+| Manifiestos checkbox | `formcontrolname="manifesto"` (medicamentos), `"cumplimiento"` (tóxicas), or a **bare checkbox with no fcn/id** (260604) → locate by elimination: the only visible checkbox outside any table and not the `aviso` toggle |
+| Mercancía | a **modal** (`#mercanciaModal`, medicamentos/materias-primas/precursores) or **inline on the Datos tab** (tóxicas, no modal) |
+| Mercancía fields | medicamentos (denominación*/formaFarmacéutica/númeroRegistro) · materias-primas (detalle sub-form) · precursores (marca comercial/DCI/porcentaje/valor comercial/**Fecha de movimiento**/país dropdowns) · tóxicas (nombre comercial/común/químico/**Número CAS**/clasificación toxicológica/objeto de importación) |
+| País de origen/destino/procedencia | `<crosslist>` (medicamentos), plain `<app-catalogo-select>` dropdowns (precursores), or bare dual-lists (tóxicas). **País de procedencia often auto-derives + is disabled** → skip it |
+| Régimen / Aduana | régimen sometimes **disabled/auto** (260604 → select only when `!isDisabled()`); aduana is a dropdown on some, a dual-list on others (tóxicas) |
+
+**Two dual-list widget families** (both render as a source listbox + "Agregar selección" + "…seleccionado"
+target):
+- **`<crosslist>`-wrapped** → use the `CrossList` component (País/Uso on medicamentos).
+- **Bare `<select multiple>`** in a *collapsed* panel, no `<crosslist>` (Uso on precursores; aduana/país on
+  tóxicas) → CrossList can't drive it. Expand the panel first, `selectOption` the source, then click the
+  **visible** "Agregar selección" (hidden país dual-lists share the button label, so scope to `visible`).
+  The DOM updates before Angular's reactive-form model, so let it settle before committing.
+
+**Disabled/auto-derived fields are excluded from form validation** — never try to set them (país
+procedencia, descripción de la fracción, régimen on some forms); guard with `!(await sel.isDisabled())`.
+
+**Stale dates block the commit silently** — see CLAUDE.md: use a future date, never the manual's literal.
 
 ---
 
@@ -302,9 +332,10 @@ setting up a JDK, aggregates every shard's `allure-results/` into a single **`al
 - **No page-object-per-procedure** — ~70% shared UI; shared code in components/flows, procedures hold only
   what differs. **Static flow methods** — flows are stateless action sequences. **JSON test data** — native
   typed imports, no parser. **`getByLabel` primary, `'control'` for COFEPRIS** — reactive forms repeat ids.
-  **Fresh e.firma login per test** — the app's `sessionStorage` token can't be restored from disk; correctness
-  over the ~20s cost. **`fullyParallel: false`, `workers: 2` locally** — government portal may rate-limit;
-  raise workers only after verifying.
+  **Reuse the saved session per test** — restore `auth/state.json` and land on the bandeja (~2s); front.v30
+  re-mints its `sessionStorage` access token from the 24h `refresh_token` cookie, so no e.firma login per
+  test (fixture falls back to a full login only when state is missing/expired). **`fullyParallel: false`,
+  `workers: 2` locally** — government portal may rate-limit; raise workers only after verifying.
 
 Not built yet (add when a procedure needs it, following existing patterns): `Accordion`,
 `ApprovalFlow`/`ObservationFlow` (review/resubmission cycle), the `se/` and `aga/` departments, and further
