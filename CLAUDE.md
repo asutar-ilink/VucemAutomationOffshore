@@ -36,22 +36,26 @@ The official `playwright-cli` (global install; `playwright-cli install --skills`
 version nag**) is the primary way to explore VUCEM. Reuse the saved **e.firma** session — never log in
 by hand.
 
-**The session is cross-origin — hit the portal before the app.** `auth/state.json` stores the token in
-`portal-v30.cloud-ultrasist.net` localStorage (+ a `refresh_token` cookie on `api-v30…`), **not** on
-`front.v30`. Opening `front.v30` directly always bounces to login. Correct handshake:
+**The session is cross-origin — reuse the saved state, land on the bandeja.** `auth/state.json` stores a
+`token` in `portal-v30.cloud-ultrasist.net` localStorage plus a **24h `refresh_token` cookie on
+`api-v30…`**. front.v30 keeps no token of its own (its 30-min access token lives in `sessionStorage`,
+which `storageState` drops) — it silently re-mints one from that cookie on any app route. So a
+state-restored context is authenticated the moment it hits the bandeja. Correct handshake:
 
 ```
 playwright-cli open
 playwright-cli state-load auth/state.json
-playwright-cli goto https://portal-v30.cloud-ultrasist.net/          # activates the session → /portal/home
-playwright-cli goto https://front.v30.ultrasist.net/seleccion-rol    # authenticated app: "Selección de rol"
-playwright-cli snapshot                                              # role picker + "Aceptar" → then pick role & proceed
+playwright-cli goto https://portal-v30.cloud-ultrasist.net/                       # activates the session → /portal/home
+playwright-cli goto https://front.v30.ultrasist.net/bandeja-de-tareas-pendientes # authenticated workspace (skip seleccion-rol)
+playwright-cli snapshot                                                          # bandeja: "Trámites" toggle, "Solicitudes"
 # ...walk the happy path; derive selectors with generate-locator / eval...
 playwright-cli close
 ```
 
-If the portal itself shows "Ingreso a VUCEM" / `/login`, the session is stale → `npm run auth` to
-refresh `auth/state.json`, then retry. Read `formcontrolname` off a snapshot ref with
+Do **not** navigate to `seleccion-rol` with a restored session — its role dropdown is built only from the
+one-time login URL fragment, so it comes up empty. Go straight to the bandeja; the app uses the principal
+role. If the portal shows "Ingreso a VUCEM" / `/login`, or the bandeja bounces, the state is stale (>24h)
+→ `npm run auth` to refresh `auth/state.json`, then retry. Read `formcontrolname` off a snapshot ref with
 `playwright-cli eval "el => el.getAttribute('formcontrolname')" e5` (see COFEPRIS note under Locator
 strategy). Locators still belong **only in components** — the CLI just discovers them.
 

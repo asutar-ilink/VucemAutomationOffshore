@@ -9,15 +9,22 @@ type EfirmaScope = Page | FrameLocator;
 /** The portal entry point that hosts the (iframed) e.firma solicitante login. */
 const SOLICITANTE_LOGIN_URL = 'https://portal-v30.cloud-ultrasist.net/portal/login-solicitante';
 
+/** The authenticated workspace landing (bandeja de tareas pendientes). */
+const BANDEJA_PATH = '/bandeja-de-tareas-pendientes';
+
 /**
  * LoginFlow handles authentication for the VUCEM portal.
  *
- * This is used in two ways:
- *   1. In auth.setup.ts to perform a real login and save browser state to disk.
- *   2. In tests that explicitly need to test the login flow itself.
- *
- * Most tests never call this directly — they receive an already-authenticated
- * page via the authenticatedPage fixture (which restores the saved state).
+ * Two paths, both used by the authenticatedPage fixture:
+ *   1. loginWithEfirma + selectRole — a real e.firma (FIEL) login. Used by
+ *      auth.setup.ts to establish a session and save browser state to disk,
+ *      and as the fixture's fallback when no valid saved state exists.
+ *   2. restoreSession — the fast path: rehydrate a saved state and land on the
+ *      bandeja WITHOUT re-logging in. front.v30 keeps its 30-min access token
+ *      in sessionStorage (which storageState does NOT persist), but silently
+ *      re-mints it from the 24h refresh_token cookie that the saved state DOES
+ *      carry. So a restored context is fully authenticated once it hits an app
+ *      route — no e.firma cert upload per test.
  */
 export class LoginFlow {
 
@@ -60,7 +67,7 @@ export class LoginFlow {
    * COFEPRIS / SE procedures such as 260204.
    *
    * Path: /portal/login-solicitante → "Con e.firma" → upload .cer + .key →
-   *        password → Ingresar → dashboard.
+   *        password → "Iniciar sesión" → seleccion-rol.
    */
   static async loginWithEfirma(page: Page, creds: EfirmaCredentials): Promise<void> {
     await Logger.step('Navigate to solicitante login page', async () => {
@@ -72,9 +79,10 @@ export class LoginFlow {
     });
 
     // Scope credential entry to the login iframe; after submit the whole page
-    // navigates top-level to front.v30/seleccion-rol.
+    // navigates top-level to front.v30/seleccion-rol. The submit button is
+    // labelled "Iniciar sesión" (older builds used "Ingresar") — accept both.
     const loginFrame = page.frameLocator('iframe[src*="/login"]');
-    await LoginFlow.submitEfirmaCredentials(loginFrame, creds, /ingresar/i);
+    await LoginFlow.submitEfirmaCredentials(loginFrame, creds, /iniciar sesión|ingresar/i);
 
     await Logger.step('Wait for post-login (role selection)', async () => {
       await page.waitForURL(/seleccion-rol|home|dashboard/i, { timeout: 60_000 });
@@ -95,6 +103,39 @@ export class LoginFlow {
       // Lands on the solicitante workspace (bandeja de tareas pendientes).
       await page.waitForURL(/bandeja/i, { timeout: 60_000 });
       await page.waitForLoadState('networkidle');
+    });
+  }
+
+  /**
+   * Fast path: reuse a saved session instead of logging in.
+   *
+   * Navigates straight to the bandeja on an already state-restored context and
+   * waits for the authenticated workspace to render. Role selection is skipped
+   * entirely — that page (seleccion-rol) only builds its dropdown from the
+   * one-time login URL fragment, which a restored session never has; the app
+   * defaults to the user's principal role, which is what every spec assumes.
+   *
+   * Returns true when the workspace loaded (session live), false when the app
+   * bounced back to login (state missing/expired) so the caller can fall back
+   * to a full e.firma login.
+   */
+  static async restoreSession(page: Page): Promise<boolean> {
+    return Logger.step('Restore saved session (bandeja)', async () => {
+      await page.goto(BANDEJA_PATH);
+      // The Trámites toggle is the first authenticated-workspace control the
+      // DOM needs (SubmissionFlow.startNewSolicitud waits on the same signal).
+      // If the session is dead the app renders the e.firma login iframe instead
+      // and this never appears.
+      try {
+        await page
+          .getByRole('button', { name: 'Trámites' })
+          .first()
+          .waitFor({ state: 'visible', timeout: 15_000 });
+        return true;
+      } catch {
+        Logger.info('Saved session is stale — falling back to e.firma login');
+        return false;
+      }
     });
   }
 
