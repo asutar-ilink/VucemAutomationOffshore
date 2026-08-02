@@ -1,0 +1,8 @@
+{
+  "_comment": "ADO test plan/suite registry for `npm run fetch`. Key = VUCEM procedure code, value = its ADO test-suite id (or an object {\"suite\": id, \"plan\": id} to override the default plan). `plan` below is the shared default. Add one line per procedure so `npm run fetch -- <code>` resolves the suite itself — no --suite/--plan needed. CLI flags still override; .env is the last-resort fallback.",
+  "plan": 29,
+  "suites": {
+    "260202": 18033,
+    "260512": 18126
+  }
+}

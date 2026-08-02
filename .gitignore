@@ -43,3 +43,7 @@ Thumbs.db
 .vscode/settings.json
 .idea/
 *.swp
+
+# Python (fetch-testcases tooling)
+__pycache__/
+*.pyc
