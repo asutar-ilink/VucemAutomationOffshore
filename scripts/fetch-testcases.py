@@ -13,16 +13,23 @@ title contains the word "Extensive" (case-insensitive) are skipped.
 
 Usage (via npm — args after ``--`` are forwarded to this script):
 
-    npm run fetch -- 260204                          # plan/suite from .env
-    npm run fetch -- 260204 --plan 29 --suite 18033  # override plan/suite per run
+    npm run fetch -- 260512                          # plan/suite from the registry
+    npm run fetch -- 260512 --plan 29 --suite 18126  # override plan/suite per run
 
 Direct:
 
-    python scripts/fetch-testcases.py 260204
+    python scripts/fetch-testcases.py 260512
     python scripts/fetch-testcases.py --procedure 260305 --suite 18033
 
-Config (org, project, PAT, and default plan/suite) is read from a gitignored
-``.env`` at the repo root — see ``.env.example``.
+Plan/suite are resolved with precedence **CLI flags > registry > .env**: register
+a procedure once in ``scripts/ado-suites.json`` (code → suite id) and thereafter
+``npm run fetch -- <code>`` needs no ``--suite``/``--plan``. Org, project and PAT
+are read from a gitignored ``.env`` at the repo root — see ``.env.example``.
+
+The e.firma private-key password (which ADO steps embed in plain text) is
+scrubbed from the output — replaced with ``<efirma-key-password>`` using the real
+value read from the gitignored ``test-data/envs/<env>.json`` — so a fetched file
+is always safe to commit.
 
 Requires: requests, python-dotenv  (pip install -r scripts/requirements.txt)
 """
@@ -57,6 +64,20 @@ WORKITEM_BATCH_SIZE = 200              # ADO cap for the batch work-item endpoin
 # Where exported <procedure>.json files land. Defaults to this repo's drop zone
 # so the /add-procedure workflow needs no manual copy. Override via OUTPUT_FOLDER.
 DEFAULT_OUTPUT_FOLDER = "manual-testcases"
+
+# Repo root (this file lives in <root>/scripts).
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Per-procedure plan/suite registry, so `npm run fetch -- <code>` needs no
+# --suite/--plan. Maps procedure code → suite id (or {"suite", "plan"}), plus a
+# shared default "plan". Lives next to this script.
+SUITE_REGISTRY_PATH = os.path.join(REPO_ROOT, "scripts", "ado-suites.json")
+
+# e.firma password placeholder written in place of the real private-key password
+# so a fetched file is always safe to commit (the real password lives only in the
+# gitignored test-data/envs/<env>.json — never in committed manual test cases).
+EFIRMA_PLACEHOLDER = "<efirma-key-password>"
+ENV_FILES = ("test-data/envs/qa.json", "test-data/envs/staging.json")
 
 # Candidate field names that may hold "preconditions". ADO has no native
 # preconditions field, so we probe a few common/custom ones and use the first
@@ -333,6 +354,67 @@ def normalize_test_case(work_item, procedure):
 # Export / orchestration
 # --------------------------------------------------------------------------- #
 
+def load_suite_registry():
+    """Load the per-procedure plan/suite registry (scripts/ado-suites.json)."""
+    try:
+        with open(SUITE_REGISTRY_PATH, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def resolve_plan_suite(procedure, registry):
+    """
+    Resolve (plan, suite) for a procedure from the registry. Returns strings (or
+    None when unknown). The registry maps code → suite id (or {"suite", "plan"}),
+    with a shared default "plan". A missing code yields the default plan and no
+    suite (so the caller falls back to .env for the suite).
+    """
+    if not registry:
+        return (None, None)
+    default_plan = registry.get("plan")
+    entry = (registry.get("suites") or {}).get(str(procedure))
+    if isinstance(entry, dict):
+        plan = entry.get("plan", default_plan)
+        suite = entry.get("suite")
+    else:
+        plan = default_plan
+        suite = entry  # a bare id, or None when the code is not registered
+    return (
+        str(plan) if plan is not None else None,
+        str(suite) if suite is not None else None,
+    )
+
+
+def load_efirma_passwords():
+    """
+    Collect the e.firma private-key password(s) from the gitignored env files, so
+    they can be scrubbed from the fetched output. Returns a set (empty if none —
+    e.g. in CI, where the env files are absent and nothing needs scrubbing).
+    """
+    secrets = set()
+    for rel in ENV_FILES:
+        try:
+            with open(os.path.join(REPO_ROOT, rel), encoding="utf-8") as f:
+                pw = (json.load(f).get("efirma") or {}).get("password")
+        except (OSError, ValueError):
+            continue
+        if pw:
+            secrets.add(pw)
+    return secrets
+
+
+def redact_secrets(payload, secrets):
+    """Replace every occurrence of each secret with the e.firma placeholder."""
+    if not secrets:
+        return payload, False
+    text = json.dumps(payload, ensure_ascii=False)
+    redacted = text
+    for s in secrets:
+        redacted = redacted.replace(s, EFIRMA_PLACEHOLDER)
+    return json.loads(redacted), redacted != text
+
+
 def write_json(path, payload):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2, ensure_ascii=False)
@@ -381,6 +463,11 @@ def run(procedure, cfg: Config):
     )
 
     if exported:
+        # Scrub the e.firma private-key password (ADO steps embed it in plain
+        # text) so the fetched file is always safe to commit.
+        exported, redacted = redact_secrets(exported, load_efirma_passwords())
+        if redacted:
+            log.info("Redacted e.firma password → '%s'.", EFIRMA_PLACEHOLDER)
         out_path = export_test_cases(exported, cfg.output_folder, procedure)
         # Next-step hint for the wired workflow.
         log.info("Next: /add-procedure %s   (source: %s)", procedure, out_path)
@@ -448,13 +535,21 @@ def main(argv=None):
         args = parse_args(argv)
         load_dotenv()
         cfg = Config()
-        # CLI --plan / --suite override the .env defaults for this run.
+        procedure = resolve_procedure(args)
+        # Resolve plan/suite with precedence CLI > registry > .env: start from the
+        # .env defaults (already in cfg), let the per-procedure registry override
+        # them (so a stale .env suite can't win for a registered code), then let
+        # explicit CLI flags override everything.
+        reg_plan, reg_suite = resolve_plan_suite(procedure, load_suite_registry())
+        if reg_plan:
+            cfg.plan_id = reg_plan
+        if reg_suite:
+            cfg.suite_id = reg_suite
         if args.plan_id:
             cfg.plan_id = str(args.plan_id).strip()
         if args.suite_id:
             cfg.suite_id = str(args.suite_id).strip()
         cfg.validate()
-        procedure = resolve_procedure(args)
         log.info("Exporting procedure %s", procedure)
         run(procedure, cfg)
     except Exception as exc:  # top-level guard: log cleanly, exit non-zero
