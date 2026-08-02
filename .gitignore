@@ -26,6 +26,12 @@ test-data/files/*
 test-data/envs/*.json
 !test-data/envs/*.example.json
 
+# Root .env carries the Azure DevOps PAT for scripts/fetch-testcases.py (npm run fetch).
+# NEVER commit — only the .env.example template is versioned.
+.env
+.env.*
+!.env.example
+
 # Runtime outputs from executed procedures (generated PDFs, submission folios)
 executed-procedure-artifacts/
 
