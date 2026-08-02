@@ -20,8 +20,13 @@ don't guess at the cause.
    select not yet enabled, an autofill (e.g. RFC → name) that hadn't fired — **and a `selectOption` /
    "option not found" failure is almost always bad test data (the value isn't in the live catalog; the
    error-context snapshot lists the real options), not a selector or product bug.**
-3. Fix at the right layer — bad test data is fixed **in `test-data/procedures/<code>.json`**; a
+3. **Decide script-bug vs PRODUCT-bug early — don't over-dig.** If a backend/API rejects the payload
+   (e.g. a `…/guardar` **400** with `errores_modelo`) and no UI field can satisfy the validation —
+   especially if it **reproduces when run manually** — it's a product/backend defect. Report it with the
+   evidence (endpoint, status, `errores_modelo`, offending payload field) and STOP; do not keep
+   instrumenting the flow chasing a script fix that doesn't exist. Ask "does it fail manually?" to decide.
+4. Fix at the right layer — bad test data is fixed **in `test-data/procedures/<code>.json`**; a
    wrong/fragile locator is fixed **in the component** (scope `:visible`, switch to `formcontrolname`,
    wait for enablement), never in the spec or procedure. A real wait race uses
    `waitForURL`/`expect(...).toBeVisible()`, never `waitForTimeout` (ESLint-blocked).
-4. Re-run to confirm green, then report the root cause and the fix layer.
+5. Re-run to confirm green, then report the root cause and the fix layer (or the product-bug finding).

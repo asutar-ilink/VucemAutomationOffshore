@@ -321,6 +321,15 @@ Caveats & heuristics:
 - **Don't hand-drive the app to reach the failure point** — the test already did, and the snapshot froze
   the exact DOM state. Only probe live (see CLAUDE.md "Driving the live app") when you need info the
   snapshot lacks (e.g. the *full* option catalog to pick a valid value).
+- **Know when it's a PRODUCT bug, and call it out fast — don't over-dig.** If a backend/API rejects the
+  payload (e.g. a `…/guardar` **400** with `errores_modelo`) and **no UI field can satisfy the
+  validation** — especially if it **reproduces when run manually** — it's a product/backend defect, not a
+  test-script issue. Report it with the concrete evidence (endpoint, status, `errores_modelo`, the
+  offending payload field) and STOP. Do not keep instrumenting the flow or tracing payload JSON paths
+  looking for a selector/data workaround that doesn't exist. Ask "does it fail manually?" early to
+  decide. (Real example: 260204/260202/260205 — the establecimiento manual-capture path sends
+  `establecimiento.rfc:""`, which `solicitud/guardar` rejects as "RFC debe ser entre 12 y 13 carácteres",
+  and the form exposes no field to set it.)
 
 ## Reporting (Allure + Playwright HTML)
 
