@@ -88,7 +88,10 @@ export class SubmissionFlow {
         const action = row?.querySelector('button, a, [role=button], i, svg');
         (action as HTMLElement | undefined)?.click();
       }, procedureCode).catch(() => { /* navigation tore down the context — expected */ });
-      await page.waitForURL(/solicitud/i, { timeout: 60_000 });
+      // Most procedure form routes contain "solicitud"; some COFEPRIS trámites
+      // route to a named path instead (e.g. plaguicidas → /permiso-plaguicidas/
+      // plaguicidas), so accept either — the point is that the catalogue is left.
+      await page.waitForURL(/solicitud|plaguicid/i, { timeout: 60_000 });
       await page.waitForLoadState('domcontentloaded');
     });
   }

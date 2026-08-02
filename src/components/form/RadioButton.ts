@@ -17,12 +17,16 @@ import { Page, Locator, expect } from '@playwright/test';
  * ALL radio locator logic lives here.
  */
 export class RadioButton {
+  private readonly page: Page;
   private readonly option: Locator;
+  private readonly idValue?: string;
 
   constructor(page: Page, optionLabel: string, groupLabel?: string, byId = false) {
+    this.page = page;
     if (byId) {
       // Locate by element id — for COFEPRIS groups whose options carry no
       // per-option label (e.g. "hacer públicos los datos": id="Si"|"No").
+      this.idValue = optionLabel;
       this.option = page.locator(`input[type="radio"][id="${optionLabel}"]:visible`);
     } else if (groupLabel) {
       // Scope to the fieldset / region that holds the group question,
@@ -47,7 +51,23 @@ export class RadioButton {
   }
 
   async select(): Promise<void> {
-    await this.option.check();
+    const box = this.option.first();
+    // COFEPRIS radios can be un-clickable for a spell after a sibling modal
+    // closes (a lingering backdrop swallows the click, so check() reports "did
+    // not change its state") and the app-input-radio re-renders around form
+    // updates. Poll: scroll in, retry check(), then dispatch a real click
+    // straight to the input (bypasses any intercepting overlay) until it sticks.
+    await expect.poll(async () => {
+      if (await box.isChecked().catch(() => false)) return true;
+      await box.scrollIntoViewIfNeeded().catch(() => undefined);
+      await box.check({ timeout: 1_500 }).catch(() => undefined);
+      if (await box.isChecked().catch(() => false)) return true;
+      // A programmatic el.click() runs the radio's default action (checks it) and
+      // fires change so Angular registers, while bypassing coordinate-based click
+      // interception (a lingering overlay) that can defeat check().
+      await box.evaluate((el: HTMLInputElement) => el.click()).catch(() => undefined);
+      return box.isChecked().catch(() => false);
+    }, { timeout: 15_000, intervals: [200, 400, 800] }).toBe(true);
   }
 
   async isSelected(): Promise<boolean> {

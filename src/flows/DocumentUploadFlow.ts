@@ -155,6 +155,12 @@ export class DocumentUploadFlow {
       registro_sanitario_vigente: 'Registro Sanitario vigente y sus modificaciones',
       proyectos_de_marbete:       'Proyectos de marbete.',
       pago_de_derechos:           'Pago de derechos',
+      // ─── COFEPRIS 260501 — Permiso de importación de plaguicidas ────────────
+      // Distinctive substrings of the three mandatory Paso-2 requisitos.
+      personalidad_juridica:            'personalidad jurídica del promovente',
+      aviso_o_licencia_sanitaria:       'Aviso de funcionamiento o número de licencia sanitaria',
+      registro_sanitario_actualizado:   'registro sanitario actualizado del producto',
+
       // 260215 (dispositivos médicos, investigación) mandatory requisito.
       carta_tecnica:              'Carta técnica del producto',
       // 260205 (medicamentos y materias primas, investigación) mandatory requisito
