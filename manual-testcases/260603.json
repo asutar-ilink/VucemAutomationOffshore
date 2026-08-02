@@ -1,0 +1,200 @@
+[
+  {
+    "id": 17528,
+    "procedure": "260603",
+    "title": "Happy Path : Verify successful login and navigation to procedure workflow",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Launch URL: portal-v30.cloud-ultrasist.net/portal/login-solicitante\nUpload valid .cer certificate file\nUpload valid .key private key fil\nEnter password: <efirma-key-password>\nClick Ingresar",
+        "expected": "Login should be successful"
+      },
+      {
+        "step": 2,
+        "action": "On role selection page, select Persona Moral from dropdown and  click Aceptar",
+        "expected": "Role selection page should be displayed User should be navigated to home page after selecting role"
+      },
+      {
+        "step": 3,
+        "action": "On home page, click on Trámites Click on Solicitudes nuevas",
+        "expected": "“Selección de trámite” page should open"
+      },
+      {
+        "step": 4,
+        "action": "On “Selección de trámite” page, search for Procedure number 260603 \n  Click on the hyperlink of the procedure",
+        "expected": "Clicking the hyperlink should open the procedure details page\n\nThe procedure title should be displayed as “Permiso sanitario de importación de medicamentos destinados a pruebas de laboratorio”"
+      },
+      {
+        "step": 5,
+        "action": "",
+        "expected": ""
+      },
+      {
+        "step": 6,
+        "action": "",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 17530,
+    "procedure": "260603",
+    "title": "Happy Path – Verify pre-populated Solicitante details in Paso 1",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Login as solicitante user and navigate to the procedure details page",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Open Paso 1 – Solicitante tab\nObserve all the fields under “Datos generales del solicitante” and “Domicilio fiscal del solicitante”",
+        "expected": "All fields should be pre-populated with valid data as follows:\n\nDatos generales del solicitanteRFC: AAL0409235E6\nDenominación o razón social: INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV\nCorreo electrónico: vucem30@ultrasist.com.mx\nDomicilio fiscal del solicitantePaís: ESTADOS UNIDOS MEXICANOS\nCódigo postal: 81210\nEstado: SINALOA\nMunicipio o alcaldía: AHOME\nLocalidad: LOS MOCHIS\nColonia: MIGUEL HIDALGO\nCalle: CAMINO VIEJO\nNúmero exterior: 1353\nNúmero interior: Blank\nLada: 55\nTeléfono: 98764532"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 17556,
+    "procedure": "260603",
+    "title": "Happy Path – Verify optional document upload and navigation to Paso 3",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Update mandatory fields in Paso 1 and navigate to Paso 2 – Anexar requisitos",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Observe optional documents section\nSelect any random document type from Tipo de documento dropdown\nClick on Agregar",
+        "expected": "Optional documents should be displayed"
+      },
+      {
+        "step": 3,
+        "action": "Upload documents using Choose File option\nVerify Cargar archivos button is enabled",
+        "expected": "Selected document should be added successfully\n\n“Cargar archivos” button should enabled"
+      },
+      {
+        "step": 4,
+        "action": "Click on Cargar archivos\nIn confirmation popup, click Cargar archivos\nVerify documents are uploaded successfully",
+        "expected": "Files should be uploaded successfully with status Cargado\n“Cargar archivos” button should work correctly"
+      },
+      {
+        "step": 5,
+        "action": "Click on Continuar",
+        "expected": "On clicking Continuar, system should navigate to Paso 3 – Firmar solicitud"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 17557,
+    "procedure": "260603",
+    "title": "Happy Path – Verify signing, folio generation, and acuse download",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Update mandatory fields in Paso 1 and Paso 2 and navigate to Paso 3 – Firmar solicitud",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Upload valid .cer certificate file (AAL user)\nUpload valid .key private key file\nEnter password: <efirma-key-password>\nClick on Firmar",
+        "expected": "User should be navigated to Acuse de Recibo page\n\nSystem should display success message:\n\"Tu solicitud ha sido registrada con el siguiente número de folio .\"\n\nFolio number should be generated successfully\n\nUnder Acuse(s) section:\nDocumento: Acuse de recepción de trámite should be displayed"
+      },
+      {
+        "step": 3,
+        "action": "User should be able to click on download icon",
+        "expected": "File should be downloaded successfully to local system"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 17641,
+    "procedure": "260603",
+    "title": "Happy Path – Verify mandatory fields update in Datos de la solicitud",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Login as solicitante user and navigate to the procedure details page",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Click on Datos de la solicitud tab",
+        "expected": "User should be able to see fields and fields should be disabled"
+      },
+      {
+        "step": 3,
+        "action": "click on Seleccionar establecimiento\n\npopup appears -> click on Aceptar",
+        "expected": "All Fields should be enabled"
+      },
+      {
+        "step": 4,
+        "action": "Update all mandatory fields marked with (*)\nEnter/select the following data in the respective fields",
+        "expected": "All mandatory fields should accept valid data and be saved successfully as follows:\n\n==== DATOS GENERALES DEL SOLICITANTE =====\nRFC : AAL0409235E6\nDenominación o razón social : INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV\nCorreo electrónico : vucem30@ultrasist.com.mx\n===== DOMICILIO FISCAL DEL SOLICITANTE =====\nPaís : ESTADOS UNIDOS MEXICANOS\nCódigo postal : 81210\nEstado : SINALOA\nMunicipio o alcaldía : AHOME\nLocalidad : LOS MOCHIS\nColonia : MIGUEL HIDALGO\nCalle : CAMINO VIEJO\nNúmero exterior : 1353\nNúmero interior : Blank\nLada : 55\nTeléfono : 98764532\n===== DATOS DEL ESTABLECIMIENTO =====\nDenominación o razón social : QAS\nCorreo electrónico : QAS@ilink-systems.com\n===== DOMICILIO DEL ESTABLECIMIENTO =====\nCódigo postal : 626203\nEstado : SINALOA\nMunicipio o alcaldía : QAS\nLocalidad : Sattur\nColonia : QAS\nCalle : 123456879\nLada : 123\nTeléfono : 09363687071\n===== S.C.I.A.N =====\nClave S.C.I.A.N. : 311311\nDescripción S.C.I.A.N. : Congelación de frutas y legumbres\n===== DATOS GENERALES =====\nAviso de funcionamiento : Seleccionado\nNo. de licencia sanitaria : Blank\nRégimen al que se destinará : Definitivos\nAduana : AEROPUERTO INT. DE LA CD DE MEXICO\nAeropuerto Internacional Felipe Ángeles (AIFA) : Seleccionado\n===== DATOS DEL PRODUCTO =====\nClasificación del producto : PRECURSORES QUIMICOS\nEspecificar clasificación del producto : No aplica\nMarca comercial o denominación distintiva : QAS\nDenominación común internacional (DCI) o denominación genérica : QAS\nTipo de producto : Aditivo\nEstado físico : Gaseoso\nFracción arancelaria : 29333299\nDescripción de la fracción : Los demás\nUnidad de medida de comercialización (UMC) : Caja\nCantidad UMC : 12\nUso específico : ANÁLISIS\nPorcentaje de concentración : 12\nValor comercial (dólares) : 12\nFecha de movimiento : 17/07/2026\nPresentación farmacéutica o tipo de envase : QAS\nPaís de destino : MEXICO (ESTADOS UNIDOS MEXICANOS)\nPaís de procedencia : ANGUILA\nPaís de origen : ANTIGUA Y BARBUDA (COMUNIDAD BRITÁNICA DE NACIONES)\n===== INFORMACIÓN CONFIDENCIAL =====\n¿Está de acuerdo en hacerlos públicos? : Sí\n===== REPRESENTANTE LEGAL =====\nRFC : MAVL621207C95\nNombre o Razón Social : EUROFOODS DE MEXICO\nApellido paterno : GONZALEZ\nApellido materno : PINAL\n\n \n\n System should accept all inputs and allow user to proceed without validation errors"
+      },
+      {
+        "step": 5,
+        "action": "",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 17659,
+    "procedure": "260603",
+    "title": "Happy Path – Verify Terceros relacionados tab details update and navigation to Paso 2",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Login as solicitante user and navigate to the procedure details page",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Click on Terceros relacionados tab\nAdd/update mandatoryand optional fields in  Facturador/Consignatario*: details\nEnter the following data in the popup form\nClick Guardar",
+        "expected": "Destinatario should be added successfully with valid data as follows:\n\n\nNombre/denominación o razón social: Kanda QAS samy\nR.F.C.: (blank)\nCURP: (blank)\nTeléfono: 123-09363687071\nCorreo electrónico: kandasamy.balamurugan@ilink-systems.com\nCalle: QAS\nNúmero exterior: 1233\nNúmero interior: 123456789\nPaís: INDIA (REPUBLICA DE)\nColonia: (blank)\nMunicipio o alcaldía: (blank)\nLocalidad: (blank)\nEntidad federativa: (blank)\nEstado/localidad: Tamil Nadu\nCódigo postal: 626203\n\n\nhe newly added facturador/consignatario record should be displayed correctly in the corresponding table without errors."
+      },
+      {
+        "step": 3,
+        "action": "Scroll to end of the pageClick on ContinuarIn confirmation popup, click Sí",
+        "expected": "On clicking Continuar and confirming Sí, system should navigate to Paso 2 – Anexar requisitos screen successfully"
+      }
+    ],
+    "parameters": null
+  }
+]
