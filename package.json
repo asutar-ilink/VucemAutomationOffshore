@@ -4,6 +4,7 @@
   "description": "VUCEM government portal automation framework — Playwright + TypeScript",
   "scripts": {
     "prepare": "git config core.hooksPath .githooks",
+    "fetch": "python scripts/fetch-testcases.py",
     "test": "playwright test",
     "test:cofepris": "playwright test tests/cofepris/",
     "test:headed": "playwright test --headed",

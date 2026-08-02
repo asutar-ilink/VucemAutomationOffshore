@@ -12,6 +12,9 @@ Keep it simple — this repo is small.
 ## The workflow (follow this for every procedure — don't improvise)
 
 ```
+0. Fetch the cases: `npm run fetch -- <proc> [--plan N --suite M]` (scripts/fetch-testcases.py)
+     → writes manual-testcases/<proc>.json straight from Azure DevOps (no manual copy).
+     Config/PAT live in the gitignored root `.env` (see .env.example).
 1. Read manual-testcases/<proc>.json   → scenarios, steps, expected results
 2. Explore the happy path in the LIVE app with the Playwright Agent CLI (playwright-cli skill;
      reuse the saved session — see "Driving the live app" below)

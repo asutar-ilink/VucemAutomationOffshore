@@ -12,6 +12,10 @@ dev/source checkout; selectors come only from the live app.
 
 Steps:
 
+0. **Branch first — never work on `main`.** Before touching any file, create and switch to a topic
+   branch: `git checkout -b add-procedure/$1` (from an up-to-date `main`). All work for this
+   procedure happens on that branch (CLAUDE.md git rule 5).
+
 1. **Read the scenarios.** Open `manual-testcases/$1.json`. Summarize the ordered steps and the
    `expected` result of each — these define the `test()` blocks and assertions. Note any
    `parameters` / test-data values.
@@ -35,3 +39,13 @@ Steps:
    (`npx playwright test tests/$2/$1.spec.ts --headed`) and fix using the trace viewer /
    error-context snapshot if it fails. Report what passed, what failed, and any locators you
    could not confidently derive.
+
+5. **Commit & open a PR (keep `main` clean).** Once typecheck + lint pass and the spec is green
+   (or the happy path is as far as it can go), follow the CLAUDE.md git rules:
+   - Run the secret-safety check (git rule 1) and confirm it prints `clean`.
+   - `git add` only the new/changed procedure files (never the gitignored assets in git rule 3).
+   - Commit with a clear message (Co-Authored-By trailer as in the Bash git instructions).
+   - `git push -u origin add-procedure/$1`, then open the PR with `gh pr create --base main`,
+     titled for the procedure and with a body summarizing scenarios covered, what passed/failed,
+     and any unresolved locators or product bugs found.
+   - Report the PR URL. Do **not** merge — leave that to the user.
