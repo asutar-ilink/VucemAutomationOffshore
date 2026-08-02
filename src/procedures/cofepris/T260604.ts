@@ -3,6 +3,7 @@ import { SubmissionFlow } from '../../flows/SubmissionFlow';
 import { DocumentUploadFlow } from '../../flows/DocumentUploadFlow';
 import { SigningFlow } from '../../flows/SigningFlow';
 import { CofeprisRegistrationFlow } from '../../flows/CofeprisRegistrationFlow';
+import { Tab } from '../../components/layout/Tab';
 import { Logger } from '../../utils/Logger';
 import { ArtifactStore } from '../../utils/ArtifactStore';
 import { EfirmaCredentials, DocumentData } from '../../types';
@@ -10,6 +11,7 @@ import {
   CofeprisRegistrationData,
   SolicitanteData,
   RepresentanteLegalData,
+  TerceroData,
 } from '../../types/cofepris';
 
 /**
@@ -30,6 +32,8 @@ import {
  */
 
 export interface T260604Data extends CofeprisRegistrationData {
+  /** The mandatory Facturador/Consignatario tercero (Terceros relacionados tab). */
+  terceros: { facturador: TerceroData };
   /** Paso-2 optional documents (this trámite has no mandatory requisitos). */
   documents: DocumentData[];
 }
@@ -93,6 +97,13 @@ export class T260604 {
 
   async verifyRepresentanteAutofill(d: RepresentanteLegalData): Promise<void> {
     await CofeprisRegistrationFlow.verifyRepresentanteAutofill(this.page, d);
+  }
+
+  // ─── Terceros relacionados tab (mandatory Facturador/Consignatario) ─────────
+
+  async fillTerceros(data: T260604Data): Promise<void> {
+    await new Tab(this.page).click('Terceros relacionados');
+    await CofeprisRegistrationFlow.addFacturadorConsignatario(this.page, data.terceros.facturador);
   }
 
   // ─── No Pago tab → advance Paso 1 to Paso 2 ────────────────────────────────

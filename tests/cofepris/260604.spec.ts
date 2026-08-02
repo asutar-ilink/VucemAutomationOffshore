@@ -35,6 +35,9 @@ test.describe('260604 — Aviso de exportación de precursores químicos o produ
     await procedure.fillDatosSolicitud(data);
     await procedure.verifyRepresentanteAutofill(data.representanteLegal);
 
+    // Terceros relacionados — the mandatory Facturador/Consignatario record (TC08).
+    await procedure.fillTerceros(data);
+
     // No Pago tab — advance straight to Paso 2, upload the optional document, firmar (TC09–TC10).
     await procedure.continueToPaso2();
     await procedure.uploadDocuments(data.documents);

@@ -30,13 +30,15 @@
     "codigoPostal": "06000",
     "estado": "DURANGO",
     "municipio": "Municipio",
+    "localidad": "CENTRO",
+    "colonia": "CENTRO",
     "calle": "Calle",
     "telefono": "5551234567"
   },
 
   "scian": {
-    "clave": "311239",
-    "descripcion": "Producción de otros alimentos a base de leche."
+    "clave": "311311",
+    "descripcion": "Congelación de frutas y legumbres"
   },
 
   "licenciaSanitaria": "LIC123456",
@@ -70,6 +72,26 @@
     "valorComercial": "12",
     "fechaMovimiento": "2026-08-14",
     "paisDestino": "MEXICO (ESTADOS UNIDOS MEXICANOS)"
+  },
+
+  "terceros": {
+    "facturador": {
+      "tipoPersona": "Física",
+      "rfc": "",
+      "nombre": "Amarnath",
+      "primerApellido": "test",
+      "segundoApellido": "Sutar",
+      "pais": "MEXICO (ESTADOS UNIDOS MEXICANOS)",
+      "estado": "CAMPECHE",
+      "municipio": "",
+      "localidad": "",
+      "codigoPostal": "06700",
+      "colonia": "",
+      "calle": "343",
+      "numeroExterior": "3434",
+      "telefono": "55551234",
+      "correo": "amarnath.sutar@ilink-systems.com"
+    }
   },
 
   "datosPublicos": "No",

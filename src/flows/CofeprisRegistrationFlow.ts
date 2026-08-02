@@ -419,13 +419,44 @@ export class CofeprisRegistrationFlow {
     return new Promise(resolve => { setTimeout(resolve, ms); });
   }
 
+  /**
+   * Sets the precursores Mercancía "Clasificación del producto" + "Especificar
+   * clasificación del producto" pair, which is an order-sensitive async cascade:
+   * selecting Clasificación loads Especificar's dependent catalog and then
+   * **self-resets Clasificación to "" ~1s later**. So the reliable order is
+   * select Clasificación (to populate the Especificar catalog) → select
+   * Especificar → **re-select Clasificación last**; once Especificar holds a
+   * value, Clasificación sticks. Polls, re-selecting Clasificación whenever it
+   * has dropped, until both fields are non-empty.
+   */
+  private static async setClasificacionProducto(
+    page: Page, clasificacion: string, especificar: string,
+  ): Promise<void> {
+    const clasifSel = page.locator('app-catalogo-select[name="clasificacionProducto"] select:visible');
+    const especSel = page.locator('app-catalogo-select[name="especificarClasificacionProducto"] select:visible');
+    await new Dropdown(page, 'clasificacionProducto', 'control').select(clasificacion);
+    await new Dropdown(page, 'especificarClasificacionProducto', 'control').select(especificar);
+    await expect.poll(async () => {
+      if ((await clasifSel.inputValue().catch(() => '')) === '') {
+        await new Dropdown(page, 'clasificacionProducto', 'control').select(clasificacion).catch(() => undefined);
+      }
+      await CofeprisRegistrationFlow.settle(600);
+      const c = await clasifSel.inputValue().catch(() => '');
+      const e = await especSel.inputValue().catch(() => '');
+      return c !== '' && e !== '';
+    }, { timeout: 20_000, intervals: [400] }).toBe(true);
+  }
+
   static async addMercanciaPrecursores(page: Page, m: MercanciaData): Promise<void> {
     await Logger.step('Add Mercancía record (precursores químicos)', async () => {
       await page.locator('button[name="agregarMercancias"]')
         .filter({ hasText: /agregar/i }).locator('visible=true').first().click();
 
-      await new Dropdown(page, 'clasificacionProducto', 'control').select(m.clasificacionProducto);
-      await new Dropdown(page, 'especificarClasificacionProducto', 'control').select(m.especificarClasificacion);
+      // Clasificación del producto + Especificar clasificación is an order-sensitive
+      // cascade — handled in its own helper (see setClasificacionProducto).
+      await CofeprisRegistrationFlow.setClasificacionProducto(
+        page, m.clasificacionProducto, m.especificarClasificacion,
+      );
       await new TextField(page, 'marcaComercialODenominacionDistintiva', 'control')
         .fill(m.marcaComercial ?? m.denominacionDistintiva);
       await new TextField(page, 'denominacionComunInternacional', 'control')
@@ -458,10 +489,24 @@ export class CofeprisRegistrationFlow {
       await selectPais('paisDestino', m.paisDestino ?? m.paisProcedencia);
       await selectPais('paisProcedencia', m.paisProcedencia);
 
-      // Selecting país de destino auto-derives país de procedencia and re-renders
-      // the modal; let Angular finish that re-render before the uso dual-list,
-      // otherwise the re-render corrupts a just-moved uso value.
-      await CofeprisRegistrationFlow.settle(1200);
+      // País de procedencia is auto-derived from país de destino and rendered
+      // DISABLED + required. The derivation is async and racy — a fixed pause
+      // sometimes leaves it empty, which fails the (misleading) uso/commit step
+      // later. Wait for it to populate; if it hasn't derived, re-select país de
+      // destino once to re-trigger it, then wait again.
+      const procSel = page.locator('app-catalogo-select[name="paisProcedencia"] select:visible');
+      try {
+        await expect.poll(async () => procSel.inputValue().catch(() => ''),
+          { timeout: 8_000, intervals: [400] }).not.toBe('');
+      } catch {
+        await new Dropdown(page, 'paisDestino', 'control')
+          .select(m.paisDestino ?? m.paisProcedencia).catch(() => undefined);
+        await expect.poll(async () => procSel.inputValue().catch(() => ''),
+          { timeout: 12_000, intervals: [500] }).not.toBe('');
+      }
+      // Let the derivation's re-render settle before the uso dual-list (the
+      // re-render would otherwise corrupt a just-moved uso value).
+      await CofeprisRegistrationFlow.settle(800);
 
       // Uso específico is a dual-list in a COLLAPSED panel (no <crosslist> wrapper,
       // so CrossList can't drive it). Expand it, select the value in the source
@@ -525,41 +570,25 @@ export class CofeprisRegistrationFlow {
    * confirmation.
    */
   static async continueToPaso2(page: Page): Promise<void> {
+    // On the 3-tab procedures (no Pago) the wizard advances from the last Paso-1
+    // tab, so land on Terceros relacionados before clicking Continuar.
+    await new Tab(page).click('Terceros relacionados');
     await CofeprisRegistrationFlow.continuarToPaso2(page, false);
   }
 
   /** Accept the Manifiestos y declaraciones declaration. */
   private static async acceptManifiestos(page: Page): Promise<void> {
     await Logger.step('Accept Manifiestos y declaraciones', async () => {
-      // Medicamentos: the checkbox has a formcontrolname ('manifesto'). Precursores
-      // (260604) uses a bare checkbox with no formcontrolname/id.
-      const byFcn = page.locator(
+      // The declaration checkbox is 'manifesto' (medicamentos) or 'cumplimiento'
+      // (tóxicas). Some procedures have no manifiestos declaration at all (e.g. the
+      // aviso-exportación 260604) — skip when the checkbox is absent.
+      const box = page.locator(
         'input[type="checkbox"][formcontrolname="manifesto"]:visible, ' +
         'input[type="checkbox"][formcontrolname="cumplimiento"]:visible',
       );
-      if (await byFcn.count()) {
-        await byFcn.first().check();
-        return;
+      if (await box.count()) {
+        await box.first().check();
       }
-      // Tag the visible checkbox nearest (in DOM order) to the "Cumplo con los
-      // requisitos…" declaration, then check it via Playwright so Angular registers it.
-      const tagged = await page.evaluate(() => {
-        // The manifiestos declaration is the only standalone checkbox: the other
-        // checkboxes are the S.C.I.A.N./Mercancías/Terceros table "select all"
-        // headers (inside a table) and the "Aviso de funcionamiento" toggle.
-        const box = Array.from(document.querySelectorAll('input[type="checkbox"]')).find(cb =>
-          !!(cb as HTMLElement).offsetParent
-          && cb.getAttribute('formcontrolname') !== 'aviso'
-          && cb.id !== 'aviso'
-          && !cb.closest('table, thead, tbody, app-tabla-dinamica, [role="grid"], [role="row"], [role="columnheader"]'));
-        if (!box) return false;
-        box.setAttribute('data-vucem-manifiesto', '1');
-        return true;
-      });
-      if (!tagged) {
-        throw new Error('Manifiestos declaration checkbox not found');
-      }
-      await page.locator('[data-vucem-manifiesto="1"]').check();
     });
   }
 
@@ -724,6 +753,54 @@ export class CofeprisRegistrationFlow {
       await CofeprisRegistrationFlow.selectByLabelInModal(modal, 'Código postal', t.codigoPostal);
       await CofeprisRegistrationFlow.selectByLabelInModal(modal, 'Colonia', t.colonia);
 
+      await modal.locator('[formcontrolname="calle"]').fill(t.calle);
+      await modal.locator('[formcontrolname="numeroExterior"]').fill(t.numeroExterior);
+      if (t.telefono) {
+        await modal.locator('[formcontrolname="telefono"]').fill(t.telefono);
+      }
+      if (t.correo) {
+        await modal.locator('[formcontrolname="correoElectronico"]').fill(t.correo);
+      }
+
+      await modal.getByRole('button', { name: /guardar/i }).click();
+      await expect(modal).toBeHidden({ timeout: 15_000 });
+    });
+  }
+
+  /**
+   * Adds a Facturador/Consignatario record on the Terceros relacionados tab —
+   * the single MANDATORY tercero for the precursores trámite (260604). Its modal
+   * (#facturadorModal) diverges from the medicamentos fabricante/destinatario
+   * modals: no R.F.C./CURP, no Municipio/Localidad/Colonia. There is no
+   * Nacional/Extranjero toggle, so for Persona Física País is fixed (disabled) to
+   * MEXICO — selectByLabelInModal no-ops when the data already says MEXICO — and
+   * Estado / Código postal are plain text inputs. Persona Moral would show
+   * Denominación/razón social instead of Nombre + apellidos; the happy path uses
+   * Física.
+   */
+  static async addFacturadorConsignatario(page: Page, t: TerceroData): Promise<void> {
+    await Logger.step('Add Facturador/Consignatario', async () => {
+      const modal = await CofeprisRegistrationFlow.openTerceroModal(page, 'facturadorModal');
+
+      await modal.locator('.form-check', { hasText: t.tipoPersona })
+        .locator('input[type="radio"]').check();
+
+      await modal.locator('[formcontrolname="nombres"]').fill(t.nombre);
+      await modal.locator('[formcontrolname="primerApellido"]').fill(t.primerApellido);
+      if (t.segundoApellido) {
+        await modal.locator('[formcontrolname="segundoApellido"]').fill(t.segundoApellido);
+      }
+
+      // País is the only cascading select on this modal. Estado / Código postal
+      // are plain text inputs for a foreign País (guard for a MX select just in case).
+      await CofeprisRegistrationFlow.selectByLabelInModal(modal, 'País', t.pais);
+      const estadoSelect = modal.locator('app-catalogo-select[name="estado"] select:visible, app-catalogo-select[formcontrolname="estado"] select:visible');
+      if (await estadoSelect.count()) {
+        await CofeprisRegistrationFlow.selectByLabelInModal(modal, 'Estado', t.estado);
+      } else {
+        await modal.locator('input[formcontrolname="estado"]').fill(t.estado);
+      }
+      await modal.locator('input[formcontrolname="codigoPostal"]').fill(t.codigoPostal);
       await modal.locator('[formcontrolname="calle"]').fill(t.calle);
       await modal.locator('[formcontrolname="numeroExterior"]').fill(t.numeroExterior);
       if (t.telefono) {
