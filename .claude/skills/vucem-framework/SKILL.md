@@ -297,6 +297,31 @@ procedencia, descripción de la fracción, régimen on some forms); guard with `
   is valid ~24h. "Not logged in" (tests bounce, or codegen) → `npm run auth` to refresh it.
 - Target env via `ENV` (`qa` default, `staging`). New env → add `test-data/envs/<name>.json` like `qa.json`.
 
+## Debugging a failure (fast loop)
+
+Every failing test **already leaves its context on disk** (`playwright.config.ts`:
+`screenshot: only-on-failure`, `trace`/`video: retain-on-failure`, `outputDir: test-results/`). Read it
+before re-running or driving the live app — the test already reached and captured the failure:
+
+1. `test-results/.last-run.json` — ids of the tests that failed in the last run.
+2. `test-results/<spec>-<title>-chromium/error-context.md` — the **failing step (with source line)** plus a
+   **full a11y page snapshot at the moment of failure**: dropdown options, open modals, and table rows are
+   all in it. `test-failed-1.png` is the matching screenshot — validation dialogs show here but are easy
+   to miss in the a11y text.
+3. `trace.zip` (`npx playwright show-trace <path>`) only if the snapshot isn't enough.
+
+Caveats & heuristics:
+- **`test-results/` is overwritten every run** — it reflects only the *latest* run. A leftover subset run
+  will mislead you (a lone stale dir looks like "no artifact"); confirm the artifact's mtime matches the
+  run you care about before trusting it.
+- **A `selectOption` / "option not found" failure is almost always bad test data, not a selector or
+  product bug** — the value isn't in the live catalog. The `error-context.md` snapshot lists the real
+  options; fix the value in `test-data/procedures/<code>.json` (e.g. 260604 SCIAN `311239`→`311311`), not
+  the component. When manual selection works but the script fails on a dropdown, suspect the data value.
+- **Don't hand-drive the app to reach the failure point** — the test already did, and the snapshot froze
+  the exact DOM state. Only probe live (see CLAUDE.md "Driving the live app") when you need info the
+  snapshot lacks (e.g. the *full* option catalog to pick a valid value).
+
 ## Reporting (Allure + Playwright HTML)
 
 Every run emits four reporters (configured in `playwright.config.ts`): `list` (terminal), `html`

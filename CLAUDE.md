@@ -19,9 +19,12 @@ Keep it simple — this repo is small.
 3. Write framework code (vucem-framework templates): component → flow → procedure → spec
 4. Run the spec (npm run test:headed), then npm run typecheck && npm run lint
      (review results via `npm run allure:serve` or the Playwright HTML report; see vucem-framework skill)
-5. On failure: inspect error-context + trace AND **`Read` the failure screenshot**
-     (`test-results/…/test-failed-1.png`) FIRST — validation dialogs render there but are easy to miss
-     in the a11y text (`/debug-test` command); don't rewrite blind
+5. On failure: the last run already saved the context — **`Read` `test-results/<dir>/error-context.md`
+     (failing step + full page snapshot) and `test-failed-1.png` FIRST** (start from
+     `test-results/.last-run.json`; open `trace.zip` only if those aren't enough). Do NOT re-run or
+     hand-drive the live app to reproduce — the test already captured the failure. Don't rewrite blind;
+     validation dialogs render in the screenshot but are easy to miss in the a11y text. (`/debug-test`
+     command; fast-loop details + caveats in `vucem-framework`.)
 6. Fix at the correct layer, re-run to green
 ```
 
