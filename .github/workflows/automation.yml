@@ -74,11 +74,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-results-shard-${{ matrix.shard }}
+          # blob-report/ is what merge-reports recombines; test-results/ (traces,
+          # screenshots) and allure-results/ are kept for debugging + the Allure report.
           path: |
-            playwright-report/
+            blob-report/
             test-results/
             allure-results/
           retention-days: 14
+          if-no-files-found: ignore
 
   # ─── Merge reports from all shards into one HTML report ───────────────────
   merge-reports:
@@ -102,10 +105,25 @@ jobs:
           merge-multiple: true
           path: all-results/
 
+      # If the test job was skipped or produced nothing (e.g. lint failed
+      # upstream), there are no reports to merge — detect that and skip the
+      # merge steps instead of hard-failing the whole workflow.
+      - name: Check for downloaded reports
+        id: check
+        run: |
+          if [ -d ./all-results/blob-report ] && [ -n "$(ls -A ./all-results/blob-report 2>/dev/null)" ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::No blob reports were produced by the test job — skipping report merge."
+          fi
+
       - name: Merge HTML reports
-        run: npx playwright merge-reports --reporter html ./all-results
+        if: steps.check.outputs.found == 'true'
+        run: npx playwright merge-reports --reporter html ./all-results/blob-report
 
       - name: Upload merged report
+        if: steps.check.outputs.found == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-merged
@@ -116,15 +134,18 @@ jobs:
       # allure-results/ from all shards is merged by download-artifact above
       # (UUID-named files never collide). The Allure CLI needs a JDK to run.
       - name: Set up JDK for Allure
+        if: steps.check.outputs.found == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
       - name: Generate Allure report
+        if: steps.check.outputs.found == 'true'
         run: npx allure generate all-results/allure-results --clean -o allure-report
 
       - name: Upload Allure report
+        if: steps.check.outputs.found == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: allure-report

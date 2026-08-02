@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, ReporterDescription } from '@playwright/test';
 import path from 'path';
 
 /**
@@ -8,6 +8,25 @@ import path from 'path';
  */
 const ENV = process.env.ENV || 'qa';
 const envConfig = require(`./test-data/envs/${ENV}.json`);
+
+// Allure reporter — shared by both the local and CI reporter sets below.
+const allureReporter: ReporterDescription = [
+  'allure-playwright',
+  {
+    resultsDir: 'allure-results',
+    // Nest Playwright's own test.step() (i.e. Logger.step) as Allure steps.
+    detail: true,
+    // Group by the describe() title so the suite tree reads by procedure.
+    suiteTitle: true,
+    // Surfaced on the report's "Environment" widget.
+    environmentInfo: {
+      Environment: ENV,
+      Base_URL: envConfig.baseUrl,
+      Locale: 'es-MX',
+      Node: process.version,
+    },
+  },
+];
 
 export default defineConfig({
   // All test files live under tests/
@@ -53,30 +72,21 @@ export default defineConfig({
   // - list:   real-time terminal output
   // - html:   full report with screenshots/traces (open with: npx playwright show-report)
   // - json:   for CI artifact parsing
+  // - blob:   sharded-run output that `playwright merge-reports` recombines in CI
   // - allure: rich historical report with steps, attachments and metadata
   //           (npm run allure:serve, or allure:generate + allure:open)
-  reporter: [
-    ['list'],
-    ['html', { outputFolder: 'playwright-report', open: 'never' }],
-    ['json', { outputFile: 'playwright-report/results.json' }],
-    [
-      'allure-playwright',
-      {
-        resultsDir: 'allure-results',
-        // Nest Playwright's own test.step() (i.e. Logger.step) as Allure steps.
-        detail: true,
-        // Group by the describe() title so the suite tree reads by procedure.
-        suiteTitle: true,
-        // Surfaced on the report's "Environment" widget.
-        environmentInfo: {
-          Environment: ENV,
-          Base_URL: envConfig.baseUrl,
-          Locale: 'es-MX',
-          Node: process.version,
-        },
-      },
-    ],
-  ],
+  //
+  // In CI each shard emits a blob report (the only format merge-reports accepts);
+  // the merge-reports job recombines them into a single HTML report afterwards.
+  // Locally we keep the human-friendly html/json reporters instead.
+  reporter: (process.env.CI
+    ? [['list'], ['blob'], allureReporter]
+    : [
+        ['list'],
+        ['html', { outputFolder: 'playwright-report', open: 'never' }],
+        ['json', { outputFile: 'playwright-report/results.json' }],
+        allureReporter,
+      ]) as ReporterDescription[],
 
   projects: [
     // Auth setup project — runs login once, saves browser state to disk.
