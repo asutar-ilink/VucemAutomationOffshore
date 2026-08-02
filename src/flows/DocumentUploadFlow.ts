@@ -162,6 +162,9 @@ export class DocumentUploadFlow {
       registro_sanitario_actualizado:   'registro sanitario actualizado del producto',
       // ─── COFEPRIS 260512 — Permiso de importación de sustancias tóxicas ─────
       hoja_de_datos_de_seguridad:       'Hoja de datos de seguridad del producto',
+      // ─── COFEPRIS 260102 — Importación de productos de muestra / consumo personal ─
+      factura_o_recibo:   'Factura o recibo que indique muestras sin valor comercial',
+      carta_uso_producto: 'Carta que indique el uso que le',
 
       // 260215 (dispositivos médicos, investigación) mandatory requisito.
       carta_tecnica:              'Carta técnica del producto',

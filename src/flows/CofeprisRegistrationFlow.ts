@@ -14,6 +14,8 @@ import {
   PlaguicidaMercanciaData,
   ToxicasSolicitudData,
   ToxicasMercanciaData,
+  ConsumoPersonalSolicitudData,
+  ConsumoPersonalMercanciaData,
   SolicitanteData,
   EstablecimientoData,
   MercanciaData,
@@ -1086,6 +1088,117 @@ export class CofeprisRegistrationFlow {
     });
   }
 
+  // ─── Consumo personal / muestra (260102) — Datos de la solicitud ──────────
+
+  /**
+   * The Datos de la solicitud tab for the 260102 "permiso sanitario de
+   * importación de productos de muestra o consumo personal" trámite. Reuses the
+   * medicamentos building blocks (establecimiento capture without RFC-del-
+   * responsable, the S.C.I.A.N. modal, the `manifesto` checkbox, the `seleccion`
+   * datos-públicos radio and the Buscar-driven representante) and adds: an Aviso
+   * de funcionamiento checkbox (coexists with the licencia here), régimen +
+   * aduana with an Aeropuerto-AICM checkbox (revealed by the AIFA aduana), and its
+   * own Mercancía modal shape (see addMercanciaConsumoPersonal).
+   */
+  static async fillDatosSolicitudConsumoPersonal(page: Page, data: ConsumoPersonalSolicitudData): Promise<void> {
+    await new Tab(page).click('Datos de la solicitud');
+    await CofeprisRegistrationFlow.openEstablecimiento(page);
+    await CofeprisRegistrationFlow.fillEstablecimiento(page, data.establecimiento);
+    await CofeprisRegistrationFlow.addScian(page, data.scian);
+    await Logger.step('Set Aviso de funcionamiento + No. de licencia sanitaria', async () => {
+      if (data.avisoFuncionamiento) {
+        await new Checkbox(page, 'aviso', 'control').check();
+      }
+      await new TextField(page, 'licenciaSanitaria', 'control').fill(data.licenciaSanitaria);
+    });
+    await Logger.step('Set régimen, aduana (+AICM)', async () => {
+      const regimen = page.locator('app-catalogo-select[name="regimen"] select:visible');
+      if (await regimen.count() && !(await regimen.first().isDisabled())) {
+        await new Dropdown(page, 'regimen', 'control').select(data.regimen);
+      }
+      await new Dropdown(page, 'adunasDeEntradas', 'control').select(data.aduana);
+      if (data.aduanaAicm) {
+        // Selecting the AIFA aduana reveals the "Aeropuerto Internacional Ciudad
+        // de México (AICM)" checkbox (formcontrolname="aeropuerto").
+        await new Checkbox(page, 'aeropuerto', 'control').check();
+      }
+    });
+    await CofeprisRegistrationFlow.addMercanciaConsumoPersonal(page, data.mercancia);
+    await CofeprisRegistrationFlow.acceptManifiestos(page);
+    await CofeprisRegistrationFlow.setDatosPublicos(page, data.datosPublicos);
+    await CofeprisRegistrationFlow.fillRepresentanteLegal(page, data.representanteLegal);
+  }
+
+  /**
+   * Add a Mercancía record via the consumo-personal "Datos mercancía" modal
+   * (#mercanciaModal). A trimmed medicamentos shape: Clasificación + Especificar
+   * del producto, Denominación específica, a "Marca" field (in place of
+   * denominación distintiva), Tipo de producto, UMT/UMC quantities (the UMT unit
+   * auto-derives and is disabled), and País de origen / procedencia / Uso
+   * específico `<crosslist>` dual-lists. No denominación distintiva/común, forma
+   * farmacéutica, estado físico, presentación or número de registro.
+   */
+  static async addMercanciaConsumoPersonal(page: Page, m: ConsumoPersonalMercanciaData): Promise<void> {
+    await Logger.step('Add Mercancía record (consumo personal)', async () => {
+      await page.locator('button[name="agregarMercancias"]')
+        .filter({ hasText: /agregar/i }).locator('visible=true').first().click();
+
+      // Clasificación + Especificar is an order-sensitive cascade that self-resets
+      // (selecting Clasificación clears itself — and Especificar — ~1s later), so
+      // drive it through the robust helper rather than two plain selects.
+      await CofeprisRegistrationFlow.setClasificacionProducto(
+        page, m.clasificacionProducto, m.especificarClasificacion);
+      await new TextField(page, 'denominacionEspecificaProducto', 'control').fill(m.denominacionEspecifica);
+      await new TextField(page, 'marca', 'control').fill(m.marca);
+      await new Dropdown(page, 'tipoProducto', 'control').select(m.tipoProducto);
+      // fraccionArancelaria is a text input; descripcionFraccion auto-fills (disabled).
+      await new TextField(page, 'fraccionArancelaria', 'control').fill(m.fraccionArancelaria);
+      // cantidadUmtValor is editable; the UMT unit (cantidadUmt) is disabled/auto-derived.
+      await new TextField(page, 'cantidadUmtValor', 'control').fill(m.cantidadUmt);
+      await new TextField(page, 'cantidadUmcValor', 'control').fill(m.cantidadUmc);
+      await new Dropdown(page, 'cantidadUmc', 'control').select(m.umc);
+
+      // País de origen / procedencia and Uso específico are <crosslist> dual-lists
+      // in collapsible panels; pre-expand each so its <crosslist> renders, then move
+      // the value across via the CrossList component.
+      const lists: [string, string | undefined][] = [
+        ['País de origen', m.paisOrigen],
+        ['País de procedencia', m.paisProcedencia],
+        ['Uso específico', m.usoEspecifico],
+      ];
+      const modal = page.locator('#mercanciaModal');
+      for (const [heading, value] of lists) {
+        if (!value) continue;
+        const panel = modal.locator('.panel').filter({ hasText: heading }).first();
+        if ((await panel.locator('crosslist').count()) === 0) {
+          await panel.getByText(heading, { exact: false }).first().click().catch(() => undefined);
+          await panel.locator('crosslist').first().waitFor({ state: 'visible', timeout: 10_000 });
+        }
+        await new CrossList(page, heading, '#mercanciaModal').add(value);
+      }
+
+      // Required "Clave de los lotes" sub-form: fill the clave + the two calendar
+      // fields, then "Agregar" (name="agregarClave") to add a lote to the "Lista
+      // Claves de los lotes" table (empty otherwise → the mercancía stays invalid).
+      await new TextField(page, 'claveDeLos', 'control').fill(m.claveLote);
+      await CofeprisRegistrationFlow.setFechaByLabel(page, 'Fecha de fabricación', m.fechaFabricacion);
+      await CofeprisRegistrationFlow.setFechaByLabel(page, 'Fecha de caducidad', m.fechaCaducidad);
+      await modal.locator('button[name="agregarClave"]').click();
+      // The lote registers in Angular's model asynchronously; wait for the clave
+      // input to reset (it clears once the lote row is added) before committing.
+      await expect(modal.locator('input[formcontrolname="claveDeLos"]'))
+        .toHaveValue('', { timeout: 10_000 }).catch(() => undefined);
+
+      // The modal's footer commit button is name="agregarScian" (there is also a
+      // name="agregarClave" that adds a "Clave de los lotes" sub-row, so an exact
+      // "Agregar" role match is ambiguous — scope to the commit by name).
+      await modal.locator('button[name="agregarScian"]').click();
+      await expect(modal).toBeHidden({ timeout: 15_000 });
+      await expect(page.locator('.modal-backdrop')).toHaveCount(0, { timeout: 10_000 });
+      await new DynamicTable(page, 'Mercancías').expectRowExists(m.denominacionEspecifica);
+    });
+  }
+
   // ─── Terceros relacionados tab ────────────────────────────────────────────
 
   /**
@@ -1179,10 +1292,51 @@ export class CofeprisRegistrationFlow {
   }
 
   /**
+   * Sets one of the tercero modal's location fields by its label, tolerating BOTH
+   * shapes the modal uses depending on País: a cascading <select> (national —
+   * MEXICO, with dependent Estado/Municipio/Localidad selects) or a plain text
+   * <input> (foreign, e.g. INDIA, where Estado / Código postal become free text).
+   * Blank values, and fields absent for the chosen País, are skipped. Selects go
+   * through selectByLabelInModal (accent-insensitive option match); text inputs
+   * are filled when editable.
+   */
+  private static async setAddressFieldInModal(modal: Locator, labelContains: string, value: string): Promise<void> {
+    if (!value) return;
+    const kind = await modal.evaluate((root, target) => {
+      const nrm = (s: string) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .toLowerCase().replace(/\s+/g, ' ').trim();
+      const strip = (s: string) => nrm(s).replace(/[*:]/g, '').trim();
+      const t = nrm(target);
+      const fields = Array.from(root.querySelectorAll(
+        'select, input:not([type=checkbox]):not([type=radio]):not([type=button])'));
+      const nearestFollowing = (label: Element) => fields.find(
+        f => (label.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0);
+      const labels = Array.from(root.querySelectorAll('label')).filter(l => nrm(l.textContent).includes(t));
+      const exact = labels.filter(l => strip(l.textContent || '') === strip(target));
+      for (const l of [...exact, ...labels]) {
+        const f = nearestFollowing(l);
+        if (f) return { index: fields.indexOf(f), tag: f.tagName.toLowerCase() };
+      }
+      return null;
+    }, labelContains);
+    if (!kind) return; // field not present for this País — skip
+    if (kind.tag === 'select') {
+      await CofeprisRegistrationFlow.selectByLabelInModal(modal, labelContains, value);
+      return;
+    }
+    const input = modal.locator(
+      'select, input:not([type=checkbox]):not([type=radio]):not([type=button])').nth(kind.index);
+    if (!(await input.isDisabled().catch(() => true))) {
+      await input.fill(value);
+    }
+  }
+
+  /**
    * Adds a tercero via the modal identified by `modalId` (e.g. 'fabricanteModal',
    * 'destinatarioModal'). Optional data fields (segundo apellido, teléfono,
    * correo, CURP) are filled only when the data supplies them, so a procedure
-   * that omits them behaves exactly as before.
+   * that omits them behaves exactly as before. Address fields tolerate both the
+   * national (cascading selects) and foreign (free-text) modal shapes.
    */
   static async addTercero(page: Page, modalId: string, t: TerceroData): Promise<void> {
     await Logger.step(`Add tercero (${modalId})`, async () => {
@@ -1201,32 +1355,41 @@ export class CofeprisRegistrationFlow {
       await modal.locator('.form-check', { hasText: t.tipoPersona })
         .locator('input[type="radio"]').check();
 
-      await modal.locator('[formcontrolname="rfc"]').fill(t.rfc);
-      if (t.curp) {
-        await modal.locator('[formcontrolname="curp"]').fill(t.curp);
-      }
-      await modal.locator('[formcontrolname="nombres"]').fill(t.nombre);
-      await modal.locator('[formcontrolname="primerApellido"]').fill(t.primerApellido);
-      if (t.segundoApellido) {
-        await modal.locator('[formcontrolname="segundoApellido"]').fill(t.segundoApellido);
-      }
+      // Fill a modal field by formControlName only when it exists AND is editable
+      // and a value is supplied. Tercero modals vary: the medicamentos fabricante/
+      // destinatario carry R.F.C. + CURP, but the muestra/consumo-personal (260102)
+      // modals have neither — so an unconditional rfc fill would time out there.
+      const fillIfPresent = async (fcn: string, value?: string): Promise<void> => {
+        if (!value) return;
+        const field = modal.locator(`[formcontrolname="${fcn}"]`).first();
+        if (await field.count() && !(await field.isDisabled().catch(() => true))) {
+          await field.fill(value);
+        }
+      };
 
-      // Cascading selects — each populates after the previous is chosen.
+      await fillIfPresent('rfc', t.rfc);
+      await fillIfPresent('curp', t.curp);
+      await fillIfPresent('nombres', t.nombre);
+      await fillIfPresent('primerApellido', t.primerApellido);
+      await fillIfPresent('segundoApellido', t.segundoApellido);
+
+      // Location fields — País is always a <select>; the dependent fields are
+      // cascading selects for a national tercero (MEXICO) or free-text inputs for
+      // a foreign one (INDIA). setAddressFieldInModal handles both and skips
+      // blanks / fields absent for the chosen País.
       await CofeprisRegistrationFlow.selectByLabelInModal(modal, 'País', t.pais);
-      await CofeprisRegistrationFlow.selectByLabelInModal(modal, 'Estado/localidad', t.estado);
-      await CofeprisRegistrationFlow.selectByLabelInModal(modal, 'Municipio/alcaldía', t.municipio);
-      await CofeprisRegistrationFlow.selectByLabelInModal(modal, 'Localidad', t.localidad);
-      await CofeprisRegistrationFlow.selectByLabelInModal(modal, 'Código postal', t.codigoPostal);
-      await CofeprisRegistrationFlow.selectByLabelInModal(modal, 'Colonia', t.colonia);
+      // "Estado" (foreign, free text) or "Estado/localidad" (national select) —
+      // the broad "Estado" substring matches both.
+      await CofeprisRegistrationFlow.setAddressFieldInModal(modal, 'Estado', t.estado);
+      await CofeprisRegistrationFlow.setAddressFieldInModal(modal, 'Municipio/alcaldía', t.municipio);
+      await CofeprisRegistrationFlow.setAddressFieldInModal(modal, 'Localidad', t.localidad);
+      await CofeprisRegistrationFlow.setAddressFieldInModal(modal, 'Código postal', t.codigoPostal);
+      await CofeprisRegistrationFlow.setAddressFieldInModal(modal, 'Colonia', t.colonia);
 
-      await modal.locator('[formcontrolname="calle"]').fill(t.calle);
-      await modal.locator('[formcontrolname="numeroExterior"]').fill(t.numeroExterior);
-      if (t.telefono) {
-        await modal.locator('[formcontrolname="telefono"]').fill(t.telefono);
-      }
-      if (t.correo) {
-        await modal.locator('[formcontrolname="correoElectronico"]').fill(t.correo);
-      }
+      await fillIfPresent('calle', t.calle);
+      await fillIfPresent('numeroExterior', t.numeroExterior);
+      await fillIfPresent('telefono', t.telefono);
+      await fillIfPresent('correoElectronico', t.correo);
 
       await modal.getByRole('button', { name: /guardar/i }).click();
       await expect(modal).toBeHidden({ timeout: 15_000 });
@@ -1419,6 +1582,18 @@ export class CofeprisRegistrationFlow {
 
   private static async continuarToPaso2(page: Page, expectSkipModal = false): Promise<void> {
     await Logger.step('Continue to Paso 2', async () => {
+      // Capture any backend validation error (Paso-1 guardar) so a rejected
+      // submission surfaces a useful message instead of a bare timeout later.
+      const apiErrors: string[] = [];
+      page.on('response', (resp) => {
+        if (resp.request().method() !== 'POST' || !/guardar|solicitud/i.test(resp.url())) return;
+        void resp.text().then((body) => {
+          if (/ERROR_VALIDACION|error en la validaci|errores_modelo|no cumple/i.test(body)) {
+            apiErrors.push(body.slice(0, 500));
+          }
+        }).catch(() => undefined);
+      });
+
       await page.getByRole('button', { name: /continuar/i }).click();
       if (expectSkipModal) {
         // The "¿…no requiere los datos del Pago de derechos?" confirmation is a
@@ -1432,6 +1607,29 @@ export class CofeprisRegistrationFlow {
         await expect(dialog).toBeHidden({ timeout: 15_000 });
       }
       await page.waitForLoadState('networkidle');
+
+      // Verify Paso 2 was actually reached. Use a Paso-2-ONLY signal — the
+      // temporal-folio banner or the "Cargar archivos"/"Agregar nuevo" upload UI —
+      // NOT the stepper's "Anexar requisitos" label, which is present on every
+      // paso. A single Continuar can no-op while an async validation settles, so
+      // retry; if it still won't advance, surface any captured backend error.
+      const onPaso2 = page.getByText(/n[úu]mero temporal/i).first()
+        .or(page.getByRole('button', { name: /cargar archivos|agregar nuevo/i }).first());
+      try {
+        await expect.poll(async () => {
+          if (await onPaso2.isVisible().catch(() => false)) return true;
+          await page.getByRole('button', { name: /^\s*continuar\s*$/i }).first().click().catch(() => undefined);
+          if (expectSkipModal) {
+            await page.getByRole('dialog').filter({ hasText: /no requiere los datos del Pago de derechos/i })
+              .getByRole('button', { name: /^\s*s[íi]\s*$/i }).click().catch(() => undefined);
+          }
+          await page.waitForLoadState('networkidle').catch(() => undefined);
+          return onPaso2.isVisible().catch(() => false);
+        }, { timeout: 40_000, intervals: [1_000, 1_500, 2_000] }).toBe(true);
+      } catch (e) {
+        if (apiErrors.length) throw new Error(`Paso 1 rejected by backend: ${apiErrors[apiErrors.length - 1]}`);
+        throw e;
+      }
     });
   }
 }

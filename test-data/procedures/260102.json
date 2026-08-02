@@ -1,0 +1,120 @@
+{
+  "procedureCode": "260102",
+  "procedureTitle": "Permiso sanitario de importación de productos de muestra o consumo personal (para donación, investigación científica, pruebas de laboratorio y exhibición)",
+  "tabs": [
+    "Solicitante",
+    "Datos de la solicitud",
+    "Terceros relacionados",
+    "Pago de derechos"
+  ],
+
+  "solicitante": {
+    "rfc": "AAL0409235E6",
+    "razonSocial": "INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV",
+    "correo": "vucem30@ultrasist.com.mx",
+    "pais": "ESTADOS UNIDOS MEXICANOS",
+    "codigoPostal": "81210",
+    "estado": "SINALOA",
+    "municipio": "AHOME",
+    "localidad": "LOS MOCHIS",
+    "colonia": "MIGUEL HIDALGO",
+    "calle": "CAMINO VIEJO",
+    "numeroExterior": "1353",
+    "lada": "55",
+    "telefono": "98764532"
+  },
+
+  "establecimiento": {
+    "rfcResponsable": "AAL0409235E6",
+    "denominacion": "QAS",
+    "correo": "QAS@ilink-systems.com",
+    "codigoPostal": "626203",
+    "estado": "SINALOA",
+    "municipio": "QAS",
+    "localidad": "Sattur",
+    "calle": "QAS",
+    "telefono": "09363687071"
+  },
+
+  "scian": {
+    "clave": "311311",
+    "descripcion": "Congelación de frutas y legumbres"
+  },
+
+  "avisoFuncionamiento": true,
+  "licenciaSanitaria": "QAS",
+  "regimen": "Definitivos",
+  "aduana": "AEROPUERTO INTERNACIONAL FELIPE ANGELES, MEXICO",
+  "aduanaAicm": true,
+
+  "mercancia": {
+    "clasificacionProducto": "MOLUSCOS BIVALVOS",
+    "especificarClasificacion": "Almeja",
+    "denominacionEspecifica": "QAS",
+    "marca": "QAS",
+    "tipoProducto": "Aditivo",
+    "fraccionArancelaria": "21069001",
+    "cantidadUmt": "12",
+    "cantidadUmc": "12",
+    "umc": "Caja",
+    "paisOrigen": "ANTILLAS NEERLANDESAS (TERRITORIO HOLANDES DE ULTRAMAR)",
+    "paisProcedencia": "ANGOLA (REPUBLICA DE)",
+    "usoEspecifico": "ELABORACIÓN",
+    "claveLote": "QAS",
+    "fechaFabricacion": "2026-07-01",
+    "fechaCaducidad": "2027-08-01"
+  },
+
+  "datosPublicos": "Si",
+
+  "representanteLegal": {
+    "rfc": "MAVL621207C95",
+    "nombre": "EUROFOODS DE MEXICO",
+    "apellidoPaterno": "GONZALEZ",
+    "apellidoMaterno": "PINAL"
+  },
+
+  "terceros": {
+    "fabricante": {
+      "nacionalidad": "Extranjero",
+      "tipoPersona": "Física",
+      "rfc": "",
+      "nombre": "Kandasamy",
+      "primerApellido": "QAS",
+      "segundoApellido": "Balamurugan",
+      "pais": "INDIA (REPUBLICA DE)",
+      "estado": "Tamil Nadu",
+      "municipio": "",
+      "localidad": "",
+      "codigoPostal": "626203",
+      "colonia": "",
+      "calle": "QAS",
+      "numeroExterior": "1233",
+      "telefono": "09363687071",
+      "correo": "kandasamy.balamurugan@ilink-systems.com"
+    },
+    "destinatario": {
+      "nacionalidad": "Nacional",
+      "tipoPersona": "Física",
+      "rfc": "MAVL621207C95",
+      "nombre": "Kandasamy",
+      "primerApellido": "qas",
+      "segundoApellido": "Balamurugan",
+      "pais": "MEXICO (ESTADOS UNIDOS MEXICANOS)",
+      "estado": "SINALOA",
+      "municipio": "MOCORITO",
+      "localidad": "BOCA DE ARROYO",
+      "codigoPostal": "",
+      "colonia": "",
+      "calle": "QAS",
+      "numeroExterior": "254845",
+      "telefono": "09363687071",
+      "correo": "kandasamy.balamurugan@ilink-systems.com"
+    }
+  },
+
+  "documents": [
+    { "type": "factura_o_recibo",   "path": "test-data/files/registro_sanitario.pdf" },
+    { "type": "carta_uso_producto", "path": "test-data/files/licencia_sanitaria.pdf" }
+  ]
+}

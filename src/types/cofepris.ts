@@ -262,6 +262,66 @@ export interface ToxicasSolicitudData {
 }
 
 /**
+ * Mercancía shape for the *consumo personal / muestra* trámite (260102). Its
+ * "Datos mercancía" modal (#mercanciaModal) is a trimmed medicamentos shape:
+ * Clasificación + Especificar del producto (cascade), Denominación específica, a
+ * "Marca" field (in place of denominación distintiva), Tipo de producto, UMT/UMC
+ * quantities (the UMT unit auto-derives and is disabled), and THREE `<crosslist>`
+ * dual-lists (País de origen, País de procedencia, Uso específico). It has no
+ * denominación distintiva/común, forma farmacéutica, estado físico, presentación
+ * or número de registro.
+ */
+export interface ConsumoPersonalMercanciaData {
+  clasificacionProducto: string;
+  especificarClasificacion: string;
+  denominacionEspecifica: string;
+  marca: string;
+  tipoProducto: string;
+  fraccionArancelaria: string;
+  /** Cantidad UMT (the UMT unit auto-derives and is left untouched). */
+  cantidadUmt: string;
+  cantidadUmc: string;
+  umc: string;
+  paisOrigen: string;
+  paisProcedencia: string;
+  usoEspecifico: string;
+  /**
+   * The required "Clave de los lotes" sub-form (a lote is added via its own
+   * "Agregar" before the mercancía commits). Fecha de fabricación must be ≤ today;
+   * Fecha de caducidad must be in the future.
+   */
+  claveLote: string;
+  fechaFabricacion: string;
+  fechaCaducidad: string;
+}
+
+/**
+ * The Datos-de-la-solicitud data for the 260102 "permiso sanitario de importación
+ * de productos de muestra o consumo personal" trámite. Medicamentos-family
+ * structure (establecimiento without RFC-del-responsable, `manifesto` checkbox,
+ * `seleccion` datos-públicos radio, representanteRfc + Buscar, fabricante/
+ * destinatario terceros) with three divergences: an Aviso-de-funcionamiento
+ * checkbox that coexists with the licencia, an Aeropuerto-AICM checkbox revealed
+ * when the AIFA aduana is chosen, and its own Mercancía modal shape
+ * (ConsumoPersonalMercanciaData). Driven by
+ * CofeprisRegistrationFlow.fillDatosSolicitudConsumoPersonal.
+ */
+export interface ConsumoPersonalSolicitudData {
+  establecimiento: EstablecimientoData;
+  scian: { clave: string; descripcion: string };
+  /** Tick "Aviso de funcionamiento" (coexists with the licencia). */
+  avisoFuncionamiento: boolean;
+  licenciaSanitaria: string;
+  regimen: string;
+  aduana: string;
+  /** Tick the "Aeropuerto Internacional Ciudad de México (AICM)" checkbox. */
+  aduanaAicm: boolean;
+  mercancia: ConsumoPersonalMercanciaData;
+  datosPublicos: string;
+  representanteLegal: RepresentanteLegalData;
+}
+
+/**
  * The Datos-de-la-solicitud data for the 260202 "materias primas" trámite,
  * which diverges from the medicamentos siblings above:
  *   - the S.C.I.A.N. table takes several claves (one is later deleted),
