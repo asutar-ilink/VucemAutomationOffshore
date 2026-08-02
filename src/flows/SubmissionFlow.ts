@@ -90,8 +90,9 @@ export class SubmissionFlow {
       }, procedureCode).catch(() => { /* navigation tore down the context — expected */ });
       // Most procedure form routes contain "solicitud"; some COFEPRIS trámites
       // route to a named path instead (e.g. plaguicidas → /permiso-plaguicidas/
-      // plaguicidas), so accept either — the point is that the catalogue is left.
-      await page.waitForURL(/solicitud|plaguicid/i, { timeout: 60_000 });
+      // plaguicidas, sustancias tóxicas → /cofepris/permiso-de-importacion/…),
+      // so accept any of these — the point is that the catalogue is left.
+      await page.waitForURL(/solicitud|plaguicid|importacion/i, { timeout: 60_000 });
       await page.waitForLoadState('domcontentloaded');
     });
   }

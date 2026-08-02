@@ -160,6 +160,8 @@ export class DocumentUploadFlow {
       personalidad_juridica:            'personalidad jurídica del promovente',
       aviso_o_licencia_sanitaria:       'Aviso de funcionamiento o número de licencia sanitaria',
       registro_sanitario_actualizado:   'registro sanitario actualizado del producto',
+      // ─── COFEPRIS 260512 — Permiso de importación de sustancias tóxicas ─────
+      hoja_de_datos_de_seguridad:       'Hoja de datos de seguridad del producto',
 
       // 260215 (dispositivos médicos, investigación) mandatory requisito.
       carta_tecnica:              'Carta técnica del producto',
