@@ -152,6 +152,60 @@ export interface CofeprisRegistrationData {
 }
 
 /**
+ * Mercancía shape for the *plaguicidas* trámite (260501). Its "Datos mercancía"
+ * modal (#modalAddAgentMercancias) is a distinct shape from the medicamentos /
+ * materias-primas / precursores modals: nombre comercial / común / químico,
+ * a free-text Uso específico (a textarea, not a dual-list), UMT/UMC quantities,
+ * porcentaje de concentración, número de registro sanitario, Clasificación
+ * toxicológica + Objeto de la importación dropdowns, and FOUR país `<crosslist>`
+ * dual-lists (técnico / formulado / proveedor / procedencia).
+ */
+export interface PlaguicidaMercanciaData {
+  nombreComercial: string;
+  nombreComun: string;
+  nombreCientifico?: string;
+  usoEspecifico: string;
+  fraccionArancelaria: string;
+  cantidadUmt: string;
+  cantidadUmc: string;
+  umc: string;
+  porcentajeConcentracion: string;
+  numeroRegistro: string;
+  clasificacionToxicologica: string;
+  objetoImportacion: string;
+  /** País donde se fabrica el ingrediente activo (TÉCNICO). */
+  paisTecnico: string;
+  /** País donde se elabora el producto (FORMULADO). */
+  paisFormulado: string;
+  /** País proveedor. */
+  paisProveedor: string;
+  /** País de procedencia / último puerto de embarque (often optional). */
+  paisProcedencia?: string;
+}
+
+/**
+ * The Datos-de-la-solicitud data for the 260501 "permiso de importación de
+ * plaguicidas" trámite. Diverges from the medicamentos siblings: the
+ * establecimiento uses the rfcDel / denominacionRazonSocial / muncipio field
+ * names, the S.C.I.A.N. modal uses a `claveScianModal` select, Aduanas de
+ * entrada is a `<crosslist>` dual-list (not a dropdown), the Mercancía modal is
+ * the plaguicidas shape above, the Manifiestos declaration checkbox is
+ * `mensaje`, and the Representante legal fields are rfc / nombre /
+ * apellidoPaterno / apellidoMaterno (looked up via "Buscar"). Driven by
+ * CofeprisRegistrationFlow.fillDatosSolicitudPlaguicidas.
+ */
+export interface PlaguicidasSolicitudData {
+  establecimiento: EstablecimientoData;
+  scian: { clave: string; descripcion: string };
+  licenciaSanitaria: string;
+  /** Aduana de entrada to move into the "seleccionadas" dual-list. */
+  aduana: string;
+  mercancia: PlaguicidaMercanciaData;
+  datosPublicos: string;
+  representanteLegal: RepresentanteLegalData;
+}
+
+/**
  * The Datos-de-la-solicitud data for the 260202 "materias primas" trámite,
  * which diverges from the medicamentos siblings above:
  *   - the S.C.I.A.N. table takes several claves (one is later deleted),

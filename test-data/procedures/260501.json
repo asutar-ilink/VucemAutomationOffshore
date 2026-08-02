@@ -1,0 +1,137 @@
+{
+  "procedureCode": "260501",
+  "procedureTitle": "Permiso de importación de plaguicidas",
+  "tabs": [
+    "Solicitante",
+    "Datos de la solicitud",
+    "Terceros relacionados",
+    "Pago de derechos"
+  ],
+
+  "solicitante": {
+    "rfc": "AAL0409235E6",
+    "razonSocial": "INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV",
+    "correo": "vucem30@ultrasist.com.mx",
+    "codigoPostal": "81210",
+    "estado": "SINALOA"
+  },
+
+  "establecimiento": {
+    "rfcResponsable": "AAL0409235E6",
+    "denominacion": "Denominación ódig",
+    "correo": "test@test.com",
+    "codigoPostal": "01234",
+    "estado": "GUANAJUATO",
+    "municipio": "Municipio ódig",
+    "calle": "Calle ódig",
+    "telefono": "5551234567"
+  },
+
+  "scian": {
+    "clave": "311311",
+    "descripcion": "Congelación de frutas y legumbres"
+  },
+
+  "licenciaSanitaria": "LIC12334",
+  "aduana": "AGUA PRIETA",
+
+  "mercancia": {
+    "nombreComercial": "34324",
+    "nombreComun": "test2343",
+    "nombreCientifico": "324324",
+    "usoEspecifico": "test32434",
+    "fraccionArancelaria": "29221701",
+    "cantidadUmt": "12",
+    "cantidadUmc": "12",
+    "umc": "Bulto",
+    "porcentajeConcentracion": "342343",
+    "numeroRegistro": "342343",
+    "clasificacionToxicologica": "1",
+    "objetoImportacion": "Experimentación",
+    "paisTecnico": "ANDORRA",
+    "paisFormulado": "ALBANIA",
+    "paisProveedor": "ANGUILA",
+    "paisProcedencia": "ALBANIA"
+  },
+
+  "datosPublicos": "No",
+
+  "representanteLegal": {
+    "rfc": "MAVL621207C95",
+    "nombre": "EUROFOODS DE MEXICO",
+    "apellidoPaterno": "GONZALEZ",
+    "apellidoMaterno": "PINAL"
+  },
+
+  "terceros": {
+    "fabricante": {
+      "nacionalidad": "Nacional",
+      "tipoPersona": "Física",
+      "rfc": "MAVL621207C95",
+      "curp": "MAVL621207HDGRLS06",
+      "nombre": "EUROFOODS DE MEXICO",
+      "primerApellido": "GONZALEZ",
+      "segundoApellido": "PINAL",
+      "pais": "ESTADOS UNIDOS MEXICANOS",
+      "estado": "DURANGO",
+      "municipio": "DURANGO",
+      "localidad": "VICTORIA DE DURANGO",
+      "codigoPostal": "34000",
+      "colonia": "VICTORIA DE DURANGO CENTRO",
+      "calle": "LIBERTAD",
+      "numeroExterior": "SN",
+      "telefono": "618-256-2532"
+    },
+    "formulador": {
+      "nacionalidad": "Nacional",
+      "tipoPersona": "Física",
+      "rfc": "MAVL621207C95",
+      "curp": "MAVL621207HDGRLS06",
+      "nombre": "EUROFOODS DE MEXICO",
+      "primerApellido": "GONZALEZ",
+      "segundoApellido": "PINAL",
+      "pais": "ESTADOS UNIDOS MEXICANOS",
+      "estado": "DURANGO",
+      "municipio": "DURANGO",
+      "localidad": "VICTORIA DE DURANGO",
+      "codigoPostal": "34000",
+      "colonia": "VICTORIA DE DURANGO CENTRO",
+      "calle": "LIBERTAD",
+      "numeroExterior": "SN",
+      "telefono": "618-256-2532"
+    },
+    "proveedor": {
+      "nacionalidad": "Nacional",
+      "tipoPersona": "Física",
+      "rfc": "MAVL621207C95",
+      "curp": "MAVL621207HDGRLS06",
+      "nombre": "EUROFOODS DE MEXICO",
+      "primerApellido": "GONZALEZ",
+      "segundoApellido": "PINAL",
+      "pais": "ESTADOS UNIDOS MEXICANOS",
+      "estado": "DURANGO",
+      "municipio": "DURANGO",
+      "localidad": "VICTORIA DE DURANGO",
+      "codigoPostal": "34000",
+      "colonia": "VICTORIA DE DURANGO CENTRO",
+      "calle": "LIBERTAD",
+      "numeroExterior": "SN",
+      "telefono": "618-256-2532"
+    }
+  },
+
+  "pago": {
+    "claveReferencia": "REFPAGO20",
+    "cadenaDependencia": "0001012A0000EX",
+    "banco": "CITIBANK",
+    "llavePago": "PAY789CV0001",
+    "fechaPago": "2026-07-20",
+    "importePago": "594"
+  },
+
+  "documents": [
+    { "type": "personalidad_juridica",          "path": "test-data/files/aviso_responsable.pdf" },
+    { "type": "aviso_o_licencia_sanitaria",      "path": "test-data/files/licencia_sanitaria.pdf" },
+    { "type": "registro_sanitario_actualizado",  "path": "test-data/files/registro_sanitario.pdf" }
+  ]
+}

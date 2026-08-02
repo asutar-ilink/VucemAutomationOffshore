@@ -10,6 +10,8 @@ import { Logger } from '../utils/Logger';
 import {
   CofeprisRegistrationData,
   MateriasPrimasSolicitudData,
+  PlaguicidasSolicitudData,
+  PlaguicidaMercanciaData,
   SolicitanteData,
   EstablecimientoData,
   MercanciaData,
@@ -564,6 +566,336 @@ export class CofeprisRegistrationFlow {
     });
   }
 
+  // ─── Plaguicidas (260501) — Datos de la solicitud ─────────────────────────
+
+  /**
+   * Opens an add-record modal identified by its element id (e.g. 'modalAddAgent'
+   * for the S.C.I.A.N. modal, 'modalAddAgentMercancias' for the Mercancía modal).
+   * The plaguicidas Datos tab shows several unnamed "Agregar" buttons; click each
+   * visible one until the wanted modal appears, cancelling any other opened by
+   * mistake.
+   */
+  private static async openAddModalById(page: Page, modalId: string): Promise<Locator> {
+    const modal = page.locator(`#${modalId}`);
+    if (await modal.isVisible().catch(() => false)) return modal;
+    const agregars = page.locator('button')
+      .filter({ hasText: /^\s*Agregar\s*$/ }).locator('visible=true');
+    const count = await agregars.count();
+    for (let i = 0; i < count; i++) {
+      await agregars.nth(i).click();
+      try {
+        await modal.waitFor({ state: 'visible', timeout: 4_000 });
+        return modal;
+      } catch {
+        await page.locator('.modal.show').last()
+          .getByRole('button', { name: /cancelar/i }).click().catch(() => undefined);
+        await page.locator('.modal.show').last()
+          .waitFor({ state: 'hidden', timeout: 4_000 }).catch(() => undefined);
+      }
+    }
+    throw new Error(`Could not open add-record modal #${modalId}`);
+  }
+
+  /** The Datos de la solicitud tab for the 260501 "plaguicidas" trámite. */
+  static async fillDatosSolicitudPlaguicidas(page: Page, data: PlaguicidasSolicitudData): Promise<void> {
+    await new Tab(page).click('Datos de la solicitud');
+    await CofeprisRegistrationFlow.openEstablecimiento(page);
+    await CofeprisRegistrationFlow.fillEstablecimientoPlaguicidas(page, data.establecimiento);
+    await CofeprisRegistrationFlow.addScianPlaguicidas(page, data.scian);
+    await Logger.step('Fill No. de licencia sanitaria', async () => {
+      await new TextField(page, 'licenciaSanitaria', 'control').fill(data.licenciaSanitaria);
+    });
+    await CofeprisRegistrationFlow.addAduana(page, data.aduana);
+    await CofeprisRegistrationFlow.addMercanciaPlaguicidas(page, data.mercancia);
+    await CofeprisRegistrationFlow.acceptManifiestos(page);
+    await CofeprisRegistrationFlow.setDatosPublicosPlaguicidas(page, data.datosPublicos);
+    await CofeprisRegistrationFlow.fillRepresentanteLegalPlaguicidas(page, data.representanteLegal);
+    // The establecimiento Código postal (its async CP-lookup) and the Aduanas
+    // de entrada dual-list can silently reset during the later Datos steps, so
+    // re-verify and restore them before leaving the tab.
+    await CofeprisRegistrationFlow.reverifyCpAndAduana(page, data);
+  }
+
+  /** Restore the establecimiento Código postal and Aduana if they got reset. */
+  private static async reverifyCpAndAduana(page: Page, data: PlaguicidasSolicitudData): Promise<void> {
+    await Logger.step('Re-verify establecimiento CP + aduana persisted', async () => {
+      const cp = page.locator('input[formcontrolname="codigoPostal"]:visible').first();
+      await expect.poll(async () => {
+        if ((await cp.inputValue().catch(() => '')) === data.establecimiento.codigoPostal) return true;
+        await cp.fill(data.establecimiento.codigoPostal).catch(() => undefined);
+        return (await cp.inputValue().catch(() => '')) === data.establecimiento.codigoPostal;
+      }, { timeout: 8_000, intervals: [300, 500] }).toBe(true);
+
+      // Aduana: re-assert it (addAduana returns immediately if already valid,
+      // otherwise re-registers the dual-list selection in Angular's model).
+      await CofeprisRegistrationFlow.addAduana(page, data.aduana);
+    });
+  }
+
+  /**
+   * Sets the plaguicidas "¿…hacerlos públicos?" radio (id "No"/"Si"). This
+   * app-input-radio re-renders around form updates and can sit under a lingering
+   * modal backdrop, so a plain check() is flaky. Wait for the backdrop to clear,
+   * then poll on the real success signal — the app-input-radio group losing its
+   * ng-invalid class — retrying a native check() then a JS change event (which
+   * Angular's RadioControlValueAccessor registers) until the value takes.
+   */
+  private static async setDatosPublicosPlaguicidas(page: Page, value: string): Promise<void> {
+    await Logger.step(`Set "hacer públicos los datos" = ${value} (plaguicidas)`, async () => {
+      await expect(page.locator('.modal-backdrop')).toHaveCount(0, { timeout: 10_000 }).catch(() => undefined);
+      const group = page.locator('app-input-radio[formcontrolname="cumplimiento"]');
+      const radio = page.locator(`input[type="radio"][id="${value}"]:visible`).first();
+      const valid = async (): Promise<boolean> =>
+        !((await group.getAttribute('class').catch(() => '')) ?? '').includes('ng-invalid');
+      await expect.poll(async () => {
+        if (await valid()) return true;
+        await radio.scrollIntoViewIfNeeded().catch(() => undefined);
+        await radio.check({ timeout: 1_500 }).catch(() => undefined);
+        if (await valid()) return true;
+        // A programmatic el.click() runs the radio's default action (checks it)
+        // and fires change so Angular registers — and it bypasses coordinate-based
+        // click interception (a lingering overlay) that defeats check().
+        await radio.evaluate((el: HTMLInputElement) => el.click()).catch(() => undefined);
+        return valid();
+      }, { timeout: 20_000, intervals: [300, 500, 800] }).toBe(true);
+    });
+  }
+
+  /**
+   * Establecimiento capture for plaguicidas. Field names diverge from the
+   * medicamentos siblings: rfcDel / denominacionRazonSocial / muncipio [sic].
+   * Localidad / Colonia / Lada are filled only when supplied.
+   */
+  private static async fillEstablecimientoPlaguicidas(page: Page, d: EstablecimientoData): Promise<void> {
+    await Logger.step('Fill Datos del establecimiento (plaguicidas)', async () => {
+      await new TextField(page, 'rfcDel', 'control').fill(d.rfcResponsable);
+      await new TextField(page, 'denominacionRazonSocial', 'control').fill(d.denominacion);
+      await new TextField(page, 'correoElectronico', 'control').fill(d.correo);
+      await new TextField(page, 'codigoPostal', 'control').fill(d.codigoPostal);
+      await new Dropdown(page, 'estado', 'control').select(d.estado);
+      // The app misspells the municipio control "muncipio".
+      await new TextField(page, 'muncipio', 'control').fill(d.municipio);
+      if (d.localidad) await new TextField(page, 'localidad', 'control').fill(d.localidad);
+      if (d.colonia) await new TextField(page, 'colonia', 'control').fill(d.colonia);
+      await new TextField(page, 'calle', 'control').fill(d.calle);
+      if (d.lada) await new TextField(page, 'lada', 'control').fill(d.lada);
+      await new TextField(page, 'telefono', 'control').fill(d.telefono);
+    });
+  }
+
+  /** Add a S.C.I.A.N. row via the plaguicidas modal (select `claveScianModal`). */
+  private static async addScianPlaguicidas(page: Page, scian: { clave: string }): Promise<void> {
+    await Logger.step(`Add S.C.I.A.N. ${scian.clave} (plaguicidas)`, async () => {
+      const modal = await CofeprisRegistrationFlow.openAddModalById(page, 'modalAddAgent');
+      await new Dropdown(page, 'claveScianModal', 'control').select(scian.clave);
+      await modal.getByRole('button', { name: /^\s*agregar\s*$/i }).click();
+      await new DynamicTable(page, 'S.C.I.A.N.').expectRowExists(scian.clave);
+    });
+  }
+
+  /**
+   * Moves an "Aduana de entrada" into the "seleccionadas" list. It is a
+   * `<crosslist>` dual-list on the Datos tab (the only one outside the Mercancía
+   * modal), so it is located directly rather than via the CrossList component's
+   * panel-heading lookup.
+   */
+  private static async addAduana(page: Page, value: string): Promise<void> {
+    await Logger.step(`Add aduana de entrada ${value}`, async () => {
+      const crosslist = page.locator('crosslist').locator('visible=true').first();
+      const source = crosslist.locator('select').first();
+      const target = crosslist.locator('select').nth(1);
+      const norm = (s: string) =>
+        s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+      const targetInvalid = async (): Promise<boolean> =>
+        target.evaluate((el: HTMLSelectElement) => el.className.includes('ng-invalid')).catch(() => true);
+      // The "Agregar selección" button moves the option in the DOM but does not
+      // update Angular's model (the target stays ng-invalid). Move it, then select
+      // the moved option(s) and fire change on the target so the model registers.
+      // Poll until the target list is valid.
+      await expect.poll(async () => {
+        if (!(await targetInvalid())) return true;
+        const options = await source.locator('option').evaluateAll(els =>
+          (els as HTMLOptionElement[]).map(e => ({ value: e.value, text: (e.textContent || '').replace(/\s+/g, ' ').trim() })));
+        const match = options.find(o => norm(o.text) === norm(value))
+          ?? options.find(o => norm(o.text).includes(norm(value)));
+        if (match) {
+          await source.selectOption(match.value).catch(() => undefined);
+          await crosslist.getByRole('button', { name: 'Agregar selección' }).click().catch(() => undefined);
+        }
+        await target.evaluate((el: HTMLSelectElement) => {
+          Array.from(el.options).forEach(o => { o.selected = true; });
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }).catch(() => undefined);
+        return !(await targetInvalid());
+      }, { timeout: 15_000, intervals: [400, 700, 1_000] }).toBe(true);
+    });
+  }
+
+  /** Add a Mercancía record via the plaguicidas "Datos mercancía" modal. */
+  static async addMercanciaPlaguicidas(page: Page, m: PlaguicidaMercanciaData): Promise<void> {
+    await Logger.step('Add Mercancía record (plaguicidas)', async () => {
+      const modal = await CofeprisRegistrationFlow.openAddModalById(page, 'modalAddAgentMercancias');
+
+      await new TextField(page, 'nombreComercial', 'control').fill(m.nombreComercial);
+      await new TextField(page, 'nombreComun', 'control').fill(m.nombreComun);
+      if (m.nombreCientifico) {
+        await new TextField(page, 'nombreCientifico', 'control').fill(m.nombreCientifico);
+      }
+      // Uso específico is a free-text <textarea> here (not a dual-list).
+      await modal.locator('textarea[formcontrolname="usoEspecifico"]').fill(m.usoEspecifico);
+      // fraccionArancelaria is a text input; descripcionFraccion auto-fills (disabled).
+      await new TextField(page, 'fraccionArancelaria', 'control').fill(m.fraccionArancelaria);
+      // cantidadUMT value is editable; the UMT unit is disabled/auto-derived.
+      await new TextField(page, 'cantidadUMT', 'control').fill(m.cantidadUmt);
+      await new TextField(page, 'cantidadUMC', 'control').fill(m.cantidadUmc);
+      await new Dropdown(page, 'UMC', 'control').select(m.umc);
+      await new TextField(page, 'porcentajeConcentracion', 'control').fill(m.porcentajeConcentracion);
+      await new TextField(page, 'numeroRegistro', 'control').fill(m.numeroRegistro);
+      await new Dropdown(page, 'clasificacionToxicologica', 'control').select(m.clasificacionToxicologica);
+      await new Dropdown(page, 'objetoImportacion', 'control').select(m.objetoImportacion);
+
+      // The four País selectors are <crosslist> dual-lists in collapsible panels.
+      // Pre-expand each so its <crosslist> renders, then move the value across via
+      // the CrossList component (which skips its own expand click once rendered).
+      const paises: [string, string | undefined][] = [
+        ['País donde se fabrica el ingrediente activo', m.paisTecnico],
+        ['País donde se elabora el producto', m.paisFormulado],
+        ['País proveedor', m.paisProveedor],
+        ['País de procedencia', m.paisProcedencia],
+      ];
+      for (const [heading, value] of paises) {
+        if (!value) continue;
+        const panel = modal.locator('.panel').filter({ hasText: heading }).first();
+        if ((await panel.locator('crosslist').count()) === 0) {
+          await panel.getByText(heading, { exact: false }).first().click().catch(() => undefined);
+          await panel.locator('crosslist').first().waitFor({ state: 'visible', timeout: 10_000 });
+        }
+        await new CrossList(page, heading, '#modalAddAgentMercancias').add(value);
+      }
+
+      await modal.getByRole('button', { name: /^\s*agregar\s*$/i }).click();
+      await expect(modal).toBeHidden({ timeout: 15_000 });
+      // Wait for the modal backdrop to detach — a lingering backdrop intercepts
+      // clicks on the fields below (e.g. the datos-públicos radio).
+      await expect(page.locator('.modal-backdrop')).toHaveCount(0, { timeout: 10_000 });
+      await new DynamicTable(page, 'Mercancías').expectRowExists(m.nombreComercial);
+    });
+  }
+
+  /** RFC + "Buscar" autopopulates the representante's name fields (plaguicidas). */
+  private static async fillRepresentanteLegalPlaguicidas(page: Page, d: RepresentanteLegalData): Promise<void> {
+    await Logger.step('Fill Representante legal RFC and look up name (plaguicidas)', async () => {
+      await new TextField(page, 'rfc', 'control').fill(d.rfc);
+      await page.locator('[formcontrolname="rfc"]:visible')
+        .locator('xpath=ancestor::div[contains(@class,"row")][1]')
+        .getByRole('button', { name: /buscar/i }).click();
+      await expect(page.locator('[formcontrolname="nombre"]:visible'))
+        .not.toHaveValue('', { timeout: 10_000 });
+    });
+  }
+
+  /** Verifies the representante legal name fields autofilled from the RFC lookup. */
+  static async verifyRepresentanteAutofillPlaguicidas(page: Page, d: RepresentanteLegalData): Promise<void> {
+    await Logger.step('Verify representante legal autofill (plaguicidas)', async () => {
+      await new TextField(page, 'nombre', 'control').expectValue(d.nombre);
+      await new TextField(page, 'apellidoPaterno', 'control').expectValue(d.apellidoPaterno);
+      await new TextField(page, 'apellidoMaterno', 'control').expectValue(d.apellidoMaterno);
+    });
+  }
+
+  // ─── Plaguicidas (260501) — Terceros relacionados ─────────────────────────
+
+  /**
+   * Opens a plaguicidas tercero modal. All three tercero tables render their
+   * add-modal as an <app-modal> `.popup` inside the SAME component
+   * (`app-terceros-fabricante`, with no Bootstrap id), but each modal carries a
+   * distinct heading ("Agregar fabricante" / "Agregar formulador" / "Agregar
+   * proveedor"). The three tables share unnamed "Agregar" buttons, so click each
+   * visible one until the popup with the wanted heading appears, cancelling any
+   * other opened by mistake.
+   */
+  private static async openTerceroPopup(page: Page, heading: RegExp): Promise<Locator> {
+    const wanted = page.locator('.popup').locator('visible=true').filter({ hasText: heading }).first();
+    if (await wanted.isVisible().catch(() => false)) return wanted;
+    const agregars = page.locator('button')
+      .filter({ hasText: /^\s*Agregar\s*$/ }).locator('visible=true');
+    const count = await agregars.count();
+    for (let i = 0; i < count; i++) {
+      await agregars.nth(i).click();
+      await page.locator('.popup').locator('visible=true').last()
+        .waitFor({ state: 'visible', timeout: 4_000 }).catch(() => undefined);
+      if (await wanted.isVisible().catch(() => false)) return wanted;
+      await page.locator('.popup').locator('visible=true').last()
+        .getByRole('button', { name: /cancelar/i }).click().catch(() => undefined);
+      await page.locator('.popup').locator('visible=true').last()
+        .waitFor({ state: 'hidden', timeout: 4_000 }).catch(() => undefined);
+    }
+    throw new Error(`Could not open tercero popup ${heading}`);
+  }
+
+  /**
+   * Adds a tercero (Fabricante / Formulador / Proveedor) for plaguicidas.
+   * The modal shape differs from the medicamentos tercero modals: nacionalidad
+   * and tipoPersona radios carry ids (nacional/extranjero, fisica/moral), and
+   * the name field is `nombre` (not `nombres`). Address selects are the same
+   * cascading bare selects, driven by selectByLabelInModal.
+   */
+  static async addTerceroPlaguicidas(page: Page, heading: RegExp, t: TerceroData): Promise<void> {
+    await Logger.step(`Add tercero (${heading.source})`, async () => {
+      const popup = await CofeprisRegistrationFlow.openTerceroPopup(page, heading);
+
+      if (t.nacionalidad) {
+        const nacId = /extranjero/i.test(t.nacionalidad) ? 'extranjero' : 'nacional';
+        await popup.locator(`input#${nacId}`).check();
+      }
+      const tipoId = /moral/i.test(t.tipoPersona) ? 'moral' : 'fisica';
+      await popup.locator(`input#${tipoId}`).check();
+
+      // RFC drives the modal: a registered RFC auto-derives CURP + name + the
+      // whole domicilio via "Buscar" (like the representante legal), rendering
+      // them disabled. Fill RFC, click Buscar, and wait for the name to populate.
+      await popup.locator('[formcontrolname="rfc"]').fill(t.rfc);
+      const buscar = popup.getByRole('button', { name: /buscar/i });
+      if (await buscar.count()) {
+        await buscar.first().click();
+        await expect(popup.locator('[formcontrolname="nombre"]'))
+          .not.toHaveValue('', { timeout: 10_000 });
+      }
+      // Any field the lookup did not fill (or when there is no lookup) is filled
+      // only while still editable — auto-derived fields render disabled.
+      const fillIfEnabled = async (fcn: string, value?: string): Promise<void> => {
+        if (!value) return;
+        const field = popup.locator(`[formcontrolname="${fcn}"]`).first();
+        if (!(await field.isDisabled().catch(() => true))) await field.fill(value);
+      };
+      await fillIfEnabled('curp', t.curp);
+      await fillIfEnabled('nombre', t.nombre);
+      await fillIfEnabled('primerApellido', t.primerApellido);
+      await fillIfEnabled('segundoApellido', t.segundoApellido);
+
+      // A registered RFC auto-derives the whole domicilio (País, Estado,
+      // Municipio, Localidad, CP, Colonia, Calle …) as disabled textboxes — no
+      // cascading selects to drive. Only pick the address selects when the modal
+      // actually renders editable ones (i.e. the RFC did not auto-fill it).
+      if (await popup.locator('select:visible:not([disabled])').count()) {
+        await CofeprisRegistrationFlow.selectByLabelInModal(popup, 'País', t.pais);
+        await CofeprisRegistrationFlow.selectByLabelInModal(popup, 'Estado/localidad', t.estado);
+        await CofeprisRegistrationFlow.selectByLabelInModal(popup, 'Municipio', t.municipio);
+        await CofeprisRegistrationFlow.selectByLabelInModal(popup, 'Localidad', t.localidad);
+        await CofeprisRegistrationFlow.selectByLabelInModal(popup, 'Código postal', t.codigoPostal);
+        await CofeprisRegistrationFlow.selectByLabelInModal(popup, 'Colonia', t.colonia);
+      }
+
+      await fillIfEnabled('calle', t.calle);
+      await fillIfEnabled('numeroExterior', t.numeroExterior);
+      await fillIfEnabled('telefono', t.telefono);
+      await fillIfEnabled('correoElectronico', t.correo);
+
+      await popup.getByRole('button', { name: /guardar/i }).click();
+      await expect(popup).toBeHidden({ timeout: 15_000 });
+    });
+  }
+
   /**
    * Advances Paso 1 → Paso 2 for procedures with no Pago de derechos tab
    * (e.g. the 3-tab 260604): a single Continuar with no "no requiere pago"
@@ -579,12 +911,14 @@ export class CofeprisRegistrationFlow {
   /** Accept the Manifiestos y declaraciones declaration. */
   private static async acceptManifiestos(page: Page): Promise<void> {
     await Logger.step('Accept Manifiestos y declaraciones', async () => {
-      // The declaration checkbox is 'manifesto' (medicamentos) or 'cumplimiento'
-      // (tóxicas). Some procedures have no manifiestos declaration at all (e.g. the
-      // aviso-exportación 260604) — skip when the checkbox is absent.
+      // The declaration checkbox is 'manifesto' (medicamentos), 'cumplimiento'
+      // (tóxicas) or 'mensaje' (plaguicidas, 260501). Some procedures have no
+      // manifiestos declaration at all (e.g. the aviso-exportación 260604) — skip
+      // when the checkbox is absent.
       const box = page.locator(
         'input[type="checkbox"][formcontrolname="manifesto"]:visible, ' +
-        'input[type="checkbox"][formcontrolname="cumplimiento"]:visible',
+        'input[type="checkbox"][formcontrolname="cumplimiento"]:visible, ' +
+        'input[type="checkbox"][formcontrolname="mensaje"]:visible',
       );
       if (await box.count()) {
         await box.first().check();
@@ -832,6 +1166,71 @@ export class CofeprisRegistrationFlow {
       await new TextField(page, 'importePago', 'control').fill(d.importePago);
     });
     await CofeprisRegistrationFlow.continuarToPaso2(page);
+  }
+
+  /**
+   * Fill all Pago de derechos fields for plaguicidas, then Continuar to Paso 2.
+   * Same fields as the medicamentos Pago tab but with divergent formControlNames
+   * (claveDeReferencia / llaveDePago); the Banco select, the custom Fecha de pago
+   * calendar and Importe are identical.
+   */
+  static async fillPagoPlaguicidas(page: Page, d: PagoData): Promise<void> {
+    await Logger.step('Fill Pago de derechos (plaguicidas)', async () => {
+      await new Tab(page).click('Pago de derechos');
+      // The Pago tab re-renders as fields are filled (validation), which can drop
+      // a value written into a field that is being re-created — so fill each text
+      // field and verify it stuck, retrying until it holds.
+      const fillText = async (fcn: string, value: string): Promise<void> => {
+        const field = page.locator(`[formcontrolname="${fcn}"]:visible`).first();
+        await expect.poll(async () => {
+          if ((await field.inputValue().catch(() => '')) === value) return true;
+          await field.fill(value).catch(() => undefined);
+          return (await field.inputValue().catch(() => '')) === value;
+        }, { timeout: 8_000, intervals: [200, 400, 600] }).toBe(true);
+      };
+      // Text fields, then the Banco select and Fecha calendar. The text values
+      // are re-verified after the select/calendar interactions (which re-render
+      // the Pago form and can silently drop a previously-typed value).
+      const textFields: [string, string][] = [
+        ['claveDeReferencia', d.claveReferencia],
+        ['cadenaDependencia', d.cadenaDependencia],
+        ['llaveDePago', d.llavePago],
+        ['importePago', d.importePago],
+      ];
+      for (const [fcn, value] of textFields) await fillText(fcn, value);
+      await new Dropdown(page, 'banco', 'control').select(d.banco);
+      await CofeprisRegistrationFlow.setFechaPago(page, d.fechaPago);
+      // Re-verify/re-fill every text field after the re-rendering interactions.
+      for (const [fcn, value] of textFields) await fillText(fcn, value);
+    });
+    // Advance to Paso 2. A single Continuar can no-op while an async validation
+    // settles, so retry until the Paso-2 document upload ("Cargar archivos")
+    // appears (or an error banner if a field is genuinely missing).
+    await Logger.step('Continue to Paso 2', async () => {
+      // Capture any backend validation error (200 with an error body) so a
+      // rejected submission surfaces a useful message instead of a bare timeout.
+      const apiErrors: string[] = [];
+      page.on('response', (resp) => {
+        if (resp.request().method() !== 'POST' || !/guardar|solicitud/i.test(resp.url())) return;
+        void resp.text().then((body) => {
+          if (/ERROR_VALIDACION|error en la validaci/i.test(body)) apiErrors.push(body.slice(0, 400));
+        }).catch(() => undefined);
+      });
+      // A single Continuar can no-op while an async validation settles, so retry
+      // until the Paso-2 document upload ("Cargar archivos") appears.
+      const cargar = page.getByRole('button', { name: /cargar archivos/i }).first();
+      try {
+        await expect.poll(async () => {
+          if (await cargar.isVisible().catch(() => false)) return true;
+          await page.getByRole('button', { name: /^\s*continuar\s*$/i }).first().click().catch(() => undefined);
+          await page.waitForLoadState('networkidle').catch(() => undefined);
+          return cargar.isVisible().catch(() => false);
+        }, { timeout: 40_000, intervals: [1_000, 1_500, 2_000] }).toBe(true);
+      } catch (e) {
+        if (apiErrors.length) throw new Error(`Paso 1 rejected by backend: ${apiErrors[apiErrors.length - 1]}`);
+        throw e;
+      }
+    });
   }
 
   /** Set Fecha de pago (custom calendar widget). */
