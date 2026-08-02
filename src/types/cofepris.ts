@@ -206,6 +206,62 @@ export interface PlaguicidasSolicitudData {
 }
 
 /**
+ * Mercancía shape for the *sustancias tóxicas* trámite (260512). Its "Datos
+ * mercancía" modal (#modalAddAgentMercancias) shares the plaguicidas container
+ * but a distinct field set: Nombre comercial / común / químico, a free-text Uso
+ * específico (a textarea, not a dual-list), an Estado físico dropdown, UMT/UMC
+ * quantities, a Número CAS (in place of plaguicidas' Número de registro), a
+ * Porcentaje de concentración, Clasificación toxicológica + Objeto de la
+ * importación dropdowns, and TWO país `<crosslist>` dual-lists (origen +
+ * procedencia). Descripción de la fracción and the UMT unit are auto-derived
+ * (disabled) and left untouched.
+ */
+export interface ToxicasMercanciaData {
+  nombreComercial: string;
+  nombreComun: string;
+  nombreCientifico: string;
+  usoEspecifico: string;
+  estadoFisico: string;
+  fraccionArancelaria: string;
+  cantidadUmt: string;
+  cantidadUmc: string;
+  umc: string;
+  numeroCas: string;
+  porcentajeConcentracion: string;
+  clasificacionToxicologica: string;
+  objetoImportacion: string;
+  /** País de origen (crosslist). */
+  paisOrigen: string;
+  /** País de procedencia / País del último puerto de embarque (crosslist). */
+  paisProcedencia: string;
+}
+
+/**
+ * The Datos-de-la-solicitud data for the 260512 "permiso de importación de
+ * sustancias tóxicas" trámite. Structurally a sibling of plaguicidas (260501):
+ * the same establecimiento field names (rfcDel / denominacionRazonSocial /
+ * muncipio), the same S.C.I.A.N. modal (#modalAddAgent, claveScianModal), the
+ * same `<crosslist>` Aduanas de entrada, the `mensaje` manifiestos checkbox and
+ * the Buscar-driven representante legal. It diverges in: an "Aviso de
+ * funcionamiento" checkbox that COEXISTS with (does not disable) the No. de
+ * licencia sanitaria field, the datos-públicos radio keyed by id ("Si"/"No"),
+ * and its own Mercancía modal shape (ToxicasMercanciaData above). Driven by
+ * CofeprisRegistrationFlow.fillDatosSolicitudToxicas.
+ */
+export interface ToxicasSolicitudData {
+  establecimiento: EstablecimientoData;
+  scian: { clave: string; descripcion: string };
+  /** Tick "Aviso de funcionamiento" (coexists with the licencia, unlike 260202). */
+  avisoFuncionamiento: boolean;
+  licenciaSanitaria: string;
+  /** Aduana de entrada to move into the "seleccionadas" `<crosslist>`. */
+  aduana: string;
+  mercancia: ToxicasMercanciaData;
+  datosPublicos: string;
+  representanteLegal: RepresentanteLegalData;
+}
+
+/**
  * The Datos-de-la-solicitud data for the 260202 "materias primas" trámite,
  * which diverges from the medicamentos siblings above:
  *   - the S.C.I.A.N. table takes several claves (one is later deleted),

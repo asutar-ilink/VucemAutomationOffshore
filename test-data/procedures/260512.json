@@ -1,0 +1,80 @@
+{
+  "procedureCode": "260512",
+  "procedureTitle": "Permiso de importación de sustancias tóxicas",
+  "tabs": [
+    "Solicitante",
+    "Datos de la solicitud",
+    "Terceros relacionados",
+    "Pago de derechos"
+  ],
+
+  "solicitante": {
+    "rfc": "AAL0409235E6",
+    "razonSocial": "INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV",
+    "correo": "vucem30@ultrasist.com.mx",
+    "codigoPostal": "81210",
+    "estado": "SINALOA"
+  },
+
+  "establecimiento": {
+    "rfcResponsable": "MAVL621207C95",
+    "denominacion": "QA razon",
+    "correo": "QA.admin@test.com",
+    "codigoPostal": "12345",
+    "estado": "MÉXICO",
+    "municipio": "121 Municipio",
+    "calle": "calle 123",
+    "telefono": "1234567890"
+  },
+
+  "scian": {
+    "clave": "311222",
+    "descripcion": "Elaboración de aceites y grasas vegetales comestibles"
+  },
+
+  "avisoFuncionamiento": true,
+  "licenciaSanitaria": "LIC1234567",
+  "aduana": "CD. JUAREZ",
+
+  "mercancia": {
+    "nombreComercial": "NOMBRE COMERCIAL qa",
+    "nombreComun": "Nombre común qa",
+    "nombreCientifico": "Nombre químico o científico qa",
+    "usoEspecifico": "Uso específico qa",
+    "estadoFisico": "Sólido",
+    "fraccionArancelaria": "29309099",
+    "cantidadUmt": "100",
+    "cantidadUmc": "200",
+    "umc": "Miligramo",
+    "numeroCas": "123",
+    "porcentajeConcentracion": "123",
+    "clasificacionToxicologica": "I EXTREMADAMENTE TOXICO",
+    "objetoImportacion": "Experimentación",
+    "paisOrigen": "AUSTRIA (REPÚBLICA DE)",
+    "paisProcedencia": "ARGENTINA (REPÚBLICA)"
+  },
+
+  "datosPublicos": "No",
+
+  "representanteLegal": {
+    "rfc": "MAVL621207C95",
+    "nombre": "EUROFOODS DE MEXICO",
+    "apellidoPaterno": "GONZALEZ",
+    "apellidoMaterno": "PINAL"
+  },
+
+  "pago": {
+    "claveReferencia": "Clave 123",
+    "cadenaDependencia": "Cadena123",
+    "banco": "BANSI",
+    "llavePago": "LLAVE123QA",
+    "fechaPago": "2026-07-20",
+    "importePago": "2500"
+  },
+
+  "documents": [
+    { "type": "personalidad_juridica",       "path": "test-data/files/aviso_responsable.pdf" },
+    { "type": "aviso_o_licencia_sanitaria",   "path": "test-data/files/licencia_sanitaria.pdf" },
+    { "type": "hoja_de_datos_de_seguridad",   "path": "test-data/files/registro_sanitario.pdf" }
+  ]
+}

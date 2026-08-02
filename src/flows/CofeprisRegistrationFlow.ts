@@ -12,6 +12,8 @@ import {
   MateriasPrimasSolicitudData,
   PlaguicidasSolicitudData,
   PlaguicidaMercanciaData,
+  ToxicasSolicitudData,
+  ToxicasMercanciaData,
   SolicitanteData,
   EstablecimientoData,
   MercanciaData,
@@ -618,17 +620,28 @@ export class CofeprisRegistrationFlow {
 
   /** Restore the establecimiento Código postal and Aduana if they got reset. */
   private static async reverifyCpAndAduana(page: Page, data: PlaguicidasSolicitudData): Promise<void> {
+    await CofeprisRegistrationFlow.restoreCpAndAduana(
+      page, data.establecimiento.codigoPostal, data.aduana);
+  }
+
+  /**
+   * Re-fills the establecimiento Código postal and re-asserts the Aduana if
+   * either got silently reset during the later Datos steps (the CP field's async
+   * lookup and the Aduanas dual-list can both drop their value on a re-render).
+   * Shared by the plaguicidas (260501) and sustancias-tóxicas (260512) flows.
+   */
+  private static async restoreCpAndAduana(page: Page, codigoPostal: string, aduana: string): Promise<void> {
     await Logger.step('Re-verify establecimiento CP + aduana persisted', async () => {
       const cp = page.locator('input[formcontrolname="codigoPostal"]:visible').first();
       await expect.poll(async () => {
-        if ((await cp.inputValue().catch(() => '')) === data.establecimiento.codigoPostal) return true;
-        await cp.fill(data.establecimiento.codigoPostal).catch(() => undefined);
-        return (await cp.inputValue().catch(() => '')) === data.establecimiento.codigoPostal;
+        if ((await cp.inputValue().catch(() => '')) === codigoPostal) return true;
+        await cp.fill(codigoPostal).catch(() => undefined);
+        return (await cp.inputValue().catch(() => '')) === codigoPostal;
       }, { timeout: 8_000, intervals: [300, 500] }).toBe(true);
 
       // Aduana: re-assert it (addAduana returns immediately if already valid,
       // otherwise re-registers the dual-list selection in Angular's model).
-      await CofeprisRegistrationFlow.addAduana(page, data.aduana);
+      await CofeprisRegistrationFlow.addAduana(page, aduana);
     });
   }
 
@@ -641,12 +654,34 @@ export class CofeprisRegistrationFlow {
    * Angular's RadioControlValueAccessor registers) until the value takes.
    */
   private static async setDatosPublicosPlaguicidas(page: Page, value: string): Promise<void> {
-    await Logger.step(`Set "hacer públicos los datos" = ${value} (plaguicidas)`, async () => {
+    await CofeprisRegistrationFlow.setDatosPublicosRobust(page, value);
+  }
+
+  /**
+   * Robustly sets a COFEPRIS "¿…hacerlos públicos?" radio (options keyed by id
+   * "Si"/"No"). Shared by plaguicidas (group formcontrolname="cumplimiento") and
+   * sustancias-tóxicas (group formcontrolname="seleccion"). The app-input-radio
+   * re-renders around form updates and can sit under a lingering modal backdrop,
+   * so a plain check() is flaky and — worse — the option's `checked` property
+   * does not reliably reflect Angular's model, so isChecked() lies. Wait for the
+   * backdrop to clear, then poll on the real success signal: the app-input-radio
+   * group (located by the option it contains, so no formcontrolname is assumed)
+   * losing its ng-invalid class — retrying a native check() then a JS el.click()
+   * (which Angular's RadioControlValueAccessor registers) until the value takes.
+   */
+  private static async setDatosPublicosRobust(page: Page, value: string): Promise<void> {
+    await Logger.step(`Set "hacer públicos los datos" = ${value}`, async () => {
       await expect(page.locator('.modal-backdrop')).toHaveCount(0, { timeout: 10_000 }).catch(() => undefined);
-      const group = page.locator('app-input-radio[formcontrolname="cumplimiento"]');
       const radio = page.locator(`input[type="radio"][id="${value}"]:visible`).first();
-      const valid = async (): Promise<boolean> =>
-        !((await group.getAttribute('class').catch(() => '')) ?? '').includes('ng-invalid');
+      const group = page.locator('app-input-radio')
+        .filter({ has: page.locator(`input[type="radio"][id="${value}"]`) }).first();
+      const valid = async (): Promise<boolean> => {
+        const cls = await group.getAttribute('class').catch(() => null);
+        // Only trust the group signal once the group element is actually found;
+        // otherwise fall back to the option's checked state.
+        if (cls !== null) return !cls.includes('ng-invalid');
+        return radio.isChecked().catch(() => false);
+      };
       await expect.poll(async () => {
         if (await valid()) return true;
         await radio.scrollIntoViewIfNeeded().catch(() => undefined);
@@ -951,6 +986,103 @@ export class CofeprisRegistrationFlow {
       await new TextField(page, 'representanteNombre', 'control').expectValue(d.nombre);
       await new TextField(page, 'apellidoPaterno', 'control').expectValue(d.apellidoPaterno);
       await new TextField(page, 'apellidoMaterno', 'control').expectValue(d.apellidoMaterno);
+    });
+  }
+
+  // ─── Sustancias tóxicas (260512) — Datos de la solicitud ──────────────────
+
+  /**
+   * The Datos de la solicitud tab for the 260512 "permiso de importación de
+   * sustancias tóxicas" trámite. Reuses the plaguicidas building blocks
+   * (establecimiento capture, the #modalAddAgent S.C.I.A.N. modal, the
+   * `<crosslist>` Aduanas de entrada, the `mensaje` manifiestos checkbox and the
+   * Buscar-driven representante legal); it diverges only in the Aviso de
+   * funcionamiento checkbox (which coexists with the licencia here, unlike the
+   * materias-primas form where it disables it), the datos-públicos radio keyed by
+   * id, and its own Mercancía modal shape (see addMercanciaToxicas).
+   */
+  static async fillDatosSolicitudToxicas(page: Page, data: ToxicasSolicitudData): Promise<void> {
+    await new Tab(page).click('Datos de la solicitud');
+    await CofeprisRegistrationFlow.openEstablecimiento(page);
+    await CofeprisRegistrationFlow.fillEstablecimientoPlaguicidas(page, data.establecimiento);
+    await CofeprisRegistrationFlow.addScianPlaguicidas(page, data.scian);
+    await Logger.step('Set Aviso de funcionamiento + No. de licencia sanitaria', async () => {
+      // On tóxicas the Aviso checkbox and the licencia field coexist (verified
+      // live: ticking Aviso does not disable licencia, unlike the 260202 form).
+      if (data.avisoFuncionamiento) {
+        await new Checkbox(page, 'avisoCheckbox', 'control').check();
+      }
+      await new TextField(page, 'licenciaSanitaria', 'control').fill(data.licenciaSanitaria);
+    });
+    await CofeprisRegistrationFlow.addAduana(page, data.aduana);
+    await CofeprisRegistrationFlow.addMercanciaToxicas(page, data.mercancia);
+    await CofeprisRegistrationFlow.acceptManifiestos(page);
+    // The datos-públicos radio (group formcontrolname="seleccion") re-renders and
+    // its `checked` property lies, so use the robust setter (not the generic one).
+    await CofeprisRegistrationFlow.setDatosPublicosRobust(page, data.datosPublicos);
+    await CofeprisRegistrationFlow.fillRepresentanteLegalPlaguicidas(page, data.representanteLegal);
+    // The establecimiento Código postal's async lookup can silently clear the
+    // field during the later Datos steps (verified live: "Faltan campos por
+    // capturar" on Continuar with an empty CP), so restore it (and re-assert the
+    // aduana dual-list) before leaving the tab.
+    await CofeprisRegistrationFlow.restoreCpAndAduana(page, data.establecimiento.codigoPostal, data.aduana);
+  }
+
+  /**
+   * Add a Mercancía record via the sustancias-tóxicas "Datos mercancía" modal
+   * (#modalAddAgentMercancias). Same modal container as plaguicidas but a distinct
+   * field set: Nombre comercial / común / químico, a free-text Uso específico
+   * (textarea), Estado físico, Número CAS (in place of plaguicidas' Número de
+   * registro), Clasificación toxicológica + Objeto de la importación dropdowns,
+   * and TWO país `<crosslist>` dual-lists (origen + procedencia). Descripción de
+   * la fracción and the UMT unit are auto-derived (disabled) and left untouched.
+   */
+  static async addMercanciaToxicas(page: Page, m: ToxicasMercanciaData): Promise<void> {
+    await Logger.step('Add Mercancía record (sustancias tóxicas)', async () => {
+      const modal = await CofeprisRegistrationFlow.openAddModalById(page, 'modalAddAgentMercancias');
+
+      await new TextField(page, 'nombreComercial', 'control').fill(m.nombreComercial);
+      await new TextField(page, 'nombreComun', 'control').fill(m.nombreComun);
+      await new TextField(page, 'nombreCientifico', 'control').fill(m.nombreCientifico);
+      // Uso específico is a free-text <textarea> here (not a dual-list).
+      await modal.locator('textarea[formcontrolname="usoEspecifico"]').fill(m.usoEspecifico);
+      await new Dropdown(page, 'estadoFisico', 'control').select(m.estadoFisico);
+      // fraccionArancelaria is a text input; descripcionFraccion auto-fills (disabled).
+      await new TextField(page, 'fraccionArancelaria', 'control').fill(m.fraccionArancelaria);
+      // cantidadUMT value is editable; the UMT unit is disabled/auto-derived.
+      await new TextField(page, 'cantidadUMT', 'control').fill(m.cantidadUmt);
+      await new TextField(page, 'cantidadUMC', 'control').fill(m.cantidadUmc);
+      await new Dropdown(page, 'UMC', 'control').select(m.umc);
+      await new TextField(page, 'numeroCas', 'control').fill(m.numeroCas);
+      await new TextField(page, 'porcentajeConcentracion', 'control').fill(m.porcentajeConcentracion);
+      await new Dropdown(page, 'clasificacionToxicologica', 'control').select(m.clasificacionToxicologica);
+      await new Dropdown(page, 'objetoImportacion', 'control').select(m.objetoImportacion);
+
+      // País de origen / procedencia are <crosslist> dual-lists in collapsible
+      // panels; pre-expand each so its <crosslist> renders, then move the value
+      // across via the CrossList component (which skips its own expand click once
+      // rendered — the procedencia heading is longer than the panel title, so an
+      // exact-text expand click would not match).
+      const paises: [string, string | undefined][] = [
+        ['País de origen', m.paisOrigen],
+        ['País de procedencia', m.paisProcedencia],
+      ];
+      for (const [heading, value] of paises) {
+        if (!value) continue;
+        const panel = modal.locator('.panel').filter({ hasText: heading }).first();
+        if ((await panel.locator('crosslist').count()) === 0) {
+          await panel.getByText(heading, { exact: false }).first().click().catch(() => undefined);
+          await panel.locator('crosslist').first().waitFor({ state: 'visible', timeout: 10_000 });
+        }
+        await new CrossList(page, heading, '#modalAddAgentMercancias').add(value);
+      }
+
+      await modal.getByRole('button', { name: /^\s*agregar\s*$/i }).click();
+      await expect(modal).toBeHidden({ timeout: 15_000 });
+      // Wait for the modal backdrop to detach — a lingering backdrop intercepts
+      // clicks on the fields below (e.g. the datos-públicos radio).
+      await expect(page.locator('.modal-backdrop')).toHaveCount(0, { timeout: 10_000 });
+      await new DynamicTable(page, 'Mercancías').expectRowExists(m.nombreComercial);
     });
   }
 
