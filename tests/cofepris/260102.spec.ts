@@ -22,19 +22,11 @@ test.describe('260102 — Permiso sanitario de importación de productos de mues
     await new T260102(authenticatedPage).startNewSubmission();
   });
 
-  // BLOCKED BY A PRODUCT BUG (documented, not a test defect). The automation fills
-  // the entire Paso 1 (establecimiento, S.C.I.A.N., aviso+licencia, aduana+AICM,
-  // the Mercancía modal incl. its required lote sub-form, both terceros) and
-  // reaches the Paso-1 → Paso-2 submission, where `solicitud/guardar` rejects it:
-  //   errores_modelo: [{ campo: "rfc", errores:
-  //     ["La longitud del RFC debe ser entre 12 y 13 carácteres"] }]
-  // The offending field is the APPLICANT's own RFC: the payload carries
-  // `solicitante.rfc: ""` even though the Solicitante tab shows AAL0409235E6
-  // (prefilled from e.firma and DISABLED — there is no editable field to set it).
-  // The medicamentos-family backends validate this field strictly (precursores/
-  // tóxicas/plaguicidas do not, which is why 260603/260512/260501 pass); it is the
-  // same defect already documented for 260204 / 260202 / 260205. Re-enable (drop
-  // `.fixme`) once the front-end serialises the prefilled applicant RFC.
+  // Full happy path: Paso 1 (establecimiento, S.C.I.A.N., aviso+licencia,
+  // aduana+AICM, the Mercancía modal incl. its lote sub-form, both terceros) →
+  // skip Pago → Paso 2 (two mandatory documents) → Paso 3 firmar → folio + acuse.
+  // (Previously reported as blocked by a Paso-1 solicitud/guardar RFC rejection;
+  // that no longer reproduces — Paso 1 is accepted and a temporal folio issued.)
   test('260102: registration: fills Datos + Terceros, skips Pago, uploads documents, signs, generates a folio', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260102(authenticatedPage);
 

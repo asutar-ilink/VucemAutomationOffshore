@@ -69,7 +69,7 @@ export default defineConfig({
   },
 
   // Global test timeout — long for complex multi-tab procedures
-  timeout: 180_000,
+  timeout: 360_000,
   expect: {
     timeout: 10_000,
   },

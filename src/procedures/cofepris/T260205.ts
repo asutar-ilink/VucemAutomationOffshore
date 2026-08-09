@@ -115,10 +115,7 @@ export class T260205 {
 
   async uploadDocuments(documents: DocumentData[]): Promise<void> {
     await DocumentUploadFlow.uploadAllWithConfirmation(this.page, documents);
-    await Logger.step('Continue to Paso 3', async () => {
-      await this.page.getByRole('button', { name: /continuar/i }).click();
-      await this.page.waitForLoadState('networkidle');
-    });
+    await CofeprisRegistrationFlow.continueToPaso3(this.page);
   }
 
   // ─── Paso 3 — firmar ────────────────────────────────────────────────────────
