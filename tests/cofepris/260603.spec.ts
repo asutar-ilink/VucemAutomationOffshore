@@ -22,7 +22,7 @@ test.describe('260603 — Aviso de importación de precursores químicos o produ
     await new T260603(authenticatedPage).startNewSubmission();
   });
 
-  test('registration: fills Datos + Terceros, uploads an optional document, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
+  test('260603: registration: fills Datos + Terceros, uploads an optional document, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260603(authenticatedPage);
 
     // Open the procedure form and verify structure + full Solicitante prefill.

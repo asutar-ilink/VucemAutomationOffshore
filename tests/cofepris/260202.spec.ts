@@ -33,7 +33,7 @@ test.describe('260202 — Permiso sanitario de importación de materias primas',
     await new T260202(authenticatedPage).startNewSubmission();
   });
 
-  test('registration: fills all tabs, deletes marked rows, uploads documents, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
+  test('260202: registration: fills all tabs, deletes marked rows, uploads documents, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260202(authenticatedPage);
 
     // Open the procedure form and verify structure + Solicitante prefill (TC01–TC06).

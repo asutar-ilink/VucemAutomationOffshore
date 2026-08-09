@@ -1,5 +1,4 @@
 import { defineConfig, devices, ReporterDescription } from '@playwright/test';
-import path from 'path';
 
 /**
  * Environment is controlled by the ENV variable.
@@ -25,12 +24,19 @@ const allureReporter: ReporterDescription = [
       Locale: 'es-MX',
       Node: process.version,
     },
+    launchOptions: {
+      slowMo: 500, // Delays every action by 150 milliseconds
+    },
   },
 ];
 
 export default defineConfig({
   // All test files live under tests/
   testDir: './tests',
+
+  // Clear accumulated Allure results before each local run so the report matches the
+  // current suite (skipped in CI — see global-setup.ts).
+  globalSetup: './global-setup.ts',
 
   // Run each test file in parallel, tests within a file sequentially.
   // This is the safest default for a form-heavy government app.
@@ -89,21 +95,12 @@ export default defineConfig({
       ]) as ReporterDescription[],
 
   projects: [
-    // Auth setup project — runs login once, saves browser state to disk.
-    // All test projects depend on this, so it runs first automatically.
-    {
-      name: 'setup',
-      testMatch: '**/auth.setup.ts',
-    },
-
-    // Main test project — restores saved auth state, no re-login needed.
+    // Main test project — fresh e.firma login per test ensures proper RFC context
     {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        storageState: path.join(__dirname, 'auth', 'state.json'),
       },
-      dependencies: ['setup'],
     },
   ],
 

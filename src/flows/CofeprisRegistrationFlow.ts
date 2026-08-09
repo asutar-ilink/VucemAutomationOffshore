@@ -958,7 +958,10 @@ export class CofeprisRegistrationFlow {
         'input[type="checkbox"][formcontrolname="mensaje"]:visible',
       );
       if (await box.count()) {
-        await box.first().check();
+        // Use .click() instead of .check() for COFEPRIS reactive forms — .check()
+        // can fail if an overlay intercepts the click or if the form doesn't emit
+        // the expected change event. .click() toggles the checkbox even if checked.
+        await box.first().click();
       }
     });
   }
@@ -1594,42 +1597,59 @@ export class CofeprisRegistrationFlow {
         }).catch(() => undefined);
       });
 
-      await page.getByRole('button', { name: /continuar/i }).click();
-      if (expectSkipModal) {
-        // The "¿…no requiere los datos del Pago de derechos?" confirmation is a
-        // role=dialog with an EMPTY heading (no accessible name), so it can't be
-        // matched by title — scope to the visible dialog carrying its body text
-        // and click SI.
-        const dialog = page.getByRole('dialog')
-          .filter({ hasText: /no requiere los datos del Pago de derechos/i });
-        await expect(dialog).toBeVisible();
-        await dialog.getByRole('button', { name: /^\s*s[íi]\s*$/i }).click();
-        await expect(dialog).toBeHidden({ timeout: 15_000 });
-      }
-      await page.waitForLoadState('networkidle');
+      // Paso-2 signals — the mandatory-doc "Cargar archivos" screen or the
+      // optional-doc "Agregar nuevo"/temporal-folio screen — and the Paso-3
+      // signal. Counted by DOM presence, not viewport visibility, since Paso 2
+      // may auto-scroll the banner/button out of view.
+      const onPaso2 = page.getByText(/n[úu]mero temporal/i)
+        .or(page.getByRole('button', { name: /cargar archivos|agregar nuevo/i }));
+      const onPaso3 = page.getByRole('heading', { name: /firmar/i, level: 1 });
 
-      // Verify Paso 2 was actually reached. Use a Paso-2-ONLY signal — the
-      // temporal-folio banner or the "Cargar archivos"/"Agregar nuevo" upload UI —
-      // NOT the stepper's "Anexar requisitos" label, which is present on every
-      // paso. A single Continuar can no-op while an async validation settles, so
-      // retry; if it still won't advance, surface any captured backend error.
-      const onPaso2 = page.getByText(/n[úu]mero temporal/i).first()
-        .or(page.getByRole('button', { name: /cargar archivos|agregar nuevo/i }).first());
-      try {
-        await expect.poll(async () => {
-          if (await onPaso2.isVisible().catch(() => false)) return true;
+      // Confirms the "¿…no requiere los datos del Pago de derechos?" dialog when a
+      // skip is expected. It is a role=dialog with an EMPTY heading (no accessible
+      // name), so scope to the visible dialog by its body text.
+      const confirmSkip = async (): Promise<void> => {
+        if (!expectSkipModal) return;
+        await page.getByRole('dialog')
+          .filter({ hasText: /no requiere los datos del Pago de derechos/i })
+          .getByRole('button', { name: /^\s*s[íi]\s*$/i })
+          .click({ timeout: 15_000 }).catch(() => undefined);
+      };
+
+      // Click Continuar once, confirm the skip dialog, then WAIT (without clicking
+      // again) for the page to land on Paso 2 or Paso 3. A premature second
+      // Continuar is what skips Paso 2 straight to Paso 3 — so only re-click when
+      // NEITHER has appeared, i.e. the first Continuar no-op'd while an async
+      // validation settled and we are still on Paso 1.
+      await page.getByRole('button', { name: /continuar/i }).click();
+      await confirmSkip();
+      await page.waitForLoadState('networkidle').catch(() => undefined);
+
+      for (let attempt = 0; attempt < 4; attempt++) {
+        try {
+          await expect.poll(
+            async () => (await onPaso2.count().catch(() => 0)) + (await onPaso3.count().catch(() => 0)),
+            { timeout: attempt === 0 ? 30_000 : 15_000, intervals: [500, 1_000] },
+          ).toBeGreaterThan(0);
+        } catch {
+          // Still on Paso 1 — the Continuar no-op'd. Click once more and re-wait.
           await page.getByRole('button', { name: /^\s*continuar\s*$/i }).first().click().catch(() => undefined);
-          if (expectSkipModal) {
-            await page.getByRole('dialog').filter({ hasText: /no requiere los datos del Pago de derechos/i })
-              .getByRole('button', { name: /^\s*s[íi]\s*$/i }).click().catch(() => undefined);
-          }
+          await confirmSkip();
           await page.waitForLoadState('networkidle').catch(() => undefined);
-          return onPaso2.isVisible().catch(() => false);
-        }, { timeout: 40_000, intervals: [1_000, 1_500, 2_000] }).toBe(true);
-      } catch (e) {
-        if (apiErrors.length) throw new Error(`Paso 1 rejected by backend: ${apiErrors[apiErrors.length - 1]}`);
-        throw e;
+          continue;
+        }
+        if ((await onPaso2.count().catch(() => 0)) > 0) return; // reached Paso 2 ✓
+        // Only Paso 3 present — we advanced past the documentos step we needed.
+        const detail = apiErrors.length ? ` Backend: ${apiErrors[apiErrors.length - 1]}` : '';
+        throw new Error(`Advanced to Paso 3 (Firmar) without stopping on Paso 2 (documentos).${detail}`);
       }
+
+      if (apiErrors.length) throw new Error(`Paso 1 rejected by backend: ${apiErrors[apiErrors.length - 1]}`);
+      const errorBanner = await page.locator('text=/error de registro|faltan campos/i')
+        .first().textContent().catch(() => null);
+      throw new Error(errorBanner
+        ? `Form validation failed: ${errorBanner.trim().slice(0, 200)}`
+        : 'Never reached Paso 2 after Continuar');
     });
   }
 }

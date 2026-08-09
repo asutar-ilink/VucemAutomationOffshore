@@ -7,6 +7,9 @@
       "Write(d:/VucemDev/**)",
       "Edit(d:\\VucemDev\\**)",
       "Write(d:\\VucemDev\\**)"
+    ],
+    "allow": [
+      "PowerShell(npx playwright test tests/cofepris/260204.spec.ts --headed)"
     ]
   },
   "hooks": {
@@ -16,8 +19,8 @@
         "hooks": [
           {
             "type": "command",
-            "if": "Bash(git *)",
             "command": "bash .claude/hooks/pre-git-secret-scan.sh",
+            "if": "Bash(git *)",
             "statusMessage": "Scanning for secrets before git commit/push"
           }
         ]

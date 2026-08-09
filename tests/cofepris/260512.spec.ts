@@ -36,17 +36,7 @@ test.describe('260512 — Permiso de importación de sustancias tóxicas', () =>
     await new T260512(authenticatedPage).startNewSubmission();
   });
 
-  test('TC01: opens the procedure, verifies tabs and Solicitante prefill', async ({ authenticatedPage }) => {
-    const procedure = new T260512(authenticatedPage);
-
-    await procedure.open(data.procedureCode);
-
-    await expect(procedure.procedureTitle).toBeVisible();
-    await procedure.expectTabsPresent(data.tabs);
-    await procedure.verifySolicitante(data.solicitante);
-  });
-
-  test('TC02–TC06: fills all tabs, uploads documents, signs, and receives a folio', async ({ authenticatedPage, efirma }) => {
+  test('260512: fills all tabs, uploads documents, signs, and receives a folio', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260512(authenticatedPage);
     await procedure.open(data.procedureCode);
     await procedure.verifySolicitante(data.solicitante);

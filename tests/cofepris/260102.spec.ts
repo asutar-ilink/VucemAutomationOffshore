@@ -35,7 +35,7 @@ test.describe('260102 — Permiso sanitario de importación de productos de mues
   // tóxicas/plaguicidas do not, which is why 260603/260512/260501 pass); it is the
   // same defect already documented for 260204 / 260202 / 260205. Re-enable (drop
   // `.fixme`) once the front-end serialises the prefilled applicant RFC.
-  test.fixme('registration: fills Datos + Terceros, skips Pago, uploads documents, signs, generates a folio', async ({ authenticatedPage, efirma }) => {
+  test('260102: registration: fills Datos + Terceros, skips Pago, uploads documents, signs, generates a folio', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260102(authenticatedPage);
 
     await procedure.open(data.procedureCode);

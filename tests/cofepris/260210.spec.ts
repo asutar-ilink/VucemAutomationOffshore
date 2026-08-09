@@ -27,7 +27,7 @@ test.describe('260210 — Permiso sanitario de importación de medicamentos (pru
     await new T260210(authenticatedPage).startNewSubmission();
   });
 
-  test('registration: fills all tabs, uploads a document, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
+  test('260210: registration: fills all tabs, uploads a document, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260210(authenticatedPage);
 
     // Open the procedure form and verify structure + Solicitante prefill.
