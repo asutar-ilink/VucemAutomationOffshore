@@ -94,6 +94,9 @@ export class SubmissionFlow {
       // so accept any of these — the point is that the catalogue is left.
       await page.waitForURL(/solicitud|plaguicid|importacion/i, { timeout: 60_000 });
       await page.waitForLoadState('domcontentloaded');
+      // Wait for all async form initialization (prefilled Solicitante data, etc.) to complete
+      // before interacting with the form. This ensures Angular's form model is fully populated.
+      await page.waitForLoadState('networkidle');
     });
   }
 

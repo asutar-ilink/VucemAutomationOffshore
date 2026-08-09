@@ -23,7 +23,7 @@ test.describe('260203 — Permiso sanitario de importación de medicamentos', ()
     await new T260203(authenticatedPage).startNewSubmission();
   });
 
-  test('registration: fills all tabs, uploads a document, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
+  test('260203: registration: fills all tabs, uploads a document, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260203(authenticatedPage);
 
     // Open the procedure form and verify structure + Solicitante prefill.

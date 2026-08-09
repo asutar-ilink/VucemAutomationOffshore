@@ -26,7 +26,7 @@ test.describe('260215 — Permiso sanitario de importación de dispositivos méd
     await new T260215(authenticatedPage).startNewSubmission();
   });
 
-  test('registration: fills all tabs, uploads the mandatory document, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
+  test('260215: registration: fills all tabs, uploads the mandatory document, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260215(authenticatedPage);
 
     // Open the procedure form and verify structure + full Solicitante prefill (TC04–TC06).

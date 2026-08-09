@@ -22,7 +22,7 @@ test.describe('260604 — Aviso de exportación de precursores químicos o produ
     await new T260604(authenticatedPage).startNewSubmission();
   });
 
-  test('registration: fills Datos, uploads an optional document, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
+  test('260604 : registration: fills Datos, uploads an optional document, signs, generates a folio, downloads the acuse', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260604(authenticatedPage);
 
     // Open the procedure form and verify structure + full Solicitante prefill (TC04–TC06).

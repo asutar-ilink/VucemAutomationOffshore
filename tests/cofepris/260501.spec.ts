@@ -35,17 +35,8 @@ test.describe('260501 — Permiso de importación de plaguicidas', () => {
     await new T260501(authenticatedPage).startNewSubmission();
   });
 
-  test('TC04–TC06: opens the procedure, verifies tabs and Solicitante prefill', async ({ authenticatedPage }) => {
-    const procedure = new T260501(authenticatedPage);
 
-    await procedure.open(data.procedureCode);
-
-    await expect(procedure.procedureTitle).toBeVisible();
-    await procedure.expectTabsPresent(data.tabs);
-    await procedure.verifySolicitante(data.solicitante);
-  });
-
-  test('TC07–TC13: fills all tabs, uploads documents, signs, and receives a folio', async ({ authenticatedPage, efirma }) => {
+  test('260501: fills all tabs, uploads documents, signs, and receives a folio', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260501(authenticatedPage);
     await procedure.open(data.procedureCode);
     await procedure.verifySolicitante(data.solicitante);

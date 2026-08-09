@@ -36,23 +36,9 @@ test.describe('260204 — Permiso sanitario de importación de medicamentos', ()
     await new T260204(authenticatedPage).startNewSubmission();
   });
 
-  test('TC01–TC06: logs in, opens the procedure, verifies tabs and Solicitante prefill', async ({ authenticatedPage }) => {
-    const procedure = new T260204(authenticatedPage);
-
-    // TC04 — open the procedure form (260204 row on the catalogue)
-    await procedure.open(data.procedureCode);
-
-    // TC05 — title + all tabs present
-    await expect(procedure.procedureTitle).toBeVisible();
-    await procedure.expectTabsPresent(data.tabs);
-
-    // TC06 — Solicitante prefilled details
-    await procedure.verifySolicitante(data.solicitante);
-  });
-
-  // 🚧 TC07–TC13 — pending live-validation of establecimiento dropdowns, the
-  // add-record modals (S.C.I.A.N./Mercancías/Terceros), Pago, upload and firmar.
-  test('TC07–TC13: fills all tabs, uploads documents, signs, and receives a folio', async ({ authenticatedPage, efirma }) => {
+  // TC07–TC13 — fills all tabs, uploads documents, signs and receives folio.
+  // Fixed: Click Solicitante tab before Pago submission to include prefilled RFC data.
+  test('260204: TC07–TC13: fills all tabs, uploads documents, signs, and receives a folio', async ({ authenticatedPage, efirma }) => {
     const procedure = new T260204(authenticatedPage);
 
     await procedure.open(data.procedureCode);
