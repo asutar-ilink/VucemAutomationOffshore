@@ -128,6 +128,10 @@ export class T260512 {
   // ─── TC05 — Paso 2 documents ──────────────────────────────────────────────────
 
   async uploadDocuments(documents: DocumentData[]): Promise<void> {
+    // 260512's Paso 2 has three mandatory "Requisitos obligatorios" rows
+    // (personalidad jurídica, aviso/licencia, hoja de datos de seguridad) in the
+    // standard div.row.py-3 layout — the same attach-all-then-"Cargar archivos"
+    // flow as the other COFEPRIS procedures.
     await DocumentUploadFlow.uploadAllWithConfirmation(this.page, documents);
     await CofeprisRegistrationFlow.continueToPaso3(this.page);
   }
