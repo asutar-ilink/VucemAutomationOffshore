@@ -611,8 +611,7 @@ export class CofeprisRegistrationFlow {
     });
     await CofeprisRegistrationFlow.addAduana(page, data.aduana);
     await CofeprisRegistrationFlow.addMercanciaPlaguicidas(page, data.mercancia);
-    await CofeprisRegistrationFlow.acceptManifiestos(page);
-    await CofeprisRegistrationFlow.setDatosPublicosPlaguicidas(page, data.datosPublicos);
+    await CofeprisRegistrationFlow.acceptManifiestosAndSetDatosPublicos(page, data.datosPublicos);
     await CofeprisRegistrationFlow.fillRepresentanteLegalPlaguicidas(page, data.representanteLegal);
     // The establecimiento Código postal (its async CP-lookup) and the Aduanas
     // de entrada dual-list can silently reset during the later Datos steps, so
@@ -644,57 +643,6 @@ export class CofeprisRegistrationFlow {
       // Aduana: re-assert it (addAduana returns immediately if already valid,
       // otherwise re-registers the dual-list selection in Angular's model).
       await CofeprisRegistrationFlow.addAduana(page, aduana);
-    });
-  }
-
-  /**
-   * Sets the plaguicidas "¿…hacerlos públicos?" radio (id "No"/"Si"). This
-   * app-input-radio re-renders around form updates and can sit under a lingering
-   * modal backdrop, so a plain check() is flaky. Wait for the backdrop to clear,
-   * then poll on the real success signal — the app-input-radio group losing its
-   * ng-invalid class — retrying a native check() then a JS change event (which
-   * Angular's RadioControlValueAccessor registers) until the value takes.
-   */
-  private static async setDatosPublicosPlaguicidas(page: Page, value: string): Promise<void> {
-    await CofeprisRegistrationFlow.setDatosPublicosRobust(page, value);
-  }
-
-  /**
-   * Robustly sets a COFEPRIS "¿…hacerlos públicos?" radio (options keyed by id
-   * "Si"/"No"). Shared by plaguicidas (group formcontrolname="cumplimiento") and
-   * sustancias-tóxicas (group formcontrolname="seleccion"). The app-input-radio
-   * re-renders around form updates and can sit under a lingering modal backdrop,
-   * so a plain check() is flaky and — worse — the option's `checked` property
-   * does not reliably reflect Angular's model, so isChecked() lies. Wait for the
-   * backdrop to clear, then poll on the real success signal: the app-input-radio
-   * group (located by the option it contains, so no formcontrolname is assumed)
-   * losing its ng-invalid class — retrying a native check() then a JS el.click()
-   * (which Angular's RadioControlValueAccessor registers) until the value takes.
-   */
-  private static async setDatosPublicosRobust(page: Page, value: string): Promise<void> {
-    await Logger.step(`Set "hacer públicos los datos" = ${value}`, async () => {
-      await expect(page.locator('.modal-backdrop')).toHaveCount(0, { timeout: 10_000 }).catch(() => undefined);
-      const radio = page.locator(`input[type="radio"][id="${value}"]:visible`).first();
-      const group = page.locator('app-input-radio')
-        .filter({ has: page.locator(`input[type="radio"][id="${value}"]`) }).first();
-      const valid = async (): Promise<boolean> => {
-        const cls = await group.getAttribute('class').catch(() => null);
-        // Only trust the group signal once the group element is actually found;
-        // otherwise fall back to the option's checked state.
-        if (cls !== null) return !cls.includes('ng-invalid');
-        return radio.isChecked().catch(() => false);
-      };
-      await expect.poll(async () => {
-        if (await valid()) return true;
-        await radio.scrollIntoViewIfNeeded().catch(() => undefined);
-        await radio.check({ timeout: 1_500 }).catch(() => undefined);
-        if (await valid()) return true;
-        // A programmatic el.click() runs the radio's default action (checks it)
-        // and fires change so Angular registers — and it bypasses coordinate-based
-        // click interception (a lingering overlay) that defeats check().
-        await radio.evaluate((el: HTMLInputElement) => el.click()).catch(() => undefined);
-        return valid();
-      }, { timeout: 20_000, intervals: [300, 500, 800] }).toBe(true);
     });
   }
 
@@ -945,24 +893,91 @@ export class CofeprisRegistrationFlow {
     await CofeprisRegistrationFlow.continuarToPaso2(page, false);
   }
 
-  /** Accept the Manifiestos y declaraciones declaration. */
+  /** The Manifiestos y declaraciones checkbox, or null when the form has none. */
+  private static async locateManifiestosCheckbox(page: Page): Promise<Locator | null> {
+    // The declaration checkbox carries a per-family formcontrolname — 'manifesto'
+    // (medicamentos), sometimes 'cumplimiento', or 'mensaje' (plaguicidas 260501
+    // and sustancias tóxicas 260512). Match those first so the procedures that
+    // already pass are unaffected; if the control was renamed, fall back to the
+    // checkbox inside the <app-manifiestos> "Manifiestos y declaraciones" panel,
+    // located by container so it self-heals. Some procedures have no manifiestos
+    // declaration at all (e.g. the aviso-exportación 260604) → return null.
+    const known = page.locator(
+      'input[type="checkbox"][formcontrolname="manifesto"]:visible, ' +
+      'input[type="checkbox"][formcontrolname="cumplimiento"]:visible, ' +
+      'input[type="checkbox"][formcontrolname="mensaje"]:visible',
+    );
+    if (await known.count()) return known.first();
+    const fallback = page.locator('app-manifiestos input[type="checkbox"]:visible').first();
+    return (await fallback.count()) ? fallback : null;
+  }
+
+  /** Accept the Manifiestos y declaraciones declaration (checkbox only). */
   private static async acceptManifiestos(page: Page): Promise<void> {
     await Logger.step('Accept Manifiestos y declaraciones', async () => {
-      // The declaration checkbox is 'manifesto' (medicamentos), 'cumplimiento'
-      // (tóxicas) or 'mensaje' (plaguicidas, 260501). Some procedures have no
-      // manifiestos declaration at all (e.g. the aviso-exportación 260604) — skip
-      // when the checkbox is absent.
-      const box = page.locator(
-        'input[type="checkbox"][formcontrolname="manifesto"]:visible, ' +
-        'input[type="checkbox"][formcontrolname="cumplimiento"]:visible, ' +
-        'input[type="checkbox"][formcontrolname="mensaje"]:visible',
-      );
-      if (await box.count()) {
-        // Use .click() instead of .check() for COFEPRIS reactive forms — .check()
-        // can fail if an overlay intercepts the click or if the form doesn't emit
-        // the expected change event. .click() toggles the checkbox even if checked.
-        await box.first().click();
-      }
+      const box = await CofeprisRegistrationFlow.locateManifiestosCheckbox(page);
+      if (!box) return;
+      // A single click is unreliable here: the checkbox sits right below the
+      // Mercancía modal, whose closing backdrop can intercept the click, and the
+      // reactive form can re-render the <app-manifiestos> subtree mid-click so the
+      // toggle lands on a detached element (verified live: the box stays unchecked
+      // → "Faltan campos por capturar" on Continuar). Wait the backdrop out, then
+      // click and VERIFY it stuck — retrying with a programmatic el.click() (which
+      // bypasses overlay interception and fires the change event Angular's checkbox
+      // accessor needs) until the box is actually checked.
+      await expect(page.locator('.modal-backdrop')).toHaveCount(0, { timeout: 10_000 }).catch(() => undefined);
+      await expect.poll(async () => {
+        if (await box.isChecked().catch(() => false)) return true;
+        await box.click().catch(() => undefined);
+        if (await box.isChecked().catch(() => false)) return true;
+        await box.evaluate((el: HTMLInputElement) => el.click()).catch(() => undefined);
+        return box.isChecked().catch(() => false);
+      }, { timeout: 15_000, intervals: [300, 500, 800] }).toBe(true);
+    });
+  }
+
+  /**
+   * Accept the Manifiestos declaration AND set the datos-públicos radio together
+   * (plaguicidas 260501 / sustancias tóxicas 260512). Both controls live in the
+   * same <app-manifiestos> component and re-render each other, so setting them as
+   * two separate one-shot steps is flaky (~50% live): whichever is set second can
+   * have its click eaten by the sibling's re-render. Reconcile both in one loop —
+   * always (re)assert the checkbox FIRST (the reliable order; radio-first
+   * hard-locks the checkbox), then the radio — until BOTH hold. The radio option's
+   * `checked` lies, so its success signal is the app-input-radio group (located by
+   * the option it contains, so no formcontrolname assumed) losing ng-invalid.
+   */
+  private static async acceptManifiestosAndSetDatosPublicos(page: Page, value: string): Promise<void> {
+    await Logger.step(`Accept Manifiestos + set datos-públicos = ${value}`, async () => {
+      await expect(page.locator('.modal-backdrop')).toHaveCount(0, { timeout: 10_000 }).catch(() => undefined);
+      const box = await CofeprisRegistrationFlow.locateManifiestosCheckbox(page);
+      const radio = page.locator(`input[type="radio"][id="${value}"]:visible`).first();
+      const group = page.locator('app-input-radio')
+        .filter({ has: page.locator(`input[type="radio"][id="${value}"]`) }).first();
+      const radioValid = async (): Promise<boolean> => {
+        const cls = await group.getAttribute('class').catch(() => null);
+        if (cls !== null) return !cls.includes('ng-invalid');
+        return radio.isChecked().catch(() => false);
+      };
+      const cbChecked = async (): Promise<boolean> => !box || (await box.isChecked().catch(() => false));
+      await expect.poll(async () => {
+        // Checkbox first — the reliable order.
+        if (box && !(await box.isChecked().catch(() => false))) {
+          await box.click().catch(() => undefined);
+          if (!(await box.isChecked().catch(() => false))) {
+            await box.evaluate((el: HTMLInputElement) => el.click()).catch(() => undefined);
+          }
+        }
+        // Then the radio.
+        if (!(await radioValid())) {
+          await radio.scrollIntoViewIfNeeded().catch(() => undefined);
+          await radio.check({ timeout: 1_500 }).catch(() => undefined);
+          if (!(await radioValid())) {
+            await radio.evaluate((el: HTMLInputElement) => el.click()).catch(() => undefined);
+          }
+        }
+        return (await cbChecked()) && (await radioValid());
+      }, { timeout: 40_000, intervals: [400, 700, 1_000] }).toBe(true);
     });
   }
 
@@ -1021,10 +1036,7 @@ export class CofeprisRegistrationFlow {
     });
     await CofeprisRegistrationFlow.addAduana(page, data.aduana);
     await CofeprisRegistrationFlow.addMercanciaToxicas(page, data.mercancia);
-    await CofeprisRegistrationFlow.acceptManifiestos(page);
-    // The datos-públicos radio (group formcontrolname="seleccion") re-renders and
-    // its `checked` property lies, so use the robust setter (not the generic one).
-    await CofeprisRegistrationFlow.setDatosPublicosRobust(page, data.datosPublicos);
+    await CofeprisRegistrationFlow.acceptManifiestosAndSetDatosPublicos(page, data.datosPublicos);
     await CofeprisRegistrationFlow.fillRepresentanteLegalPlaguicidas(page, data.representanteLegal);
     // The establecimiento Código postal's async lookup can silently clear the
     // field during the later Datos steps (verified live: "Faltan campos por

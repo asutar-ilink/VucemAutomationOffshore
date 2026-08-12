@@ -48,6 +48,14 @@ export class DocumentUploadFlow {
    * Sequence (manual TC10): attach files → "Cargar archivos" → confirm modal.
    */
   static async uploadAllWithConfirmation(page: Page, documents: DocumentData[]): Promise<void> {
+    // Paso 2's mandatory "Requisitos obligatorios" rows load after an async
+    // requirements fetch (the temporal folio is issued first), so the first
+    // attach can race an empty screen. Wait for the requisito file-input rows to
+    // render before attaching — harmless for forms whose rows are already present.
+    await Logger.step('Wait for Paso-2 requisito rows to render', async () => {
+      await page.locator('div.row.py-3 input[type="file"]').first()
+        .waitFor({ state: 'attached', timeout: 45_000 });
+    });
     for (const doc of documents) {
       await Logger.step(`Attach document: ${doc.type}`, async () => {
         const sectionLabel = DocumentUploadFlow.getUiLabel(doc.type);
