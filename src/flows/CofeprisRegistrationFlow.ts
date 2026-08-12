@@ -1652,4 +1652,29 @@ export class CofeprisRegistrationFlow {
         : 'Never reached Paso 2 after Continuar');
     });
   }
+
+  /**
+   * Advances Paso 2 → Paso 3 (Firmar) after documents are uploaded. The upload
+   * runs an ngx-spinner overlay and shows an info alert that both intercept
+   * pointer events, and the Continuar button is briefly disabled — so wait the
+   * overlay out and the button in, then fire a programmatic click that bypasses
+   * any lingering overlay interception (the same tactic used for the
+   * datos-públicos radio). The page interaction lives here, not duplicated
+   * across the procedure classes.
+   */
+  static async continueToPaso3(page: Page): Promise<void> {
+    await Logger.step('Continue to Paso 3', async () => {
+      // After the upload the app runs a full-screen ngx-spinner overlay (and
+      // shows an info alert) that intercept pointer events, and the Continuar
+      // button is briefly disabled. Wait for the overlay to detach, then do a
+      // REAL click with a generous timeout: its actionability wait covers the
+      // disabled→enabled transition and still fails honestly if the button stays
+      // unreachable — unlike a synthetic el.click(), which would force the click
+      // through an overlay a real user could not click past.
+      await expect(page.locator('.ngx-spinner-overlay')).toHaveCount(0, { timeout: 30_000 });
+      await page.getByRole('button', { name: /^\s*continuar\s*$/i }).first()
+        .click({ timeout: 30_000 });
+      await page.waitForLoadState('networkidle');
+    });
+  }
 }

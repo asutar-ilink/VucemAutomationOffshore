@@ -123,10 +123,7 @@ export class T260603 {
     for (const doc of documents) {
       await DocumentUploadFlow.uploadOptionalDocument(this.page, doc.type, doc.path);
     }
-    await Logger.step('Continue to Paso 3', async () => {
-      await this.page.getByRole('button', { name: /continuar/i }).click();
-      await this.page.waitForLoadState('networkidle');
-    });
+    await CofeprisRegistrationFlow.continueToPaso3(this.page);
   }
 
   // ─── Paso 3 — firmar ────────────────────────────────────────────────────────
