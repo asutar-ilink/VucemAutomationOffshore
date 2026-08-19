@@ -47,3 +47,6 @@ Thumbs.db
 # Python (fetch-testcases tooling)
 __pycache__/
 *.pyc
+
+# Encoded certificates (base64 certificate content — sensitive)
+scripts/encoded-certificates.json

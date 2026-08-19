@@ -143,6 +143,7 @@ export class LoginFlow {
    * Uploads the .cer / .key, types the private-key password, and clicks the
    * given submit button. Shared by solicitante login and document signing,
    * which present the same e.firma credential widget (inputs #cer/#key/#password).
+   * Supports both file paths and base64-encoded content.
    */
   static async submitEfirmaCredentials(
     scope: EfirmaScope,
@@ -150,11 +151,37 @@ export class LoginFlow {
     submitButton: RegExp,
   ): Promise<void> {
     await Logger.step('Upload e.firma certificate (.cer)', async () => {
-      await scope.locator('#cer').setInputFiles(creds.cerPath);
+      if (creds.cerContent) {
+        // Use base64-encoded content
+        const buffer = Buffer.from(creds.cerContent, 'base64');
+        await scope.locator('#cer').setInputFiles({
+          name: 'certificate.cer',
+          mimeType: 'application/x-x509-ca-cert',
+          buffer: buffer,
+        });
+      } else if (creds.cerPath) {
+        // Use file path
+        await scope.locator('#cer').setInputFiles(creds.cerPath);
+      } else {
+        throw new Error('Either cerPath or cerContent must be provided');
+      }
     });
 
     await Logger.step('Upload e.firma private key (.key)', async () => {
-      await scope.locator('#key').setInputFiles(creds.keyPath);
+      if (creds.keyContent) {
+        // Use base64-encoded content
+        const buffer = Buffer.from(creds.keyContent, 'base64');
+        await scope.locator('#key').setInputFiles({
+          name: 'privatekey.key',
+          mimeType: 'application/octet-stream',
+          buffer: buffer,
+        });
+      } else if (creds.keyPath) {
+        // Use file path
+        await scope.locator('#key').setInputFiles(creds.keyPath);
+      } else {
+        throw new Error('Either keyPath or keyContent must be provided');
+      }
     });
 
     await Logger.step('Enter private-key password', async () => {

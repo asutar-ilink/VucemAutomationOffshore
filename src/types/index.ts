@@ -42,13 +42,17 @@ export interface ProcedureTestData {
 
 /**
  * e.firma (FIEL) certificate credentials — VUCEM's real auth + signing method.
- * Paths are relative to the project root.
+ * Supports both file paths and base64-encoded content.
  */
 export interface EfirmaCredentials {
-  /** Path to the .cer certificate file */
-  cerPath: string;
-  /** Path to the .key private-key file */
-  keyPath: string;
+  /** Path to the .cer certificate file (optional if cerContent is provided) */
+  cerPath?: string;
+  /** Path to the .key private-key file (optional if keyContent is provided) */
+  keyPath?: string;
+  /** Base64-encoded certificate content (alternative to cerPath) */
+  cerContent?: string;
+  /** Base64-encoded private key content (alternative to keyPath) */
+  keyContent?: string;
   /** Private-key password */
   password: string;
 }
