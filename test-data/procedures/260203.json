@@ -104,8 +104,8 @@
   },
 
   "documents": [
-    { "type": "licencia_sanitaria_vigente", "path": "test-data/files/licencia_sanitaria.pdf" },
-    { "type": "aviso_responsable",          "path": "test-data/files/aviso_responsable.pdf" },
-    { "type": "registro_sanitario_vigente", "path": "test-data/files/registro_sanitario.pdf" }
+    { "type": "licencia_sanitaria_vigente", "path": "C:\\Users\\amarnath.sutar\\Downloads\\paso2 sample documents\\paso2 sample documents\\licencia_sanitaria.pdf" },
+    { "type": "aviso_responsable",          "path": "C:\\Users\\amarnath.sutar\\Downloads\\paso2 sample documents\\paso2 sample documents\\aviso_responsable.pdf" },
+    { "type": "registro_sanitario_vigente", "path": "C:\\Users\\amarnath.sutar\\Downloads\\paso2 sample documents\\paso2 sample documents\\registro_sanitario.pdf" }
   ]
 }

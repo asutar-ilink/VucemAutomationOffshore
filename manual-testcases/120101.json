@@ -1,0 +1,206 @@
+[
+  {
+    "id": 19293,
+    "procedure": "120101",
+    "title": "Extensive:TC01_Verify VUCEM portal launch",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Navigate to the SE TPL procedure form -\nhttps://front.v30.ultrasist.net/se/solicitud-de-registro-tpl/pantallas",
+        "expected": "1.User should navigate to VUCEM url\n2.Portal login page should be displayed."
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 19294,
+    "procedure": "120101",
+    "title": "Extensive:TC02_Verify login authentication",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 should be executed.\n\nLogin with credentials with option- Con e.firma",
+        "expected": ""
+      },
+      {
+        "step": 2,
+        "action": "Upload .cer certificate - aal0409235e6.cer",
+        "expected": "User credentials authenticate and dashboard is shown."
+      },
+      {
+        "step": 3,
+        "action": "Upload .key private key - AAL0409235E6_1012231310.key",
+        "expected": ""
+      },
+      {
+        "step": 4,
+        "action": "Enter the password - <efirma-key-password>",
+        "expected": ""
+      },
+      {
+        "step": 5,
+        "action": "Click \"Ingresar\" to access the dashboard.",
+        "expected": ""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 19295,
+    "procedure": "120101",
+    "title": "Extensive:TC03_Verify navigation to procedures",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01, 02 should be executed.\nNavigate to SE TPL procedure form URL directly:\nhttps://front.v30.ultrasist.net/se/solicitud-de-registro-tpl/pantallas",
+        "expected": "SE TPL procedure form should be displayed."
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 19296,
+    "procedure": "120101",
+    "title": "Extensive:TC04_Verify procedure 120101 selection",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC03 should be executed.\nVerify the procedure form is loaded",
+        "expected": "Procedure form opens correctly with title:\n\"Inscripción en el Registro de bienes textiles y prendas de vestir no originarias para recibir trato preferencial dentro del Tratado entre México, Estados Unidos y Canadá (TMEC)\""
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 19298,
+    "procedure": "120101",
+    "title": "Extensive:TC05_Verify all tabs presence",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC04 should be executed.\nNavigate to all tabs",
+        "expected": "1.Procedure Title should be \"Inscripción en el Registro de bienes textiles y prendas de vestir no originarias para recibir trato preferencial dentro del Tratado entre México, Estados Unidos y Canadá (TMEC)\"\n2.Tabs displayed: Solicitante, Consultar cupo, Insumos, Proceso productivo."
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 19299,
+    "procedure": "120101",
+    "title": "Extensive:TC06_Verify Solicitante tab fields",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC05 should be executed.\nNavigate to Solicitante tab",
+        "expected": "Below prefilled and disabled fields should be correctly displayed-\n\nDatos generales del solicitante\nRFC:\nAAL0409235E6\nDenominación o razón social:\nINTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV\nCorreo electrónico:\nvucem30@ultrasist.com.mx\n\nDomicilio fiscal del solicitante\nCódigo postal:\n81210\nEstado:\nSINALOA"
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 19302,
+    "procedure": "120101",
+    "title": "Extensive:TC07_Verify Consultar cupo, Insumos and Proceso productivo tabs details and fill all field details",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC06 should be executed.\nNavigate to Consultar cupo tab",
+        "expected": "Consultar cupo tab should be active with fields: Tipo de cupo, País/Tratado, Fracción arancelaria and Buscar button."
+      },
+      {
+        "step": 2,
+        "action": "Select Tipo de cupo: REG.01\nSelect País/Tratado: CAN\nEnter Fracción arancelaria: 02022091\nClick Buscar button",
+        "expected": "Search results table should be displayed with available cupos."
+      },
+      {
+        "step": 3,
+        "action": "Double-click on the row \"PRIMER PRUEBA TPL\" in the results table",
+        "expected": "Representación Federal section should appear with Estado and Municipio dropdowns, and Descripción del bien final field."
+      },
+      {
+        "step": 4,
+        "action": "Select Estado de Representación Federal: SIN (SINALOA)\nSelect Municipio: 2540\nEnter Descripción del bien final: teste\nClick Continuar",
+        "expected": "Consultar cupo tab completed. Form advances."
+      },
+      {
+        "step": 5,
+        "action": "Navigate to Insumos tab\nClick Agregar button",
+        "expected": "Insumos modal should appear with fields: Descripción del insumo, Fracción arancelaria, Cantidad, Unidad."
+      },
+      {
+        "step": 6,
+        "action": "Enter Descripción del insumo: test343\nEnter Fracción arancelaria: 6204311010\nSelect Cantidad: 2\nSelect Unidad: SAU\nClick Agregar in the modal",
+        "expected": "Insumo record added to the Insumos table."
+      },
+      {
+        "step": 7,
+        "action": "Navigate to Proceso productivo tab\nCheck the first process checkbox\nSelect País de origen: AND\nSelect País: CAN\nClick Continuar",
+        "expected": "Proceso productivo completed. Form advances to Paso firma (signing)."
+      }
+    ],
+    "parameters": null
+  },
+  {
+    "id": 19303,
+    "procedure": "120101",
+    "title": "Extensive:TC08_Verify Paso 2 signing",
+    "priority": 2,
+    "state": "Design",
+    "description": "",
+    "preconditions": [],
+    "tags": [],
+    "steps": [
+      {
+        "step": 1,
+        "action": "Prerequisite: TC01 to TC07 should be executed.\nOn Paso firma page, upload .cer certificate",
+        "expected": "Certificate uploaded successfully."
+      },
+      {
+        "step": 2,
+        "action": "Upload .key private key",
+        "expected": "Private key uploaded successfully."
+      },
+      {
+        "step": 3,
+        "action": "Enter e.firma password and click Firmar",
+        "expected": "Submission signed successfully. Acuse de recepción de trámite page is displayed with a folio number."
+      }
+    ],
+    "parameters": null
+  }
+]

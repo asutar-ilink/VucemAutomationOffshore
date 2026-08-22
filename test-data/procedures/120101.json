@@ -1,0 +1,41 @@
+{
+  "procedureCode": "120101",
+  "procedureTitle": "Inscripción en el Registro de bienes textiles y prendas de vestir no originarias para recibir trato preferencial dentro del Tratado entre México, Estados Unidos y Canadá (TMEC)",
+  "tabs": [
+    "Solicitante",
+    "Consultar cupo"
+  ],
+
+  "solicitante": {
+    "rfc": "AAL0409235E6",
+    "razonSocial": "INTEGRADORA DE URBANIZACIONES SIGNUM S DE RL DE CV",
+    "correo": "vucem30@ultrasist.com.mx",
+    "codigoPostal": "81210",
+    "estado": "SINALOA"
+  },
+
+  "consultarCupo": {
+    "tipo": "REG.01",
+    "pais": "CAN",
+    "fraccionArancelaria": "02022091",
+    "cupoNombre": "PRIMER PRUEBA TPL",
+    "estadoRepresentacion": "SIN",
+    "municipioRepresentacion": "2540",
+    "descripcionBienFinal": "teste"
+  },
+
+  "insumos": [
+    {
+      "descripcion": "test343",
+      "fraccion": "6204311010",
+      "cantidad": "2",
+      "unidad": "SAU"
+    }
+  ],
+
+  "procesoProductivo": {
+    "checkboxIndex": "1",
+    "paisOrigen": "AND",
+    "pais": "CAN"
+  }
+}
