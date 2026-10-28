@@ -249,8 +249,13 @@ export class CofeprisRegistrationFlow {
    */
   private static async openEstablecimiento(page: Page): Promise<void> {
     await Logger.step('Open establecimiento (dismiss COFEPRIS-comms info modal)', async () => {
-      await page.getByRole('button', { name: /seleccionar establecimiento/i }).click();
-      await page.getByRole('button', { name: /^\s*aceptar\s*$/i }).click();
+      // Newer QA builds render the establecimiento fields directly (no
+      // "Seleccionar establecimiento" button / info modal), so only dismiss when present.
+      const seleccionar = page.getByRole('button', { name: /seleccionar establecimiento/i });
+      if (await seleccionar.isVisible({ timeout: 5_000 }).catch(() => false)) {
+        await seleccionar.click();
+        await page.getByRole('button', { name: /^\s*aceptar\s*$/i }).click();
+      }
     });
   }
 
@@ -933,6 +938,20 @@ export class CofeprisRegistrationFlow {
         await box.evaluate((el: HTMLInputElement) => el.click()).catch(() => undefined);
         return box.isChecked().catch(() => false);
       }, { timeout: 15_000, intervals: [300, 500, 800] }).toBe(true);
+
+      // Newer builds add a second declaration checkbox in the same panel — accept any
+      // remaining unchecked ones (no-op when the panel holds just the one handled above).
+      const others = page.locator(
+        'app-manifiestos input[type="checkbox"]:visible, input[type="checkbox"][formcontrolname^="manifesto"]:visible',
+      );
+      for (let i = 0; i < await others.count(); i++) {
+        const other = others.nth(i);
+        await expect.poll(async () => {
+          if (await other.isChecked().catch(() => false)) return true;
+          await other.evaluate((el: HTMLInputElement) => el.click()).catch(() => undefined);
+          return other.isChecked().catch(() => false);
+        }, { timeout: 15_000, intervals: [300, 500, 800] }).toBe(true);
+      }
     });
   }
 
@@ -983,8 +1002,50 @@ export class CofeprisRegistrationFlow {
 
   private static async setDatosPublicos(page: Page, value: string): Promise<void> {
     await Logger.step(`Set "hacer públicos los datos" = ${value}`, async () => {
-      // Radio options carry no per-option label; they are keyed by id ("Si"/"No").
-      await RadioButton.byId(page, value).select();
+      // Legacy builds key the radios by id ("Si"/"No"); newer ones don't, so fall
+      // back to the group's question text.
+      const byId = page.locator(`input[type="radio"][id="${value}"]:visible`);
+      if (await byId.count()) {
+        await RadioButton.byId(page, value).select();
+      } else {
+        await CofeprisRegistrationFlow.selectRadioByQuestion(page, /hacerlos públicos/i, value);
+        // Newer builds re-render <app-manifiestos> when this radio changes and drop the
+        // checkbox, so re-assert it (idempotent: returns at once when already checked).
+        await CofeprisRegistrationFlow.acceptManifiestos(page);
+      }
+    });
+  }
+
+  /**
+   * Selects Sí/No in the radio group whose question matches `question`. The
+   * innermost container that holds both the question and its radios is `.last()`
+   * (ancestors precede descendants in DOM order).
+   */
+  private static async selectRadioByQuestion(page: Page, question: RegExp, value: string): Promise<void> {
+    const label = /^s[ií]$/i.test(value) ? 'Sí' : 'No';
+    const group = page.locator('div')
+      .filter({ hasText: question })
+      .filter({ has: page.getByRole('radio') })
+      .last();
+    const radio = group.getByRole('radio', { name: label, exact: true });
+    await expect.poll(async () => {
+      if (await radio.isChecked().catch(() => false)) return true;
+      await radio.scrollIntoViewIfNeeded().catch(() => undefined);
+      await radio.evaluate((el: HTMLInputElement) => el.click()).catch(() => undefined);
+      return radio.isChecked().catch(() => false);
+    }, { timeout: 15_000, intervals: [200, 400, 800] }).toBe(true);
+  }
+
+  /**
+   * "¿El Representante legal ha realizado trámites previos para el establecimiento?"
+   * (REQ_02 new UI). Required when present; answered No by default because Sí reveals a
+   * required "folio de trámite de referencia" field.
+   */
+  private static async answerTramitesPrevios(page: Page, value = 'No'): Promise<void> {
+    const question = /ha realizado trámites previos/i;
+    if (!(await page.getByText(question).first().isVisible().catch(() => false))) return;
+    await Logger.step(`Answer "trámites previos" = ${value}`, async () => {
+      await CofeprisRegistrationFlow.selectRadioByQuestion(page, question, value);
     });
   }
 
@@ -999,6 +1060,7 @@ export class CofeprisRegistrationFlow {
       await expect(page.locator('[formcontrolname="representanteNombre"]:visible'))
         .not.toHaveValue('', { timeout: 10_000 });
     });
+    await CofeprisRegistrationFlow.answerTramitesPrevios(page);
   }
 
   static async verifyRepresentanteAutofill(page: Page, d: RepresentanteLegalData): Promise<void> {
